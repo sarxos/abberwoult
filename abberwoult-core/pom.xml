@@ -12,21 +12,27 @@
   <artifactId>abberwoult-core</artifactId>
   <name>Abberwoult Core</name>
 
-  <properties>
-    <akka.version>2.5.21</akka.version>
-    <guava.version>27.1-jre</guava.version>
-  </properties>
-
   <dependencies>
     <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>${guava.version}</version>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>abberwoult-annotations</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.typesafe.akka</groupId>
       <artifactId>akka-actor_2.11</artifactId>
-      <version>${akka.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.vavr</groupId>
+      <artifactId>vavr</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.hk2</groupId>
+      <artifactId>hk2</artifactId>
     </dependency>
   </dependencies>
 
