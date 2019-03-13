@@ -61,7 +61,7 @@ public class Propser {
 	 * @param clazz the class to get dispatcher name from
 	 * @return Dispatcher name
 	 */
-	private static final String getDispatcherFromClass(final Class<?> clazz) {
+	private static final String getDispatcherFromClass(final Class<? extends Actor> clazz) {
 		return Option
 			.of(getAnnotationFromClass(clazz, Dispatcher.class))
 			.map(Dispatcher::value)
@@ -75,7 +75,7 @@ public class Propser {
 	 * @param clazz the class to get mailbox name from
 	 * @return Dispatcher name
 	 */
-	private static final String getMailboxFromClass(final Class<?> clazz) {
+	private static final String getMailboxFromClass(final Class<? extends Actor> clazz) {
 		return Option
 			.of(getAnnotationFromClass(clazz, Mailbox.class))
 			.map(Mailbox::value)

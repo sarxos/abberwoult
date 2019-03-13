@@ -223,6 +223,18 @@ public class ActorCreator implements Creator<Actor> {
 		}
 	}
 
+	public ServiceLocator getLocator() {
+		return locator;
+	}
+
+	public Class<? extends Actor> getClazz() {
+		return clazz;
+	}
+
+	public Object[] getArgs() {
+		return args;
+	}
+
 	public static abstract class ActorCreatorException extends IllegalStateException {
 
 		/**
