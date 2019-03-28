@@ -8,6 +8,8 @@ import akka.dispatch.Dispatchers;
 import akka.dispatch.Mailboxes;
 import com.github.sarxos.abberwoult.annotation.Dispatcher;
 import com.github.sarxos.abberwoult.annotation.Mailbox;
+import com.github.sarxos.abberwoult.cdi.BeanLocator;
+
 import io.vavr.control.Option;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
@@ -26,18 +28,18 @@ import javax.inject.Singleton;
 public class Propser {
 
 	/**
-	 * A {@link ServiceLocator} used by {@link ActorCreator} to wire actors.
+	 * A {@link BeanLocator} used by {@link ActorCreator} to wire actors.
 	 */
-	private final BeanManager bm;
+	private final BeanLocator locator;
 
 	/**
 	 * Create new {@link Propser} factory.
 	 *
-	 * @param locator the {@link ServiceLocator} used to wire actor instances
+	 * @param locator the {@link BeanLocator} used to wire actor instances
 	 */
 	@Inject
-	public Propser(final BeanManager bm) {
-		this.bm = bm;
+	public Propser(final BeanLocator locator) {
+		this.locator = locator;
 	}
 
 	/**
@@ -49,7 +51,7 @@ public class Propser {
 	 */
 	public Props props(final Class<? extends Actor> clazz, final Object... args) {
 		return Props
-			.create(new ActorCreator<>(bm, clazz, args))
+			.create(new ActorCreator<>(locator, clazz, args))
 			.withDispatcher(getDispatcherFromClass(clazz))
 			.withMailbox(getMailboxFromClass(clazz));
 	}

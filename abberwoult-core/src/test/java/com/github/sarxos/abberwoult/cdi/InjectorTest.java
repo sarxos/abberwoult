@@ -64,19 +64,33 @@ public class InjectorTest {
 		}
 	}
 
-	
+	final static class TestBeanArgs {
+
+		@Inject
+		DummyService ds;
+		
+		final int x;
+		final int y;
+
+		TestBeanArgs(int x, int y) {
+			this.x = x;
+			this.y = y;
+		}
+	}
+
 	private class SimpleInjector<T> extends Injector<T> {
-		public SimpleInjector(BeanManager bm, Class<T> clazz, Object... args) {
+		public SimpleInjector(BeanLocator bm, Class<T> clazz, Object... args) {
 			super(bm, clazz, Object.class, args);
 		}
 	}
 
-	final BeanManager bm = CDI.current().getBeanManager();
+	@Inject
+	BeanLocator locator;
 
 	@Test
 	void test_createNoArg() {
 
-		final SimpleInjector<TestBeanNoArg> ac = new SimpleInjector<>(bm, TestBeanNoArg.class);
+		final SimpleInjector<TestBeanNoArg> ac = new SimpleInjector<>(locator, TestBeanNoArg.class);
 		final TestBeanNoArg instance = ac.create();
 
 		Assertions
@@ -87,7 +101,7 @@ public class InjectorTest {
 	@Test
 	void test_createInject() {
 
-		final SimpleInjector<TestBeanInject> ac = new SimpleInjector<>(bm, TestBeanInject.class);
+		final SimpleInjector<TestBeanInject> ac = new SimpleInjector<>(locator, TestBeanInject.class);
 		final TestBeanInject instance = ac.create();
 
 		Assertions
@@ -101,7 +115,7 @@ public class InjectorTest {
 	@Test
 	void test_createInjectWithAssistedArgs() {
 
-		final SimpleInjector<TestBeanInjectWithAssistedArgs> ac = new SimpleInjector<>(bm, TestBeanInjectWithAssistedArgs.class, 5, 6);
+		final SimpleInjector<TestBeanInjectWithAssistedArgs> ac = new SimpleInjector<>(locator, TestBeanInjectWithAssistedArgs.class, 5, 6);
 		final TestBeanInjectWithAssistedArgs instance = ac.create();
 
 		Assertions
@@ -121,7 +135,7 @@ public class InjectorTest {
 	@Test
 	void test_createTestBeanInjectCtorAndFieldWithAssistedArgs() {
 
-		final SimpleInjector<TestBeanInjectCtorAndFieldWithAssistedArgs> ac = new SimpleInjector<>(bm, TestBeanInjectCtorAndFieldWithAssistedArgs.class, 5, 6);
+		final SimpleInjector<TestBeanInjectCtorAndFieldWithAssistedArgs> ac = new SimpleInjector<>(locator, TestBeanInjectCtorAndFieldWithAssistedArgs.class, 5, 6);
 		final TestBeanInjectCtorAndFieldWithAssistedArgs instance = ac.create();
 
 		Assertions
@@ -138,42 +152,23 @@ public class InjectorTest {
 			.isEqualTo(6);
 	}
 
+	@Test
+	void test_createTestBeanArgs() {
 
-//	@Test
-//	void test_constructorNoArgs() {
-//
-//		final class TestActor extends SimpleActor { }
-//
-//		final ServiceLocator locator = ServiceLocatorUtilities.createAndPopulateServiceLocator();
-//		final ActorCreator creator = new ActorCreator(locator, TestActor.class);
-//
-//		Assertions
-//			.assertThat(creator.getClazz())
-//			.isSameAs(TestActor.class);
-//		Assertions
-//			.assertThat(creator.getBm())
-//			.isSameAs(locator);
-//		Assertions
-//			.assertThat(creator.getArgs())
-//			.isEmpty();
-//	}
-//
-//	@Test
-//	void test_constructorWithArgs() {
-//
-//		final class TestActor extends SimpleActor { }
-//
-//		final ServiceLocator locator = ServiceLocatorUtilities.createAndPopulateServiceLocator();
-//		final ActorCreator creator = new ActorCreator(locator, TestActor.class, "a", "b", "c");
-//
-//		Assertions
-//			.assertThat(creator.getClazz())
-//			.isSameAs(TestActor.class);
-//		Assertions
-//			.assertThat(creator.getBm())
-//			.isSameAs(locator);
-//		Assertions
-//			.assertThat(creator.getArgs())
-//			.containsExactly("a", "b", "c");
-//	}
+		final SimpleInjector<TestBeanArgs> ac = new SimpleInjector<>(locator, TestBeanArgs.class, 7, 8);
+		final TestBeanArgs instance = ac.create();
+
+		Assertions
+			.assertThat(instance)
+			.isNotNull();
+		Assertions
+			.assertThat(instance.ds)
+			.isNotNull();
+		Assertions
+			.assertThat(instance.x)
+			.isEqualTo(7);
+		Assertions
+			.assertThat(instance.y)
+			.isEqualTo(8);
+	}
 }

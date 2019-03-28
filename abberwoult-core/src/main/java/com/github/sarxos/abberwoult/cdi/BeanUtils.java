@@ -1,6 +1,6 @@
-package com.github.sarxos.abberwoult.util;
+package com.github.sarxos.abberwoult.cdi;
 
-import static com.github.sarxos.abberwoult.util.ArcUtils.getQualifiers;
+import static com.github.sarxos.abberwoult.cdi.BeanUtils.getQualifiers;
 import static com.github.sarxos.abberwoult.util.CollectorUtils.toListWithSameSizeAs;
 
 import java.lang.annotation.Annotation;
@@ -15,14 +15,10 @@ import javax.inject.Qualifier;
 import io.quarkus.arc.Arc;
 import io.quarkus.arc.ArcContainer;
 
-public class ArcUtils {
+public class BeanUtils {
 
 	private static final Annotation[] EMPTY_ANNOTATION_ARRAY = new Annotation[0];
-	
-	private static ArcContainer arc() {
-		return Arc.container();
-	}
-	
+
 	public static boolean isQualifier(Annotation annotation) {
 		return annotation
 			.annotationType()
@@ -57,26 +53,9 @@ public class ArcUtils {
 
 		return Arrays
 			.stream(annotations)
-			.filter(ArcUtils::isQualifier)
+			.filter(BeanUtils::isQualifier)
 			.collect(toListWithSameSizeAs(annotations))
 			.toArray(EMPTY_ANNOTATION_ARRAY);
 	}
 	
-	public static Object findBeanFor(final Parameter parameter) {
-		final Annotation[] qualifiers = getQualifiers(parameter);
-		final Type type = parameter.getParameterizedType();
-		return findBeanFor(type, qualifiers);
-	}
-
-	public static Object findBeanFor(final Field field) {
-		final Annotation[] qualifiers = getQualifiers(field);
-		final Type type = field.getGenericType();
-		return findBeanFor(type, qualifiers);
-	}
-
-	public static Object findBeanFor(final Type type, final Annotation[] qualifiers) {
-		return arc()
-			.instance((Class<?>) type, qualifiers)
-			.get();
-	}
 }

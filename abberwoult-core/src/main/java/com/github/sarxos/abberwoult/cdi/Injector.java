@@ -1,6 +1,5 @@
 package com.github.sarxos.abberwoult.cdi;
 
-import static com.github.sarxos.abberwoult.util.ArcUtils.findBeanFor;
 import static com.github.sarxos.abberwoult.util.CollectorUtils.toListWithSameSizeAs;
 import static com.github.sarxos.abberwoult.util.ReflectionUtils.accessible;
 import static com.github.sarxos.abberwoult.util.ReflectionUtils.isAbstract;
@@ -11,6 +10,7 @@ import static org.apache.commons.lang3.reflect.TypeUtils.isAssignable;
 import com.github.sarxos.abberwoult.annotation.Assisted;
 import com.github.sarxos.abberwoult.util.CollectorUtils;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
@@ -33,6 +33,9 @@ import javax.inject.Inject;
  */
 public class Injector<T> {
 
+	/**
+	 * An empty objects array. 
+	 */
 	private static final Object[] EMPTY_OBJECTS_ARRAY = new Object[0];
 
 	/**
@@ -55,12 +58,12 @@ public class Injector<T> {
 	}
 
 	/**
-	 * {@link ServiceLocator} used to perform dependency injection.
+	 * {@link BeanLocator} used to perform dependency injection.
 	 */
-	private final BeanManager bm;
+	private final BeanLocator locator;
 
 	/**
-	 * Actor class.
+	 * Constructee class.
 	 */
 	private final Class<T> clazz;
 	
@@ -72,19 +75,20 @@ public class Injector<T> {
 	private final Object[] args;
 
 	/**
-	 * Creates new {@link Injector} instance with given {@link ServiceLocator} and class which
-	 * describes the actor to be created. Constructor takes also vararg objects list which are the
-	 * arguments (optional) to be passed down to the actor constructor. Please note that in case
-	 * when actor constructor is annotated with {@link Inject}, the arguments list will be ignored
+	 * Creates new {@link Injector} instance with given {@link BeanLocator} and class which
+	 * describes the actor to be created. This constructor takes also vararg objects list which are the
+	 * arguments (optional) to be passed down to the class constructor. Please note that in case
+	 * when class constructor is annotated with {@link Inject}, the arguments list will be ignored
 	 * (creator will try to resolve all necessary arguments using dependency injection support and
 	 * original arguments are ignored).
 	 *
-	 * @param bm the service locator to be used to wire created instance
+	 * @param locator the service locator to be used to wire created instance
 	 * @param clazz the actor class which should be created
-	 * @param args the actor constructor arguments (optional, ignored if {@link Inject} used)
+	 * @param stop the class in hierarchy at which injector should stop searching injection points
+	 * @param args the constructor arguments
 	 */
-	public Injector(final BeanManager bm, final Class<T> clazz, final Class<?> stop, final Object... args) {
-		this.bm = bm;
+	public Injector(final BeanLocator locator, final Class<T> clazz, final Class<?> stop, final Object... args) {
+		this.locator = locator;
 		this.clazz = clazz;
 		this.stop = stop;
 		this.args = args;
@@ -180,12 +184,6 @@ public class Injector<T> {
 
 		// find constructors (we expect only one)
 
-		// use hk2 to instantiate actor object (it won't be managed by hk2, though) if
-		// constructor should be supplied with injectable arguments, i.e. when Inject
-		// is used on actor constructor, or use standard reflection-based instantiation
-		// with predefined arguments in case when there is no Inject annotation present
-
-
 		final T instance;
 		final Constructor<T> constructor = findMatchingConstructor(clazz, args);
 
@@ -213,13 +211,16 @@ public class Injector<T> {
 			.toArray(EMPTY_OBJECTS_ARRAY);
 	}
 
-	private void inject(final T actor) {
-		inject(actor, actor.getClass());
+	private void inject(final T instance) {
+		inject(instance, instance.getClass());
 	}
 	
-	private void inject(final T actor, final Class<?> clazz) {
-		
-		if (clazz == stop) {
+	private void inject(final T instance, final Class<?> clazz) {
+
+		// stop injecting fields in hierarchy when we reached stop class or we reached 
+		// top (a class is null)
+
+		if (clazz == stop || clazz == null) {
 			return;
 		}
 
@@ -227,28 +228,27 @@ public class Injector<T> {
 			if (!field.isAnnotationPresent(Inject.class)) {
 				continue;
 			} else {
-				inject(actor, field);
+				inject(instance, field);
 			}
 		}
-		
-		inject(actor, clazz.getSuperclass());
+
+		inject(instance, clazz.getSuperclass());
 	}
 	
-	private void inject(final T actor, final Field field) {
-
-		final Object injectee = findBeanFor(field);
+	private void inject(final T instance, final Field field) {
+		final Object injectee = locator.findBeanFor(field);
 		if (injectee != null) {
-			set(actor, accessible(field), injectee);
+			set(instance, accessible(field), injectee);
 		} else {
 			throw new IllegalStateException("Failed to resolve injectee for " + field); // TODO dedicated exception
 		}
 	}
 
-	private static Object findArgumentForParameter(final Parameter parameter, final ArrayDeque<Object> args) {
+	private Object findArgumentForParameter(final Parameter parameter, final ArrayDeque<Object> args) {
 		if (parameter.isAnnotationPresent(Assisted.class)) {
 			return args.remove();
 		} else {
-			return findBeanFor(parameter);
+			return locator.findBeanFor(parameter);
 		}
 	}
 
@@ -270,8 +270,8 @@ public class Injector<T> {
 		}
 	}
 
-	public BeanManager getBeanManager() {
-		return bm;
+	public BeanLocator getBeanManager() {
+		return locator;
 	}
 
 	public Class<T> getActorClass() {
@@ -285,62 +285,61 @@ public class Injector<T> {
 	public Object[] getArgs() {
 		return args;
 	}
-	
-	public static abstract class ActorCreatorException extends IllegalStateException {
 
-		/**
-		 * Serial.
-		 */
-		private static final long serialVersionUID = 1L;
-	}
+}
+
+abstract class InjectorException extends IllegalStateException {
 
 	/**
-	 * This exception is being thrown when {@link Injector} cannot find suitable constructor to
-	 * create actor with the arguments.
-	 *
-	 * @author Bartosz Firyn (sarxos)
+	 * Serial.
 	 */
-	public static final class NoSuitableActorConstructorException extends ActorCreatorException {
+	private static final long serialVersionUID = 1L;
+}
 
-		/**
-		 * Serial.
-		 */
-		private static final long serialVersionUID = 1L;
+/**
+ * This exception is being thrown when {@link Injector} cannot find suitable constructor to
+ * create instance with the arguments.
+ */
+final class NoSuitableActorConstructorException extends InjectorException {
 
-		/**
-		 * The actor class.
-		 */
-		private final Class<?> clazz;
+	/**
+	 * Serial.
+	 */
+	private static final long serialVersionUID = 1L;
 
-		/**
-		 * All of actor constructors.
-		 */
-		private final Collection<Constructor<?>> constructors;
+	/**
+	 * The actor class.
+	 */
+	private final Class<?> clazz;
 
-		/**
-		 * The arguments
-		 */
-		private final Collection<Object> arguments;
+	/**
+	 * All of actor constructors.
+	 */
+	private final Collection<Constructor<?>> constructors;
 
-		/**
-		 * @param clazz the actor class
-		 * @param constructors the actor constructors
-		 * @param arguments the arguments
-		 */
-		public NoSuitableActorConstructorException(final Class<?> clazz, final Constructor<?>[] constructors, final Object[] arguments) {
-			this.clazz = clazz;
-			this.constructors = Arrays.asList(constructors);
-			this.arguments = CollectorUtils.stream(arguments)
-				.map(Object::getClass)
-				.collect(toListWithSameSizeAs(arguments));
-		}
+	/**
+	 * The arguments
+	 */
+	private final Collection<Object> arguments;
 
-		@Override
-		public String getMessage() {
-			return MessageFormat.format(""
-				+ "No suitable constructor found to create {0} instance, "
-				+ "candidates are {1}, but arguments are {2}",
-				clazz, constructors, arguments);
-		}
+	/**
+	 * @param clazz the actor class
+	 * @param constructors the actor constructors
+	 * @param arguments the arguments
+	 */
+	public NoSuitableActorConstructorException(final Class<?> clazz, final Constructor<?>[] constructors, final Object[] arguments) {
+		this.clazz = clazz;
+		this.constructors = Arrays.asList(constructors);
+		this.arguments = Arrays.stream(arguments)
+			.map(Object::getClass)
+			.collect(toListWithSameSizeAs(arguments));
+	}
+
+	@Override
+	public String getMessage() {
+		return MessageFormat.format(""
+			+ "No suitable constructor found to create {0} instance, "
+			+ "candidates are {1}, but arguments are {2}",
+			clazz, constructors, arguments);
 	}
 }
