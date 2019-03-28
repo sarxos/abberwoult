@@ -49,6 +49,22 @@ public class InjectorTest {
 		}
 	}
 
+	final static class TestBeanInjectCtorAndFieldWithAssistedArgs {
+
+		@Inject
+		DummyService ds;
+		
+		final int x;
+		final int y;
+
+		@Inject
+		TestBeanInjectCtorAndFieldWithAssistedArgs(@Assisted int x, @Assisted int y) {
+			this.x = x;
+			this.y = y;
+		}
+	}
+
+	
 	private class SimpleInjector<T> extends Injector<T> {
 		public SimpleInjector(BeanManager bm, Class<T> clazz, Object... args) {
 			super(bm, clazz, Object.class, args);
@@ -87,6 +103,26 @@ public class InjectorTest {
 
 		final SimpleInjector<TestBeanInjectWithAssistedArgs> ac = new SimpleInjector<>(bm, TestBeanInjectWithAssistedArgs.class, 5, 6);
 		final TestBeanInjectWithAssistedArgs instance = ac.create();
+
+		Assertions
+			.assertThat(instance)
+			.isNotNull();
+		Assertions
+			.assertThat(instance.ds)
+			.isNotNull();
+		Assertions
+			.assertThat(instance.x)
+			.isEqualTo(5);
+		Assertions
+			.assertThat(instance.y)
+			.isEqualTo(6);
+	}
+
+	@Test
+	void test_createTestBeanInjectCtorAndFieldWithAssistedArgs() {
+
+		final SimpleInjector<TestBeanInjectCtorAndFieldWithAssistedArgs> ac = new SimpleInjector<>(bm, TestBeanInjectCtorAndFieldWithAssistedArgs.class, 5, 6);
+		final TestBeanInjectCtorAndFieldWithAssistedArgs instance = ac.create();
 
 		Assertions
 			.assertThat(instance)

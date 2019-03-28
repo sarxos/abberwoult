@@ -239,9 +239,9 @@ public class Injector<T> {
 		final Object injectee = findBeanFor(field);
 		if (injectee != null) {
 			set(actor, accessible(field), injectee);
+		} else {
+			throw new IllegalStateException("Failed to resolve injectee for " + field); // TODO dedicated exception
 		}
-
-		throw new IllegalStateException("Failed to resolve injectee for " + field); // TODO dedicated exception
 	}
 
 	private static Object findArgumentForParameter(final Parameter parameter, final ArrayDeque<Object> args) {
