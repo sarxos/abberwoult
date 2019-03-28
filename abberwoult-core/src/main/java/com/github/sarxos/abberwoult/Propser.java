@@ -9,9 +9,9 @@ import akka.dispatch.Mailboxes;
 import com.github.sarxos.abberwoult.annotation.Dispatcher;
 import com.github.sarxos.abberwoult.annotation.Mailbox;
 import io.vavr.control.Option;
+import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
-import org.glassfish.hk2.api.ServiceLocator;
-import org.jvnet.hk2.annotations.Service;
+import javax.inject.Singleton;
 
 
 /**
@@ -22,13 +22,13 @@ import org.jvnet.hk2.annotations.Service;
  *
  * @author Bartosz Firyn (sarxos)
  */
-@Service
+@Singleton
 public class Propser {
 
 	/**
 	 * A {@link ServiceLocator} used by {@link ActorCreator} to wire actors.
 	 */
-	private final ServiceLocator locator;
+	private final BeanManager bm;
 
 	/**
 	 * Create new {@link Propser} factory.
@@ -36,8 +36,8 @@ public class Propser {
 	 * @param locator the {@link ServiceLocator} used to wire actor instances
 	 */
 	@Inject
-	public Propser(final ServiceLocator locator) {
-		this.locator = locator;
+	public Propser(final BeanManager bm) {
+		this.bm = bm;
 	}
 
 	/**
@@ -49,7 +49,7 @@ public class Propser {
 	 */
 	public Props props(final Class<? extends Actor> clazz, final Object... args) {
 		return Props
-			.create(new ActorCreator(locator, clazz, args))
+			.create(new ActorCreator<>(bm, clazz, args))
 			.withDispatcher(getDispatcherFromClass(clazz))
 			.withMailbox(getMailboxFromClass(clazz));
 	}

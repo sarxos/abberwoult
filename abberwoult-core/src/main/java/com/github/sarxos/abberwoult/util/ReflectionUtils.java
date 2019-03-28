@@ -8,8 +8,12 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.lang3.reflect.TypeUtils;
 
 
 /**
@@ -194,5 +198,9 @@ public class ReflectionUtils {
 		} catch (IllegalAccessException | IllegalArgumentException e) {
 			throw new IllegalStateException(e);
 		}
+	}
+	
+	public static boolean isAbstract(Class<?> clazz) {
+		return Modifier.isAbstract(clazz.getModifiers());
 	}
 }

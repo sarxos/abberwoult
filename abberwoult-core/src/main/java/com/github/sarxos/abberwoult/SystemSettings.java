@@ -3,9 +3,8 @@ package com.github.sarxos.abberwoult;
 import com.github.sarxos.abberwoult.settings.Settings;
 import com.github.sarxos.abberwoult.settings.SettingsProvider;
 import javax.inject.Inject;
-import org.jvnet.hk2.annotations.Service;
 
-@Service
+
 public class SystemSettings extends Settings {
 
 	@Inject

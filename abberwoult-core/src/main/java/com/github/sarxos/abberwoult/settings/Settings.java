@@ -5,7 +5,6 @@ import static java.util.Objects.requireNonNull;
 import io.vavr.control.Option;
 import java.io.File;
 import java.util.EnumSet;
-import org.jvnet.hk2.annotations.Contract;
 
 
 /**
@@ -14,7 +13,6 @@ import org.jvnet.hk2.annotations.Contract;
  *
  * @author Bartosz Firyn (sarxos)
  */
-@Contract
 public abstract class Settings {
 
 	/**

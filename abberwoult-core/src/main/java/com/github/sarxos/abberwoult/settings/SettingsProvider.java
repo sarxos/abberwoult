@@ -1,6 +1,5 @@
 package com.github.sarxos.abberwoult.settings;
 
-import org.jvnet.hk2.annotations.Contract;
 
 
 /**
@@ -8,7 +7,6 @@ import org.jvnet.hk2.annotations.Contract;
  *
  * @author Bartosz Firyn (sarxos)
  */
-@Contract
 public interface SettingsProvider {
 
 	/**
