@@ -2,25 +2,25 @@ package com.github.sarxos.abberwoult;
 
 import static com.github.sarxos.abberwoult.util.ReflectionUtils.getAnnotationFromClass;
 
-import akka.actor.Actor;
-import akka.actor.Props;
-import akka.dispatch.Dispatchers;
-import akka.dispatch.Mailboxes;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import com.github.sarxos.abberwoult.annotation.Dispatcher;
 import com.github.sarxos.abberwoult.annotation.Mailbox;
 import com.github.sarxos.abberwoult.cdi.BeanLocator;
 
+import akka.actor.Actor;
+import akka.actor.Props;
+import akka.dispatch.Dispatchers;
+import akka.dispatch.Mailboxes;
 import io.vavr.control.Option;
-import javax.enterprise.inject.spi.BeanManager;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 
 /**
- * This is factory which creates {@link Props} instances that are used to build actors. Every
- * {@link Props} object created by this factory keeps reference to the special {@link ActorCreator}
- * designed to instantiate actor and wire it (inject all required injectees). This factory can be
- * used as injectable {@link Service}, but does not have to.
+ * This is injectable factory service which creates {@link Props} instances that are used to build
+ * actors. Every {@link Props} object created by this factory keeps reference to the special
+ * {@link ActorCreator} designed to instantiate actor and wire it (inject all required injectees).
+ * This factory can be injected but does not have to, but does not have to.
  *
  * @author Bartosz Firyn (sarxos)
  */
@@ -28,7 +28,7 @@ import javax.inject.Singleton;
 public class Propser {
 
 	/**
-	 * A {@link BeanLocator} used by {@link ActorCreator} to wire actors.
+	 * A {@link BeanLocator} used by {@link ActorCreator} to process injections in actor class.
 	 */
 	private final BeanLocator locator;
 

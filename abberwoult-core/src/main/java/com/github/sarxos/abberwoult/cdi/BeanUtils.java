@@ -1,19 +1,14 @@
 package com.github.sarxos.abberwoult.cdi;
 
-import static com.github.sarxos.abberwoult.cdi.BeanUtils.getQualifiers;
 import static com.github.sarxos.abberwoult.util.CollectorUtils.toListWithSameSizeAs;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
-import java.lang.reflect.Type;
 import java.util.Arrays;
 
-import javax.enterprise.inject.spi.CDI;
 import javax.inject.Qualifier;
 
-import io.quarkus.arc.Arc;
-import io.quarkus.arc.ArcContainer;
 
 public class BeanUtils {
 
@@ -57,5 +52,5 @@ public class BeanUtils {
 			.collect(toListWithSameSizeAs(annotations))
 			.toArray(EMPTY_ANNOTATION_ARRAY);
 	}
-	
+
 }

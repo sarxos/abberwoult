@@ -1,20 +1,17 @@
 package com.github.sarxos.abberwoult.cdi;
 
-import io.quarkus.test.junit.QuarkusTest;
 import javax.enterprise.inject.spi.CDI;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-@Singleton
+import com.github.sarxos.abberwoult.cdi.internals.DummyService;
+
+import io.quarkus.test.junit.QuarkusTest;
+
+
 @QuarkusTest
 public class CdiTest {
-	
-	@Singleton
-	public static class TestService {
-	}
 
 	@Test
 	void test_cdiCurrent() {
@@ -31,9 +28,16 @@ public class CdiTest {
 	}
 
 	@Test
-	void test_lookupService() {
+	void test_cdiSelectTestService() {
 		Assertions
-			.assertThat(CDI.current().select(TestService.class).get())
+			.assertThat(CDI.current().select(DummyService.class).get())
+			.isNotNull();
+	}
+
+	@Test
+	void test_singletonServiceCreatedOnlyOnce() {
+		Assertions
+			.assertThat(CDI.current().select(DummyService.class).get())
 			.isNotNull();
 	}
 }

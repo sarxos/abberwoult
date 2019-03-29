@@ -12,6 +12,7 @@ import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+
 @Singleton
 public class BeanLocator {
 
@@ -30,7 +31,7 @@ public class BeanLocator {
 		return findBean(field.getGenericType(), getQualifiers(field));
 	}
 
-	public Object findBean(final Type type, final Annotation[] qualifiers) {
+	public Object findBean(final Type type, final Annotation... qualifiers) {
 		return instance.select((Class<?>) type, qualifiers).get();
 	}
 }

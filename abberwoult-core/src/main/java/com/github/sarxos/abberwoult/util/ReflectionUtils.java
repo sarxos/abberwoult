@@ -9,11 +9,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.lang3.reflect.TypeUtils;
+import io.vavr.control.Option;
 
 
 /**
@@ -152,15 +153,15 @@ public class ReflectionUtils {
 	 * caller. It will be empty if no methods within a class or any of the superclasses is annotated
 	 * with a provided annotation.
 	 *
-	 * @param clazz the class to get methdos from
+	 * @param clazz the class to get methods from
 	 * @param annotation the annotation which should be present on field
 	 * @return List of methods annotated with a given annotation or empty list if not found
 	 */
-	public static List<Method> getAnnotatedMethodsFromClass(Class<?> clazz, final Class<? extends Annotation> annotation) {
+	public static Collection<Method> getAnnotatedMethodsFromClass(Class<?> clazz, final Class<? extends Annotation> annotation, final Class<?> stop) {
 
-		final List<Method> methods = new ArrayList<>();
+		final Collection<Method> methods = new ArrayDeque<>();
 
-		while (clazz != null) {
+		while (clazz != stop && clazz != null) {
 			for (final Method method : clazz.getDeclaredMethods()) {
 				if (method.isAnnotationPresent(annotation)) {
 					methods.add(method);
@@ -174,6 +175,20 @@ public class ReflectionUtils {
 		}
 
 		return methods;
+	}
+
+	public static Option<Method> getAnnotatedMethodFromClass(Class<?> clazz, final Class<? extends Annotation> annotation, final Class<?> stop) {
+
+		while (clazz != stop && clazz != null) {
+			for (final Method method : clazz.getDeclaredMethods()) {
+				if (method.isAnnotationPresent(annotation)) {
+					return Option.of(method);
+				}
+			}
+			clazz = clazz.getSuperclass();
+		}
+
+		return Option.none();
 	}
 
 	public static Object invoke(final Object thiz, final Method method) {
@@ -199,7 +214,7 @@ public class ReflectionUtils {
 			throw new IllegalStateException(e);
 		}
 	}
-	
+
 	public static boolean isAbstract(Class<?> clazz) {
 		return Modifier.isAbstract(clazz.getModifiers());
 	}
