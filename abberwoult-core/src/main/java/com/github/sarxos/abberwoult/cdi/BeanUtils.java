@@ -6,8 +6,12 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
+import java.util.Optional;
 
+import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Qualifier;
+
+import io.vavr.control.Option;
 
 
 public class BeanUtils {
@@ -53,4 +57,24 @@ public class BeanUtils {
 			.toArray(EMPTY_ANNOTATION_ARRAY);
 	}
 
+	/**
+	 * Get specific qualifier (an annotation annotated with {@link Qualifier}) from an
+	 * {@link InjectionPoint}.
+	 *
+	 * @param injection the {@link InjectionPoint} to get qualifier from
+	 * @param qualifier
+	 * @return
+	 */
+	public static <T extends Annotation> Option<T> getQualifier(final InjectionPoint injection, final Class<T> qualifier) {
+
+		final Optional<T> q = injection
+			.getQualifiers()
+			.stream()
+			.peek(n -> System.out.println("Quia " + n))
+			.filter(qualifier::isInstance)
+			.map(qualifier::cast)
+			.findAny();
+
+		return Option.ofOptional(q);
+	}
 }

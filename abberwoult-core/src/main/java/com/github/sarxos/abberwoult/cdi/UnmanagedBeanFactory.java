@@ -328,28 +328,12 @@ public class UnmanagedBeanFactory<T> {
 		return args;
 	}
 
-	@SuppressWarnings("serial")
-	public static abstract class InjectorException extends IllegalStateException {
-
-		public InjectorException(final String message, final Throwable t) {
-			super(message, t);
-		}
-
-		public InjectorException(final String message) {
-			super(message);
-		}
-
-		public InjectorException() {
-			super();
-		}
-	}
-
 	/**
 	 * This exception is being thrown when {@link UnmanagedBeanFactory} cannot find suitable
 	 * constructor to create instance with the arguments.
 	 */
 	@SuppressWarnings("serial")
-	public static final class NoSuitableConstructorFoundException extends InjectorException {
+	public static final class NoSuitableConstructorFoundException extends BeanInjectionException {
 
 		private final Class<?> clazz;
 		private final Collection<Constructor<?>> constructors;
@@ -377,42 +361,42 @@ public class UnmanagedBeanFactory<T> {
 	}
 
 	@SuppressWarnings("serial")
-	public static final class FieldInjecteeNotAvailableException extends InjectorException {
+	public static final class FieldInjecteeNotAvailableException extends BeanInjectionException {
 		public FieldInjecteeNotAvailableException(final Field field) {
 			super("Failed to resolve injectee for field " + field);
 		}
 	}
 
 	@SuppressWarnings("serial")
-	public static final class ParameterInjecteeNotAvailableException extends InjectorException {
+	public static final class ParameterInjecteeNotAvailableException extends BeanInjectionException {
 		public ParameterInjecteeNotAvailableException(final Parameter parameter) {
 			super("Failed to resolve injectee for parameter " + parameter);
 		}
 	}
 
 	@SuppressWarnings("serial")
-	public static final class AbstractClassNotSupportedException extends InjectorException {
+	public static final class AbstractClassNotSupportedException extends BeanInjectionException {
 		public AbstractClassNotSupportedException(final Class<?> clazz, final Throwable t) {
 			super("Cannot instantiate " + clazz + " because it is abstract", t);
 		}
 	}
 
 	@SuppressWarnings("serial")
-	public static final class WrongNumberOfArgumentsException extends InjectorException {
+	public static final class WrongNumberOfArgumentsException extends BeanInjectionException {
 		public WrongNumberOfArgumentsException(final Constructor<?> constructor, final int required, final int provided) {
 			super("Wrong number of arguments for " + constructor + ", required " + required + " vs provided " + provided);
 		}
 	}
 
 	@SuppressWarnings("serial")
-	public static final class BeanInstantiationException extends InjectorException {
+	public static final class BeanInstantiationException extends BeanInjectionException {
 		public BeanInstantiationException(final Class<?> clazz, final Exception e) {
 			super("Error when creating instance of " + clazz.getName(), e);
 		}
 	}
 
 	@SuppressWarnings("serial")
-	public static final class UnsatisfiedParameterInjectionException extends InjectorException {
+	public static final class UnsatisfiedParameterInjectionException extends BeanInjectionException {
 		public UnsatisfiedParameterInjectionException(final Parameter parameter, final UnsatisfiedResolutionException e) {
 			super("Cannot resolve injectee for parameter " + parameter + " of " + parameter.getParameterizedType(), e);
 		}

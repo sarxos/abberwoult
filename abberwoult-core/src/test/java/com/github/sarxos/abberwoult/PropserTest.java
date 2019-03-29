@@ -1,4 +1,4 @@
-package com.github.sarxos.abberwoult.cdi;
+package com.github.sarxos.abberwoult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -11,6 +11,7 @@ import com.github.sarxos.abberwoult.Propser;
 import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.Dispatcher;
 import com.github.sarxos.abberwoult.annotation.Mailbox;
+import com.github.sarxos.abberwoult.cdi.BeanLocator;
 
 import akka.actor.Props;
 import akka.dispatch.Dispatchers;
