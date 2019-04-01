@@ -1,4 +1,4 @@
-package com.github.sarxos.abberwoult.cdi.akka;
+package com.github.sarxos.abberwoult;
 
 import java.util.UUID;
 
@@ -8,6 +8,7 @@ import javax.inject.Singleton;
 import akka.actor.ActorSystem;
 
 
+@Singleton
 public class ActorSystemFactory {
 
 	@Produces

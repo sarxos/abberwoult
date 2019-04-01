@@ -1,4 +1,4 @@
-package com.github.sarxos.abberwoult.cdi.akka;
+package com.github.sarxos.abberwoult;
 
 import static com.github.sarxos.abberwoult.cdi.BeanUtils.getQualifier;
 
@@ -6,20 +6,18 @@ import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import com.github.sarxos.abberwoult.Propser;
 import com.github.sarxos.abberwoult.annotation.ByClass;
 import com.github.sarxos.abberwoult.cdi.BeanInjectionException;
-import com.github.sarxos.abberwoult.util.ActorUtils;
 
 import akka.actor.Actor;
-import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
-import akka.actor.Props;
 
 
+@Singleton
 public class ActorRefFactory {
 
 	private final Propser propser;
@@ -33,23 +31,24 @@ public class ActorRefFactory {
 
 	@Produces
 	@Dependent
-	public ActorRef create(final InjectionPoint injection) {
+	public BarRef create(final InjectionPoint injection) {
 
 		if (injection == null) {
 			System.out.println("byuoll");
-			return ActorRef.noSender();
 			// throw new IllegalStateException("Null injection point");
 		} else {
 			System.out.println(ToStringBuilder.reflectionToString(injection));
 		}
 
-		final Class<? extends Actor> clazz = getActorClass(injection);
-		final Props props = propser.props(clazz);
+		// final Class<? extends Actor> clazz = getActorClass(injection);
+		// final Props props = propser.props(clazz);
 
-		return ActorUtils
-			.getActorName(clazz)
-			.map(name -> system.actorOf(props, name))
-			.getOrElse(() -> system.actorOf(props));
+		// return ActorUtils
+		// .getActorName(clazz)
+		// .map(name -> system.actorOf(props, name))
+		// .getOrElse(() -> system.actorOf(props));
+
+		return new BarRef();
 	}
 
 	private Class<? extends Actor> getActorClass(final InjectionPoint injection) {

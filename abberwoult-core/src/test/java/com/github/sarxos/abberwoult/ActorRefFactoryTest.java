@@ -1,18 +1,18 @@
-package com.github.sarxos.abberwoult.akka;
+package com.github.sarxos.abberwoult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.ByClass;
 
-import akka.actor.ActorRef;
 import io.quarkus.test.junit.QuarkusTest;
 
 
+@Singleton // XXX w/a for beans not being injected into test
 @QuarkusTest
 public class ActorRefFactoryTest {
 
@@ -21,7 +21,7 @@ public class ActorRefFactoryTest {
 
 	@Inject
 	@ByClass(TestActor.class)
-	ActorRef ref;
+	BarRef ref;
 
 	@Test
 	void test_injectActorRefByClass() {
