@@ -3,7 +3,6 @@ package com.github.sarxos.abberwoult;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import org.junit.jupiter.api.Test;
 
@@ -13,7 +12,6 @@ import akka.actor.ActorRef;
 import io.quarkus.test.junit.QuarkusTest;
 
 
-@Singleton // XXX w/a for beans not being injected into test
 @QuarkusTest
 public class ActorRefFactoryTest {
 
