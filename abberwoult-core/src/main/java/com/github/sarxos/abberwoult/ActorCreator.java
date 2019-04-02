@@ -5,7 +5,7 @@ import akka.actor.Actor;
 import akka.japi.Creator;
 
 import com.github.sarxos.abberwoult.cdi.BeanLocator;
-import com.github.sarxos.abberwoult.cdi.UnmanagedBeanFactory;
+import com.github.sarxos.abberwoult.cdi.BeanFactory;
 
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
@@ -16,7 +16,7 @@ import javax.inject.Inject;
  * @author Bartosz Firyn (sarxos)
  * @param <T>
  */
-public class ActorCreator<T extends Actor> extends UnmanagedBeanFactory<T> implements Creator<T> {
+public class ActorCreator<T extends Actor> extends BeanFactory<T> implements Creator<T> {
 
 	/**
 	 * Serial.

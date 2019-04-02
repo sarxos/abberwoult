@@ -16,7 +16,7 @@ import io.vavr.control.Option;
 
 public class BeanUtils {
 
-	private static final Annotation[] EMPTY_ANNOTATION_ARRAY = new Annotation[0];
+	public static final Annotation[] EMPTY_ANNOTATION_ARRAY = new Annotation[0];
 
 	public static boolean isQualifier(Annotation annotation) {
 		return annotation
@@ -31,7 +31,11 @@ public class BeanUtils {
 	 * @return
 	 */
 	public static Annotation[] getQualifiers(final Parameter parameter) {
-		return filterQualifiers(parameter.getAnnotations());
+		return filterQualifiers(getAnnotations(parameter));
+	}
+
+	public static Annotation[] getAnnotations(final Parameter parameter) {
+		return parameter.getAnnotations();
 	}
 
 	/**
@@ -41,7 +45,11 @@ public class BeanUtils {
 	 * @return
 	 */
 	public static Annotation[] getQualifiers(final Field field) {
-		return filterQualifiers(field.getAnnotations());
+		return filterQualifiers(getAnnotations(field));
+	}
+
+	public static Annotation[] getAnnotations(final Field field) {
+		return field.getAnnotations();
 	}
 
 	private static Annotation[] filterQualifiers(final Annotation[] annotations) {
@@ -70,7 +78,6 @@ public class BeanUtils {
 		final Optional<T> q = injection
 			.getQualifiers()
 			.stream()
-			.peek(n -> System.out.println("Quia " + n))
 			.filter(qualifier::isInstance)
 			.map(qualifier::cast)
 			.findAny();

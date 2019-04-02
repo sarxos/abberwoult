@@ -7,8 +7,9 @@ import javax.inject.Singleton;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.sarxos.abberwoult.annotation.ByClass;
+import com.github.sarxos.abberwoult.annotation.ActorByClass;
 
+import akka.actor.ActorRef;
 import io.quarkus.test.junit.QuarkusTest;
 
 
@@ -20,8 +21,8 @@ public class ActorRefFactoryTest {
 	}
 
 	@Inject
-	@ByClass(TestActor.class)
-	BarRef ref;
+	@ActorByClass(TestActor.class)
+	ActorRef ref;
 
 	@Test
 	void test_injectActorRefByClass() {

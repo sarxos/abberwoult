@@ -18,27 +18,33 @@
       <artifactId>abberwoult-annotations</artifactId>
       <version>${project.version}</version>
     </dependency>
+
     <dependency>
-	  <groupId>io.quarkus</groupId>
-	  <artifactId>quarkus-arc</artifactId>
-	  <exclusions>
-	  	<exclusion>
-	  		<groupId>org.jboss.slf4j</groupId>
-	  		<artifactId>slf4j-jboss-logging</artifactId>
-	  	</exclusion>
-	  </exclusions>
-    </dependency>
-    <dependency>
-	  <groupId>io.quarkus.arc</groupId>
-	  <artifactId>arc</artifactId>
-    </dependency>
-    <dependency>
-	  <groupId>io.quarkus.arc</groupId>
-	  <artifactId>arc-processor</artifactId>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.2.3</version>
     </dependency>
     <dependency>
       <groupId>com.typesafe.akka</groupId>
       <artifactId>akka-actor_2.11</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-arc</artifactId>
+      <exclusions>
+        <exclusion>
+          <artifactId>slf4j-jboss-logging</artifactId>
+          <groupId>org.jboss.slf4j</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus.arc</groupId>
+      <artifactId>arc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus.arc</groupId>
+      <artifactId>arc-processor</artifactId>
     </dependency>
     <dependency>
       <groupId>io.vavr</groupId>
@@ -47,6 +53,11 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-junit5</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.assertj</groupId>
@@ -63,17 +74,6 @@
       <artifactId>junit-jupiter-engine</artifactId>
       <scope>test</scope>
     </dependency>
-	<dependency>
-	    <groupId>io.quarkus</groupId>
-	    <artifactId>quarkus-junit5</artifactId>
-	    <scope>test</scope>
-	</dependency>
-	
-	<dependency>
-  <groupId>ch.qos.logback</groupId>
-  <artifactId>logback-classic</artifactId>
-  <version>1.2.3</version>
-</dependency>
   </dependencies>
 
   <build>

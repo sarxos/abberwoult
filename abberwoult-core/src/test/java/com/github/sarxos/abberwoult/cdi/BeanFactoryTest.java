@@ -20,9 +20,9 @@ import io.quarkus.test.junit.QuarkusTest;
 
 
 @QuarkusTest
-public class UnmanagedBeanFactoryTest {
+public class BeanFactoryTest {
 
-	private class SimpleInjector<T> extends UnmanagedBeanFactory<T> {
+	private class SimpleInjector<T> extends BeanFactory<T> {
 		public SimpleInjector(BeanLocator bm, Class<T> clazz, Object... args) {
 			super(bm, clazz, Object.class, args);
 		}

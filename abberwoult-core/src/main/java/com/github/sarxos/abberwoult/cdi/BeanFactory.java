@@ -37,7 +37,7 @@ import io.vavr.control.Option;
  * @author Bartosz Firyn (sarxos)
  * @param <T>
  */
-public class UnmanagedBeanFactory<T> {
+public class BeanFactory<T> {
 
 	/**
 	 * An empty objects array.
@@ -81,19 +81,19 @@ public class UnmanagedBeanFactory<T> {
 	private final Object[] args;
 
 	/**
-	 * Creates new {@link UnmanagedBeanFactory} instance with given {@link BeanLocator} and class
-	 * which describes the actor to be created. This constructor takes also vararg objects list
-	 * which are the arguments (optional) to be passed down to the class constructor. Please note
-	 * that in case when class constructor is annotated with {@link Inject}, the arguments list will
-	 * be ignored (creator will try to resolve all necessary arguments using dependency injection
-	 * support and original arguments are ignored).
+	 * Creates new {@link BeanFactory} instance with given {@link BeanLocator} and class which
+	 * describes the actor to be created. This constructor takes also vararg objects list which are
+	 * the arguments (optional) to be passed down to the class constructor. Please note that in case
+	 * when class constructor is annotated with {@link Inject}, the arguments list will be ignored
+	 * (creator will try to resolve all necessary arguments using dependency injection support and
+	 * original arguments are ignored).
 	 *
 	 * @param locator the service locator to be used to wire created instance
 	 * @param clazz the actor class which should be created
 	 * @param stop the class in hierarchy at which injector should stop searching injection points
 	 * @param args the constructor arguments
 	 */
-	public UnmanagedBeanFactory(final BeanLocator locator, final Class<T> clazz, final Class<?> stop, final Object... args) {
+	public BeanFactory(final BeanLocator locator, final Class<T> clazz, final Class<?> stop, final Object... args) {
 		this.locator = locator;
 		this.clazz = clazz;
 		this.stop = stop;
@@ -150,7 +150,7 @@ public class UnmanagedBeanFactory<T> {
 				continue;
 			}
 
-			// loop through the expected types and check if they match argument classes
+			// loop through expected types and check if they match argument classes
 
 			for (int i = 0; i < types.length; i++) {
 				if (args[i] == null || isAssignable(boxed(args[i].getClass()), boxed(types[i]))) {
@@ -209,22 +209,24 @@ public class UnmanagedBeanFactory<T> {
 
 		final Parameter[] parameters = constructor.getParameters();
 		final Deque<Object> arguments = new ArrayDeque<>(asList(args));
+		final Deque<Object> wired = new ArrayDeque<Object>(parameters.length);
 
-		final Object[] wired = Arrays
-			.stream(parameters)
-			.map(parameter -> findArgumentForParameter(parameter, arguments))
-			.collect(toListWithSameSizeAs(parameters))
-			.toArray(EMPTY_OBJECTS_ARRAY);
+		for (int i = 0; i < parameters.length; i++) {
+			wired.add(findArgumentForParameter(constructor, parameters[i], i, arguments));
+		}
 
 		// at this point we should pick up all of available arguments and remaining
 		// list should be empty
 
 		if (arguments.isEmpty()) {
-			return wired;
+			return wired.toArray(EMPTY_OBJECTS_ARRAY);
 		}
 
+		// if we are left with unused argument we need to throw exception to inform
+		// user about the arguments count
+
 		final int required = constructor.getParameterCount();
-		final int provided = wired.length + arguments.size();
+		final int provided = wired.size() + arguments.size();
 
 		throw new WrongNumberOfArgumentsException(constructor, required, provided);
 	}
@@ -249,6 +251,9 @@ public class UnmanagedBeanFactory<T> {
 			return;
 		}
 
+		// iterate through all fields annotated with @Inject and perform bean resolution
+		// against field type
+
 		for (Field field : clazz.getDeclaredFields()) {
 			if (field.isAnnotationPresent(Inject.class)) {
 				inject(instance, field);
@@ -269,13 +274,13 @@ public class UnmanagedBeanFactory<T> {
 		}
 	}
 
-	private Object findArgumentForParameter(final Parameter parameter, final Deque<Object> args) {
+	private Object findArgumentForParameter(final Constructor<T> constructor, final Parameter parameter, final int position, final Deque<Object> args) {
 		if (parameter.isAnnotationPresent(Assisted.class)) {
 			return args.remove();
 		} else {
 			try {
 				return Option
-					.of(locator.findBeanFor(parameter))
+					.of(locator.findBeanFor(constructor, parameter, position))
 					.getOrElseThrow(() -> new ParameterInjecteeNotAvailableException(parameter));
 			} catch (UnsatisfiedResolutionException e) {
 				throw new UnsatisfiedParameterInjectionException(parameter, e);
@@ -329,8 +334,8 @@ public class UnmanagedBeanFactory<T> {
 	}
 
 	/**
-	 * This exception is being thrown when {@link UnmanagedBeanFactory} cannot find suitable
-	 * constructor to create instance with the arguments.
+	 * This exception is being thrown when {@link BeanFactory} cannot find suitable constructor to
+	 * create instance with the arguments.
 	 */
 	@SuppressWarnings("serial")
 	public static final class NoSuitableConstructorFoundException extends BeanInjectionException {

@@ -18,40 +18,23 @@
   <modules>
     <module>abberwoult-core</module>
     <module>abberwoult-annotations</module>
-<!--     <module>abberwoult-example</module> -->
+    <!--     <module>abberwoult-example</module> -->
   </modules>
 
   <properties>
     <akka.version>2.5.21</akka.version>
-    <scala.version>2.11.8</scala.version>
     <junit.version>5.4.0</junit.version>
     <quarkus.version>999-SNAPSHOT</quarkus.version>
+    <scala.version>2.11.8</scala.version>
   </properties>
 
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>io.quarkus</groupId>
-        <artifactId>quarkus-bom</artifactId>
-        <version>${quarkus.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
         <groupId>com.typesafe.akka</groupId>
         <artifactId>akka-actor_2.11</artifactId>
         <version>${akka.version}</version>
       </dependency>
-      <dependency>
-          <groupId>org.scala-lang</groupId>
-          <artifactId>scala-library</artifactId>
-          <version>${scala.version}</version>
-  </dependency>
-  <dependency>
-          <groupId>org.scala-lang</groupId>
-          <artifactId>scala-reflect</artifactId>
-          <version>${scala.version}</version>
-  </dependency>
       <dependency>
         <groupId>io.vavr</groupId>
         <artifactId>vavr</artifactId>
@@ -76,6 +59,23 @@
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter-engine</artifactId>
         <version>${junit.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.scala-lang</groupId>
+        <artifactId>scala-library</artifactId>
+        <version>${scala.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.scala-lang</groupId>
+        <artifactId>scala-reflect</artifactId>
+        <version>${scala.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.quarkus</groupId>
+        <artifactId>quarkus-bom</artifactId>
+        <version>${quarkus.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -117,24 +117,24 @@
 
     <plugins>
       <plugin>
+        <groupId>io.quarkus</groupId>
+        <artifactId>quarkus-maven-plugin</artifactId>
+        <version>${quarkus.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>build</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
           <source>1.8</source>
           <target>1.8</target>
         </configuration>
-      </plugin>
-      <plugin>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-maven-plugin</artifactId>
-            <version>${quarkus.version}</version>
-            <executions>
-                <execution>
-                    <goals>
-                        <goal>build</goal>
-                    </goals>
-              </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>
