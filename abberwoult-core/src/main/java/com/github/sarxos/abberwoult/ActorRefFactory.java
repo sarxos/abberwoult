@@ -51,7 +51,7 @@ public class ActorRefFactory {
 			throw new NoActorClassProvidedException(injection);
 		}
 
-		LOG.debug("Creating {} with props {}", clazz, props);
+		LOG.debug("Creating actor {} with props {}", clazz, props);
 
 		return ActorUtils
 			.getActorName(clazz)
