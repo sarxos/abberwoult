@@ -85,6 +85,18 @@
     <pluginManagement>
       <plugins>
         <plugin>
+          <groupId>io.quarkus</groupId>
+          <artifactId>quarkus-maven-plugin</artifactId>
+          <version>${quarkus.version}</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>build</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
           <groupId>org.eclipse.m2e</groupId>
           <artifactId>lifecycle-mapping</artifactId>
           <version>1.0.0</version>
@@ -93,41 +105,38 @@
               <pluginExecutions>
                 <pluginExecution>
                   <pluginExecutionFilter>
-                    <groupId>org.glassfish.hk2</groupId>
-                    <artifactId>hk2-inhabitant-generator</artifactId>
-                    <versionRange>[2.3.0,)</versionRange>
+                    <groupId>org.jboss.jandex</groupId>
+                    <artifactId>jandex-maven-plugin</artifactId>
+                    <versionRange>[1.0.5,)</versionRange>
                     <goals>
-                      <goal>generate-inhabitants</goal>
-                      <goal>generate-test-inhabitants</goal>
+                      <goal>jandex</goal>
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <execute>
-                      <runOnIncremental>true</runOnIncremental>
-                      <runOnConfiguration>true</runOnConfiguration>
-                    </execute>
+                    <execute></execute>
                   </action>
                 </pluginExecution>
               </pluginExecutions>
             </lifecycleMappingMetadata>
           </configuration>
         </plugin>
+        <plugin>
+          <groupId>org.jboss.jandex</groupId>
+          <artifactId>jandex-maven-plugin</artifactId>
+          <version>1.0.5</version>
+          <executions>
+            <execution>
+              <id>make-index</id>
+              <goals>
+                <goal>jandex</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
       </plugins>
     </pluginManagement>
 
     <plugins>
-      <plugin>
-        <groupId>io.quarkus</groupId>
-        <artifactId>quarkus-maven-plugin</artifactId>
-        <version>${quarkus.version}</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>build</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
