@@ -41,3 +41,4 @@ public @interface ActorByClass {
 	@Nonbinding
 	Class<? extends Actor> value() default Actor.class;
 }
+

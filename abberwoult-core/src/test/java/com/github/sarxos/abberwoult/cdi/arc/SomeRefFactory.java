@@ -30,10 +30,6 @@ public class SomeRefFactory {
 		// injection.getAnnotated().getAnnotations(SomeQualifier.class) => UOE
 		// injection.getAnnotated().getAnnotations() => UOE
 		// injection.getMember() => null
-
-		System.out.println("quals: " + injection.getQualifiers());
-		
-		
 		
 		return system.refOf(service.getName());
 	}
