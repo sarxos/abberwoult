@@ -9,16 +9,17 @@
     <version>6-SNAPSHOT</version>
   </parent>
 
-  <artifactId>abberwoult</artifactId>
+  <artifactId>abberwoult-parent</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Abberwoult</name>
 
   <modules>
-    <module>abberwoult-core</module>
+    <module>abberwoult</module>
+    <module>abberwoult-deployment</module>
     <module>abberwoult-annotations</module>
-    <!--     <module>abberwoult-example</module> -->
+    <module>abberwoult-example</module>
   </modules>
 
   <properties>
@@ -30,6 +31,11 @@
 
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>1.2.3</version>
+      </dependency>
       <dependency>
         <groupId>com.typesafe.akka</groupId>
         <artifactId>akka-actor_2.11</artifactId>
@@ -88,57 +94,11 @@
           <groupId>io.quarkus</groupId>
           <artifactId>quarkus-maven-plugin</artifactId>
           <version>${quarkus.version}</version>
-          <executions>
-            <execution>
-              <goals>
-                <goal>build</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
-        <plugin>
-          <groupId>org.eclipse.m2e</groupId>
-          <artifactId>lifecycle-mapping</artifactId>
-          <version>1.0.0</version>
-          <configuration>
-            <lifecycleMappingMetadata>
-              <pluginExecutions>
-                <pluginExecution>
-                  <pluginExecutionFilter>
-                    <groupId>org.jboss.jandex</groupId>
-                    <artifactId>jandex-maven-plugin</artifactId>
-                    <versionRange>[1.0.5,)</versionRange>
-                    <goals>
-                      <goal>jandex</goal>
-                    </goals>
-                  </pluginExecutionFilter>
-                  <action>
-                    <execute></execute>
-                  </action>
-                </pluginExecution>
-              </pluginExecutions>
-            </lifecycleMappingMetadata>
-          </configuration>
         </plugin>
         <plugin>
           <groupId>org.jboss.jandex</groupId>
           <artifactId>jandex-maven-plugin</artifactId>
           <version>1.0.5</version>
-          <executions>
-            <execution>
-              <id>make-index</id>
-              <goals>
-                <goal>jandex</goal>
-              </goals>
-            </execution>
-          </executions>
-          <dependencies>
-            <dependency>
-              <groupId>org.jboss</groupId>
-              <artifactId>jandex</artifactId>
-              <version>2.1.1.Final</version>
-            </dependency>
-          </dependencies>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -153,6 +113,7 @@
         </configuration>
       </plugin>
     </plugins>
+
   </build>
 
 </project>

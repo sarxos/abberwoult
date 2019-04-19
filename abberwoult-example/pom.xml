@@ -5,7 +5,7 @@
 
   <parent>
     <groupId>com.github.sarxos</groupId>
-    <artifactId>abberwoult</artifactId>
+    <artifactId>abberwoult-parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
 
@@ -15,9 +15,29 @@
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>abberwoult-core</artifactId>
+      <artifactId>abberwoult</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-resteasy</artifactId>
+    </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>io.quarkus</groupId>
+        <artifactId>quarkus-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>build</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>
