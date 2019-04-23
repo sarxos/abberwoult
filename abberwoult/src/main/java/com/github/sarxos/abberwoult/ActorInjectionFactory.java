@@ -37,5 +37,4 @@ public abstract class ActorInjectionFactory {
 			super("The " + ActorRef.class + " can only be injected into injection point");
 		}
 	}
-
 }

@@ -18,6 +18,10 @@ public class BeanUtils {
 
 	public static final Annotation[] EMPTY_ANNOTATION_ARRAY = new Annotation[0];
 
+	private BeanUtils() {
+		// utilities class
+	}
+
 	public static boolean isQualifier(Annotation annotation) {
 		return annotation
 			.annotationType()
