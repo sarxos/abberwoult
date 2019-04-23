@@ -13,7 +13,6 @@ import com.github.sarxos.abberwoult.cdi.BeanLocator;
 
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.arc.deployment.BeanDefiningAnnotationBuildItem;
-import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 
@@ -48,15 +47,14 @@ public class AbberwoultProcessor {
 	 * @param additionalBeans - producer for additional bean items
 	 */
 	@BuildStep
-	void registerAdditionalBeans(BuildProducer<AdditionalBeanBuildItem> additionalBeans) {
-		additionalBeans.produce(AdditionalBeanBuildItem.builder()
-			.addBeanClass(AbberwoultLifecycleListener.class)
-			.addBeanClass(BeanLocator.class)
-			.addBeanClass(ActorEngine.class)
-			.addBeanClass(ActorRefFactory.class)
-			.addBeanClass(ActorSelectionFactory.class)
-			.addBeanClass(ActorSystemFactory.class)
-			.addBeanClass(Propser.class)
-			.build());
+	AdditionalBeanBuildItem registerAdditionalBeans() {
+		return new AdditionalBeanBuildItem(
+			AbberwoultLifecycleListener.class,
+			BeanLocator.class,
+			ActorEngine.class,
+			ActorRefFactory.class,
+			ActorSelectionFactory.class,
+			ActorSystemFactory.class,
+			Propser.class);
 	}
 }
