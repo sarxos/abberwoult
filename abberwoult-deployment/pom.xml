@@ -33,6 +33,16 @@
       <artifactId>quarkus-core-deployment</artifactId>
       <version>${quarkus.version}</version>
     </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-hibernate-validator-deployment</artifactId>
+      <version>${quarkus.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.ow2.asm</groupId>
+      <artifactId>asm-util</artifactId>
+      <version>6.2.1</version>
+    </dependency>
   </dependencies>
 
   <build>

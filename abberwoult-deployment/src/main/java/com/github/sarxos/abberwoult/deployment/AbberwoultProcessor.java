@@ -1,39 +1,49 @@
 package com.github.sarxos.abberwoult.deployment;
 
-import javax.enterprise.context.ApplicationScoped;
+import static com.github.sarxos.abberwoult.deployment.AbberwoultClasses.ACTOR_SCOPED_ANNOTATION;
+import static com.github.sarxos.abberwoult.deployment.AbberwoultClasses.APPLICATION_SCOPED_ANNOTATION;
+import static com.github.sarxos.abberwoult.deployment.util.DeploymentUtils.isMessageHandler;
+import static com.github.sarxos.abberwoult.util.CollectorUtils.toListWithSameSizeAs;
+import static io.quarkus.deployment.annotations.ExecutionTime.STATIC_INIT;
+import static java.util.stream.Collectors.toSet;
+
+import java.lang.reflect.Modifier;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jboss.jandex.AnnotationInstance;
-import org.jboss.jandex.AnnotationTarget.Kind;
+import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.DotName;
+import org.jboss.jandex.IndexView;
 import org.jboss.jandex.MethodInfo;
+import org.jboss.jandex.Type;
 
 import com.github.sarxos.abberwoult.AbberwoultLifecycleListener;
 import com.github.sarxos.abberwoult.ActorEngine;
 import com.github.sarxos.abberwoult.ActorRefFactory;
 import com.github.sarxos.abberwoult.ActorSelectionFactory;
 import com.github.sarxos.abberwoult.ActorSystemFactory;
+import com.github.sarxos.abberwoult.MessageHandlerRegistryTemplate;
 import com.github.sarxos.abberwoult.Propser;
-import com.github.sarxos.abberwoult.annotation.ActorScoped;
-import com.github.sarxos.abberwoult.annotation.MessageHandler;
 import com.github.sarxos.abberwoult.cdi.BeanLocator;
+import com.github.sarxos.abberwoult.deployment.error.NoArgMessageHandlerException;
+import com.github.sarxos.abberwoult.deployment.error.PrivateMessageHandlerException;
+import com.github.sarxos.abberwoult.deployment.error.WrongAssistedArgumentsCountException;
+import com.github.sarxos.abberwoult.deployment.util.DeploymentUtils;
 
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.arc.deployment.AnnotationsTransformerBuildItem;
 import io.quarkus.arc.deployment.BeanDefiningAnnotationBuildItem;
 import io.quarkus.arc.deployment.UnremovableBeanBuildItem;
-import io.quarkus.arc.processor.AnnotationsTransformer.TransformationContext;
+import io.quarkus.arc.processor.AnnotationsTransformer;
 import io.quarkus.arc.processor.BeanInfo;
-import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
+import io.quarkus.deployment.annotations.Record;
+import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 
 
 public class AbberwoultProcessor {
-
-	private static final DotName ACTOR_SCOPED_ANNOTATION = DotName.createSimple(ActorScoped.class.getName());
-	private static final DotName APPLICATION_SCOPED_ANNOTATION = DotName.createSimple(ApplicationScoped.class.getName());
-	private static final DotName MESSAGE_HANDLER_ANNOTATION = DotName.createSimple(MessageHandler.class.getName());
 
 	private static final String[] CORE_BEAN_CLASSES = {
 		AbberwoultLifecycleListener.class.getName(),
@@ -101,44 +111,80 @@ public class AbberwoultProcessor {
 	}
 
 	@BuildStep
-	AnnotationsTransformerBuildItem doTransformAnnotations(BuildProducer<AnnotationsTransformerBuildItem> transformers) {
-		return new AnnotationsTransformerBuildItem(this::findAndIndexMessageHandlers);
+	@Record(STATIC_INIT)
+	AnnotationsTransformerBuildItem doRegisterMessageHandlers(
+		final MessageHandlerRegistryTemplate template,
+		final CombinedIndexBuildItem combinedIndex) {
+
+		final IndexView index = combinedIndex.getIndex();
+		final AnnotationsTransformer transformer = findAndIndexMessageHandlers(template, index);
+
+		return new AnnotationsTransformerBuildItem(transformer);
 	}
 
-	private boolean isMessageHandler(final TransformationContext tc) {
+	private AnnotationsTransformer findAndIndexMessageHandlers(final MessageHandlerRegistryTemplate template, final IndexView index) {
+		return tc -> {
 
-		// only methods can be message handlers
+			if (!isMessageHandler(tc)) {
+				return;
+			}
 
-		if (!tc.isMethod()) {
-			return false;
-		}
+			final MethodInfo handler = tc.getTarget().asMethod();
+			final ClassInfo recipientClass = handler.declaringClass();
+			final short flags = handler.flags();
 
-		// check if method is annotated with the proper annotation
+			if (Modifier.isPrivate(flags)) {
+				throw new PrivateMessageHandlerException(handler, recipientClass);
+			}
 
-		final MethodInfo info = tc.getTarget().asMethod();
-		final AnnotationInstance annotation = info.annotation(MESSAGE_HANDLER_ANNOTATION);
+			final String clazzName = recipientClass.name().toString();
+			final String handlerName = handler.name();
+			final String handlerType = handler.returnType().name().toString();
+			final List<String> parameters = getParameterTypeNames(handler);
+			final Set<Short> validables = getValidablePositions(handler);
+			final Set<Short> assisted = getAssistedPositions(handler);
+			final boolean injectPresent = isInjectPresent(handler);
 
-		// null annotation means that given annotation was not present on the element
+			if (parameters.isEmpty()) {
+				throw new NoArgMessageHandlerException(handler, recipientClass);
+			}
+			if (injectPresent && assisted.size() != 1) {
+				throw new WrongAssistedArgumentsCountException(handler, recipientClass, assisted.size());
+			}
 
-		if (annotation == null) {
-			return false;
-		}
-
-		// if we found given annotation on the element then we need to double check if
-		// this is method annotations and not for example parameter or type annotation,
-		// this can be done by checking target kind which needs to indicate a method
-
-		return annotation.target().kind() == Kind.METHOD;
+			template.register(clazzName, handlerName, handlerType, parameters, validables, assisted);
+		};
 	}
 
-	private void findAndIndexMessageHandlers(final TransformationContext tc) {
+	private static boolean isInjectPresent(final MethodInfo method) {
+		return method.annotations().stream()
+			.filter(DeploymentUtils::isMethodAnnotation)
+			.filter(DeploymentUtils::isInjectAnnotation)
+			.findAny()
+			.isPresent();
+	}
 
-		// skip transformation if annotated target is message handler
+	private static List<String> getParameterTypeNames(final MethodInfo method) {
+		final List<Type> parameters = method.parameters();
+		return parameters.stream()
+			.map(Type::name)
+			.map(DotName::toString)
+			.collect(toListWithSameSizeAs(parameters));
+	}
 
-		if (!isMessageHandler(tc)) {
-			return;
-		}
+	private static Set<Short> getValidablePositions(final MethodInfo method) {
+		return method.annotations().stream()
+			.filter(DeploymentUtils::isMethodParameterAnnotation)
+			.filter(DeploymentUtils::isValidAnnotation)
+			.map(DeploymentUtils::toMethodParameterPosition)
+			.collect(toSet());
+	}
 
-		System.out.println(tc.getTarget());
+	private static Set<Short> getAssistedPositions(final MethodInfo method) {
+		return method.annotations().stream()
+			.filter(DeploymentUtils::isMethodParameterAnnotation)
+			.filter(DeploymentUtils::isAssistedAnnotation)
+			.map(DeploymentUtils::toMethodParameterPosition)
+			.collect(toSet());
 	}
 }

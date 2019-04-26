@@ -8,6 +8,11 @@ public class FruitRepositoryActor extends SimpleActor {
 
 	@MessageHandler
 	void handleFruitListGet(final FruitListGetMsg msg) {
-		System.out.println("RECEIVED");
+		System.out.println("RECEIVED LIST");
+	}
+
+	@MessageHandler
+	void handleFruitAddMsg(final FruitAddMsg msg) {
+		System.out.println("RECEIVED ADD");
 	}
 }
