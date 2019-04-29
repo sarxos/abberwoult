@@ -1,6 +1,6 @@
 package com.github.sarxos.abberwoult;
 
-import java.lang.invoke.MethodHandles;
+import static java.lang.invoke.MethodHandles.lookup;
 
 import javax.enterprise.inject.spi.CDI;
 
@@ -13,6 +13,6 @@ public abstract class SimpleActor extends AbstractActor {
 	public Receive createReceive() {
 		return CDI.current()
 			.select(MessageHandlerRegistry.class).get()
-			.newReceive(MethodHandles.lookup(), this::unhandled);
+			.newReceive(this, lookup().in(getClass()));
 	}
 }

@@ -12,7 +12,9 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.vavr.control.Option;
 
@@ -23,6 +25,24 @@ import io.vavr.control.Option;
  * @author Bartosz Firyn (sarxos)
  */
 public class ReflectionUtils {
+
+	/**
+	 * A {@link Class} mapping for primitive type names.
+	 */
+	@SuppressWarnings("serial")
+	public final static Map<String, Class<?>> PRIMITIVES = new HashMap<String, Class<?>>() {
+		{
+			put("void", void.class);
+			put("boolean", boolean.class);
+			put("byte", byte.class);
+			put("short", short.class);
+			put("char", char.class);
+			put("int", int.class);
+			put("long", long.class);
+			put("float", float.class);
+			put("double", double.class);
+		}
+	};
 
 	/**
 	 * Make sure {@link Field} is accessible.
@@ -217,5 +237,16 @@ public class ReflectionUtils {
 
 	public static boolean isAbstract(Class<?> clazz) {
 		return Modifier.isAbstract(clazz.getModifiers());
+	}
+
+	public static Class<?> getClazz(final String clazzName) {
+		if (PRIMITIVES.containsKey(clazzName)) {
+			return PRIMITIVES.get(clazzName);
+		}
+		try {
+			return Class.forName(clazzName);
+		} catch (ClassNotFoundException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 }

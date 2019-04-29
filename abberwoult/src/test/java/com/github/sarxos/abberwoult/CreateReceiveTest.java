@@ -3,6 +3,8 @@ package com.github.sarxos.abberwoult;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
 
 import org.junit.jupiter.api.Test;
 
@@ -22,14 +24,33 @@ import scala.concurrent.duration.Duration;
 public class CreateReceiveTest {
 
 	static final class SomeMsg {
+	}
 
+	static final class SomeIntMsg {
+
+		@Min(1)
+		private final int i;
+
+		public SomeIntMsg(int i) {
+			this.i = i;
+		}
 	}
 
 	static final class TestActor extends SimpleActor {
 
 		@MessageHandler
 		void handleSomeMsg(final SomeMsg msg) {
-			getSender().tell(1, getSelf());
+			sender().tell(1, self());
+		}
+
+		@MessageHandler
+		void handleSomeIntMsg(final @Valid SomeIntMsg msg) {
+			sender().tell(msg.i, self());
+		}
+
+		@MessageHandler
+		void handleInteger(final Integer number) {
+			sender().tell(number, self());
 		}
 	}
 
@@ -37,13 +58,29 @@ public class CreateReceiveTest {
 	@ActorOf(TestActor.class)
 	ActorRef ref;
 
-	@Test
-	void test_receiveCreated() throws Exception {
-
+	private Object askResult(final Object message) throws Exception {
 		final Timeout timeout = new Timeout(Duration.create(5, "seconds"));
-		final Future<Object> future = Patterns.ask(ref, new SomeMsg(), timeout);
-		final Integer result = (Integer) Await.result(future, timeout.duration());
+		final Future<Object> future = Patterns.ask(ref, message, timeout);
+		return Await.result(future, timeout.duration());
+	}
 
-		assertThat(result).isEqualTo(1);
+	@Test
+	void test_receiveBuilderForClass() throws Exception {
+		assertThat(askResult(new SomeMsg())).isEqualTo(1);
+	}
+
+	@Test
+	void test_receiveBuilderForInteger() throws Exception {
+		assertThat(askResult(1)).isEqualTo(1);
+	}
+
+	@Test
+	void test_receiveValidMsg() throws Exception {
+		assertThat(askResult(new SomeIntMsg(1))).isEqualTo(1);
+	}
+
+	@Test
+	void test_receiveInvalidMsg() throws Exception {
+		assertThat(askResult(new SomeIntMsg(0))).isInstanceOf(Throwable.class);
 	}
 }
