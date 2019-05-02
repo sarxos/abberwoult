@@ -11,8 +11,8 @@ public class PrivateMessageHandlerException extends IllegalStateException {
 
 	public PrivateMessageHandlerException(final MethodInfo handler, final ClassInfo recipientClass) {
 		super(""
-			+ "Methods annotated with " + MESSAGE_HANDLER_ANNOTATION + " must not be "
-			+ "private, but found private " + handler + " in " + recipientClass);
+			+ "Methods annotated with " + MESSAGE_HANDLER_ANNOTATION + " must be public "
+			+ "but found non-public " + handler + " in " + recipientClass + " class");
 	}
 
 }

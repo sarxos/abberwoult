@@ -3,7 +3,6 @@ package com.github.sarxos.abberwoult;
 import static com.github.sarxos.abberwoult.MessageHandlerRegistry.store;
 import static com.github.sarxos.abberwoult.util.CollectorUtils.toListWithSameSizeAs;
 import static com.github.sarxos.abberwoult.util.ReflectionUtils.getClazz;
-import static java.util.Collections.emptySet;
 
 import java.util.List;
 import java.util.Set;
@@ -37,8 +36,8 @@ public class MessageHandlerRegistryTemplate {
 		final String handlerName,
 		final String handlerTypeName,
 		final List<String> parameterTypeNames,
-		final Set<Short> validablePositions,
-		final Set<Short> assistedPositions) {
+		final Set<Short> parametersToValidate,
+		final Set<Short> parametersToAssist) {
 
 		final Class<?> recipientClass = getClazz(recipientClassName);
 		final Class<?> handlerType = getClazz(handlerTypeName);
@@ -47,9 +46,8 @@ public class MessageHandlerRegistryTemplate {
 			.map(ReflectionUtils::getClazz)
 			.collect(toListWithSameSizeAs(parameterTypeNames));
 
-		final Set<Short> validablePositionsSet = validablePositions.isEmpty() ? emptySet() : validablePositions;
-		final Set<Short> assistedPositionsSet = assistedPositions.isEmpty() ? emptySet() : assistedPositions;
+		final ParameterList parameters = ParameterList.of(parameterTypes, parametersToValidate, parametersToAssist);
 
-		store(recipientClass, handlerName, handlerType, parameterTypes, validablePositionsSet, assistedPositionsSet);
+		store(recipientClass, handlerName, handlerType, parameters);
 	}
 }

@@ -20,12 +20,14 @@
     <module>abberwoult-deployment</module>
     <module>abberwoult-annotations</module>
     <module>abberwoult-example</module>
+    <module>abberwoult-test</module>
   </modules>
 
   <properties>
     <akka.version>2.5.21</akka.version>
     <junit.version>5.4.0</junit.version>
-    <quarkus.version>999-SNAPSHOT</quarkus.version>
+    <!--     <quarkus.version>999-SNAPSHOT</quarkus.version> -->
+    <quarkus.version>0.14.0</quarkus.version>
     <scala.version>2.11.8</scala.version>
   </properties>
 
@@ -95,17 +97,6 @@
           <groupId>io.quarkus</groupId>
           <artifactId>quarkus-bootstrap-maven-plugin</artifactId>
           <version>${quarkus.version}</version>
-          <executions>
-            <execution>
-              <phase>compile</phase>
-              <goals>
-                <goal>extension-descriptor</goal>
-              </goals>
-              <configuration>
-                <deployment>${project.groupId}:${project.artifactId}-deployment:${project.version}</deployment>
-              </configuration>
-            </execution>
-          </executions>
         </plugin>
         <plugin>
           <groupId>io.quarkus</groupId>
@@ -130,7 +121,10 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <execute></execute>
+                    <execute>
+                      <runOnIncremental>true</runOnIncremental>
+                      <runOnConfiguration>true</runOnConfiguration>
+                    </execute>
                   </action>
                 </pluginExecution>
               </pluginExecutions>

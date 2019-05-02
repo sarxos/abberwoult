@@ -11,7 +11,7 @@ public class EchoActor extends SimpleActor {
 	}
 
 	@MessageHandler
-	void handleEcho(EchoMsg msg) {
+	public void handleEcho(EchoMsg msg) {
 		System.out.println("echo");
 	}
 }

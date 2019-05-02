@@ -17,12 +17,15 @@ import org.jboss.jandex.DotName;
 import org.jboss.jandex.IndexView;
 import org.jboss.jandex.MethodInfo;
 import org.jboss.jandex.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.sarxos.abberwoult.AbberwoultLifecycleListener;
 import com.github.sarxos.abberwoult.ActorEngine;
 import com.github.sarxos.abberwoult.ActorRefFactory;
 import com.github.sarxos.abberwoult.ActorSelectionFactory;
 import com.github.sarxos.abberwoult.ActorSystemFactory;
+import com.github.sarxos.abberwoult.MessageHandlerRegistry;
 import com.github.sarxos.abberwoult.MessageHandlerRegistryTemplate;
 import com.github.sarxos.abberwoult.Propser;
 import com.github.sarxos.abberwoult.cdi.BeanLocator;
@@ -45,6 +48,8 @@ import io.quarkus.deployment.builditem.FeatureBuildItem;
 
 public class AbberwoultProcessor {
 
+	private static final Logger LOG = LoggerFactory.getLogger(AbberwoultProcessor.class);
+
 	private static final String[] CORE_BEAN_CLASSES = {
 		AbberwoultLifecycleListener.class.getName(),
 		BeanLocator.class.getName(),
@@ -52,7 +57,8 @@ public class AbberwoultProcessor {
 		ActorRefFactory.class.getName(),
 		ActorSelectionFactory.class.getName(),
 		ActorSystemFactory.class.getName(),
-		Propser.class.getName()
+		Propser.class.getName(),
+		MessageHandlerRegistry.class.getName(),
 	};
 
 	/**
@@ -100,14 +106,7 @@ public class AbberwoultProcessor {
 	 */
 	@BuildStep
 	AdditionalBeanBuildItem doRegisterAdditionalBeans() {
-		return new AdditionalBeanBuildItem(
-			AbberwoultLifecycleListener.class,
-			BeanLocator.class,
-			ActorEngine.class,
-			ActorRefFactory.class,
-			ActorSelectionFactory.class,
-			ActorSystemFactory.class,
-			Propser.class);
+		return new AdditionalBeanBuildItem(CORE_BEAN_CLASSES);
 	}
 
 	@BuildStep
@@ -133,7 +132,7 @@ public class AbberwoultProcessor {
 			final ClassInfo recipientClass = handler.declaringClass();
 			final short flags = handler.flags();
 
-			if (Modifier.isPrivate(flags)) {
+			if (!Modifier.isPublic(flags)) {
 				throw new PrivateMessageHandlerException(handler, recipientClass);
 			}
 
@@ -151,6 +150,8 @@ public class AbberwoultProcessor {
 			if (injectPresent && assisted.size() != 1) {
 				throw new WrongAssistedArgumentsCountException(handler, recipientClass, assisted.size());
 			}
+
+			LOG.debug("Register message handler {} {} {} from class {}", handlerType, handlerName, parameters, clazzName);
 
 			template.register(clazzName, handlerName, handlerType, parameters, validables, assisted);
 		};
