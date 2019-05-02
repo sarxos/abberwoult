@@ -6,9 +6,9 @@
 	</appender>
 
 	<logger name="org.apache.http.wire" level="off" />
-	<logger name="com.github.sarxos.abberwoult" level="trace" />
+	<logger name="com.github.sarxos.abberwoult" level="info" />
 
-	<root level="debug">
+	<root level="info">
 		<appender-ref ref="STDOUT" />
 	</root>
 </configuration>

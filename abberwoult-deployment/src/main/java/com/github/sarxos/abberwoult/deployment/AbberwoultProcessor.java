@@ -25,8 +25,8 @@ import com.github.sarxos.abberwoult.ActorEngine;
 import com.github.sarxos.abberwoult.ActorRefFactory;
 import com.github.sarxos.abberwoult.ActorSelectionFactory;
 import com.github.sarxos.abberwoult.ActorSystemFactory;
-import com.github.sarxos.abberwoult.MessageHandlerRegistry;
-import com.github.sarxos.abberwoult.MessageHandlerRegistryTemplate;
+import com.github.sarxos.abberwoult.MessageHandlersRegistry;
+import com.github.sarxos.abberwoult.MessageHandlersRegistryTemplate;
 import com.github.sarxos.abberwoult.Propser;
 import com.github.sarxos.abberwoult.cdi.BeanLocator;
 import com.github.sarxos.abberwoult.deployment.error.NoArgMessageHandlerException;
@@ -58,7 +58,7 @@ public class AbberwoultProcessor {
 		ActorSelectionFactory.class.getName(),
 		ActorSystemFactory.class.getName(),
 		Propser.class.getName(),
-		MessageHandlerRegistry.class.getName(),
+		MessageHandlersRegistry.class.getName(),
 	};
 
 	/**
@@ -112,7 +112,7 @@ public class AbberwoultProcessor {
 	@BuildStep
 	@Record(STATIC_INIT)
 	AnnotationsTransformerBuildItem doRegisterMessageHandlers(
-		final MessageHandlerRegistryTemplate template,
+		final MessageHandlersRegistryTemplate template,
 		final CombinedIndexBuildItem combinedIndex) {
 
 		final IndexView index = combinedIndex.getIndex();
@@ -121,7 +121,7 @@ public class AbberwoultProcessor {
 		return new AnnotationsTransformerBuildItem(transformer);
 	}
 
-	private AnnotationsTransformer findAndIndexMessageHandlers(final MessageHandlerRegistryTemplate template, final IndexView index) {
+	private AnnotationsTransformer findAndIndexMessageHandlers(final MessageHandlersRegistryTemplate template, final IndexView index) {
 		return tc -> {
 
 			if (!isMessageHandler(tc)) {

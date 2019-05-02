@@ -3,6 +3,9 @@ package com.github.sarxos.abberwoult.util;
 import static java.util.Collections.emptyList;
 
 import java.lang.annotation.Annotation;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles.Lookup;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -15,6 +18,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.github.sarxos.abberwoult.MessageHandlersRegistry.MessageHandlerMethod;
 
 import io.vavr.control.Option;
 
@@ -246,6 +251,19 @@ public class ReflectionUtils {
 		try {
 			return Class.forName(clazzName);
 		} catch (ClassNotFoundException e) {
+			throw new IllegalStateException(e);
+		}
+	}
+
+	public static MethodHandle findVirtualMethod(final Lookup caller, final MessageHandlerMethod method) {
+
+		final Class<?> declaringClass = method.getDeclaringClass();
+		final String name = method.getName();
+		final MethodType methodType = method.getType();
+
+		try {
+			return caller.findVirtual(declaringClass, name, methodType);
+		} catch (NoSuchMethodException | IllegalAccessException e) {
 			throw new IllegalStateException(e);
 		}
 	}

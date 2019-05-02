@@ -4,11 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.inject.Inject;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.github.sarxos.abberwoult.Propser;
-import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.Dispatcher;
 import com.github.sarxos.abberwoult.annotation.Mailbox;
 import com.github.sarxos.abberwoult.cdi.BeanLocator;
@@ -43,15 +40,9 @@ public class PropserTest {
 
 		final Props props = propser.props(TestActor.class);
 
-		Assertions
-			.assertThat(props)
-			.isNotNull();
-		Assertions
-			.assertThat(props.mailbox())
-			.isEqualTo("foo");
-		Assertions
-			.assertThat(props.dispatcher())
-			.isEqualTo("bar");
+		assertThat(props).isNotNull();
+		assertThat(props.mailbox()).isEqualTo("foo");
+		assertThat(props.dispatcher()).isEqualTo("bar");
 	}
 
 	@Test
@@ -62,14 +53,8 @@ public class PropserTest {
 
 		final Props props = propser.props(TestActor.class);
 
-		Assertions
-			.assertThat(props)
-			.isNotNull();
-		Assertions
-			.assertThat(props.mailbox())
-			.isEqualTo(Mailboxes.DefaultMailboxId());
-		Assertions
-			.assertThat(props.dispatcher())
-			.isEqualTo(Dispatchers.DefaultDispatcherId());
+		assertThat(props).isNotNull();
+		assertThat(props.mailbox()).isEqualTo(Mailboxes.DefaultMailboxId());
+		assertThat(props.dispatcher()).isEqualTo(Dispatchers.DefaultDispatcherId());
 	}
 }
