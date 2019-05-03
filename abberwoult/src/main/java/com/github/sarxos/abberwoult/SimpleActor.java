@@ -1,6 +1,7 @@
 package com.github.sarxos.abberwoult;
 
 import static com.github.sarxos.abberwoult.deployment.MessageHandlerRegistry.getMessageHandlersFor;
+import static com.github.sarxos.abberwoult.deployment.PostStopRegistry.getPostStopsFor;
 import static com.github.sarxos.abberwoult.deployment.PreStartRegistry.getPreStartsFor;
 
 import java.lang.invoke.MethodHandle;
@@ -15,9 +16,11 @@ import javax.validation.Validator;
 
 import com.github.sarxos.abberwoult.annotation.MessageHandler;
 import com.github.sarxos.abberwoult.deployment.MessageHandlerRegistry.MessageHandlerMethod;
+import com.github.sarxos.abberwoult.deployment.PostStopRegistry.PostStopMethod;
 import com.github.sarxos.abberwoult.deployment.PreStartRegistry.PreStartMethod;
 import com.github.sarxos.abberwoult.exception.MessageHandlerInvocationException;
 import com.github.sarxos.abberwoult.exception.MessageHandlerValidationException;
+import com.github.sarxos.abberwoult.exception.PostStopInvocationException;
 import com.github.sarxos.abberwoult.exception.PreStartInvocationException;
 
 import akka.actor.AbstractActor;
@@ -40,6 +43,11 @@ public class SimpleActor extends AbstractActor {
 	}
 
 	@Override
+	public final void postStop() throws Exception {
+		getPostStopsFor(getClass()).forEach(this::invokePostStop);
+	}
+
+	@Override
 	public Receive createReceive() {
 		return createReceiveAutomation();
 	}
@@ -50,6 +58,15 @@ public class SimpleActor extends AbstractActor {
 			handle.invoke(this);
 		} catch (Throwable e) {
 			throw new PreStartInvocationException(this, handle, e);
+		}
+	}
+
+	private void invokePostStop(final PostStopMethod method) {
+		final MethodHandle handle = method.getHandle();
+		try {
+			handle.invoke(this);
+		} catch (Throwable e) {
+			throw new PostStopInvocationException(this, handle, e);
 		}
 	}
 

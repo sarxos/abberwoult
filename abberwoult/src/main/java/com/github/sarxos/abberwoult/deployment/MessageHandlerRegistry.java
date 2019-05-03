@@ -31,7 +31,7 @@ public class MessageHandlerRegistry {
 
 	/**
 	 * A static map where all {@link MessageHandler} annotation points are stored. This map is
-	 * populated by a {@link MessageHandlerRegistryTemplate} recorded in the compile time.
+	 * populated by a {@link ActorRegistryTemplate} recorded in the compile time.
 	 */
 	private static final Map<String, Map<String, MessageHandlerMethod>> RECORDS = new HashMap<>();
 

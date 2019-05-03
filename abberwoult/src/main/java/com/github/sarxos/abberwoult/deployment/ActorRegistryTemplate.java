@@ -13,9 +13,14 @@ import io.quarkus.runtime.annotations.Template;
  * @author Bartosz Firyn (sarxos)
  */
 @Template
-public class MessageHandlerRegistryTemplate {
+public class ActorRegistryTemplate {
 
 	public void register(final String className) {
-		MessageHandlerRegistry.register(getClazz(className));
+
+		final Class<?> clazz = getClazz(className);
+
+		MessageHandlerRegistry.register(clazz);
+		PreStartRegistry.register(clazz);
+		PostStopRegistry.register(clazz);
 	}
 }

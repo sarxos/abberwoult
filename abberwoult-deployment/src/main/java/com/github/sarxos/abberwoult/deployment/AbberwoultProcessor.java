@@ -109,21 +109,11 @@ public class AbberwoultProcessor {
 
 	@BuildStep
 	@Record(STATIC_INIT)
-	void doRegisterMessageHandlers(final MessageHandlerRegistryTemplate template, final CombinedIndexBuildItem combinedIndex) {
+	void doRegisterActors(final ActorRegistryTemplate template, final CombinedIndexBuildItem combinedIndex) {
 		combinedIndex.getIndex()
 			.getAllKnownSubclasses(SIMPLE_ACTOR_CLASS)
 			.stream()
-			.peek(clazz -> LOG.debug("Record actor class {} registration in registry", clazz))
-			.forEach(clazz -> template.register(clazz.name().toString()));
-	}
-
-	@BuildStep
-	@Record(STATIC_INIT)
-	void doRegisterPreStartInvokers(final PreStartRegistryTemplate template, final CombinedIndexBuildItem combinedIndex) {
-		combinedIndex.getIndex()
-			.getAllKnownSubclasses(SIMPLE_ACTOR_CLASS)
-			.stream()
-			.peek(clazz -> LOG.debug("Record actor class {} registration in registry", clazz))
+			.peek(clazz -> LOG.debug("Record actor class {} in registry", clazz))
 			.forEach(clazz -> template.register(clazz.name().toString()));
 	}
 }
