@@ -1,4 +1,4 @@
-package com.github.sarxos.abberwoult;
+package com.github.sarxos.abberwoult.cdi;
 
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
@@ -18,7 +18,7 @@ import akka.actor.ActorSystem;
 
 
 @Singleton
-public class ActorSelectionFactory extends ActorInjectionFactory {
+public class ActorSelectionFactory extends AbstractInjectFactory {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ActorSelectionFactory.class);
 

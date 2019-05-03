@@ -22,12 +22,10 @@ import org.slf4j.LoggerFactory;
 
 import com.github.sarxos.abberwoult.AbberwoultLifecycleListener;
 import com.github.sarxos.abberwoult.ActorEngine;
-import com.github.sarxos.abberwoult.ActorRefFactory;
-import com.github.sarxos.abberwoult.ActorSelectionFactory;
-import com.github.sarxos.abberwoult.ActorSystemFactory;
-import com.github.sarxos.abberwoult.MessageHandlersRegistry;
-import com.github.sarxos.abberwoult.MessageHandlersRegistryTemplate;
 import com.github.sarxos.abberwoult.Propser;
+import com.github.sarxos.abberwoult.cdi.ActorRefFactory;
+import com.github.sarxos.abberwoult.cdi.ActorSelectionFactory;
+import com.github.sarxos.abberwoult.cdi.ActorSystemFactory;
 import com.github.sarxos.abberwoult.cdi.BeanLocator;
 import com.github.sarxos.abberwoult.deployment.error.NoArgMessageHandlerException;
 import com.github.sarxos.abberwoult.deployment.error.PrivateMessageHandlerException;

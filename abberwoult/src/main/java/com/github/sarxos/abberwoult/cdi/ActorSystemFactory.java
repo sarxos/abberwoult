@@ -1,4 +1,4 @@
-package com.github.sarxos.abberwoult;
+package com.github.sarxos.abberwoult.cdi;
 
 import java.util.UUID;
 

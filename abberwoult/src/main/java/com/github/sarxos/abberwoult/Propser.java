@@ -1,19 +1,13 @@
 package com.github.sarxos.abberwoult;
 
-import static com.github.sarxos.abberwoult.util.ReflectionUtils.getAnnotationFromClass;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import com.github.sarxos.abberwoult.annotation.Dispatcher;
-import com.github.sarxos.abberwoult.annotation.Mailbox;
 import com.github.sarxos.abberwoult.cdi.BeanLocator;
+import com.github.sarxos.abberwoult.util.ActorUtils;
 
 import akka.actor.Actor;
 import akka.actor.Props;
-import akka.dispatch.Dispatchers;
-import akka.dispatch.Mailboxes;
-import io.vavr.control.Option;
 
 
 /**
@@ -52,35 +46,8 @@ public class Propser {
 	public Props props(final Class<? extends Actor> clazz, final Object... args) {
 		return Props
 			.create(new ActorCreator<>(locator, clazz, args))
-			.withDispatcher(getDispatcherFromClass(clazz))
-			.withMailbox(getMailboxFromClass(clazz));
+			.withDispatcher(ActorUtils.getMessageDispatcherId(clazz))
+			.withMailbox(ActorUtils.getMailboxId(clazz));
 	}
 
-	/**
-	 * Return dispatcher name to be used by given actor or default dispatcher ID if no
-	 * {@link Dispatcher} annotation is present on class.
-	 *
-	 * @param clazz the class to get dispatcher name from
-	 * @return Dispatcher name
-	 */
-	private static final String getDispatcherFromClass(final Class<? extends Actor> clazz) {
-		return Option
-			.of(getAnnotationFromClass(clazz, Dispatcher.class))
-			.map(Dispatcher::value)
-			.getOrElse(() -> Dispatchers.DefaultDispatcherId());
-	}
-
-	/**
-	 * Return mailbox name to be used by given actor or default mailbox ID if no {@link Mailbox}
-	 * annotation is present on class.
-	 *
-	 * @param clazz the class to get mailbox name from
-	 * @return Dispatcher name
-	 */
-	private static final String getMailboxFromClass(final Class<? extends Actor> clazz) {
-		return Option
-			.of(getAnnotationFromClass(clazz, Mailbox.class))
-			.map(Mailbox::value)
-			.getOrElse(() -> Mailboxes.DefaultMailboxId());
-	}
 }

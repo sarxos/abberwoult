@@ -15,12 +15,8 @@ import akka.japi.Creator;
  * @author Bartosz Firyn (sarxos)
  * @param <T>
  */
+@SuppressWarnings("serial")
 public class ActorCreator<T extends Actor> extends BeanFactory<T> implements Creator<T> {
-
-	/**
-	 * Serial.
-	 */
-	private static final long serialVersionUID = 1L;
 
 	private static final Class<?> STOP_CLASS = SimpleActor.class.getSuperclass();
 

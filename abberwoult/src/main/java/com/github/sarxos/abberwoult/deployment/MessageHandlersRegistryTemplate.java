@@ -1,14 +1,14 @@
-package com.github.sarxos.abberwoult;
+package com.github.sarxos.abberwoult.deployment;
 
-import static com.github.sarxos.abberwoult.MessageHandlersRegistry.store;
+import static com.github.sarxos.abberwoult.deployment.MessageHandlersRegistry.store;
 import static com.github.sarxos.abberwoult.util.CollectorUtils.toListWithSameSizeAs;
 import static com.github.sarxos.abberwoult.util.ReflectionUtils.getClazz;
 
 import java.util.List;
 import java.util.Set;
 
-import com.github.sarxos.abberwoult.MessageHandlersRegistry.ParameterList;
 import com.github.sarxos.abberwoult.annotation.MessageHandler;
+import com.github.sarxos.abberwoult.deployment.MessageHandlersRegistry.ParameterList;
 import com.github.sarxos.abberwoult.util.ReflectionUtils;
 
 import io.quarkus.runtime.annotations.Template;

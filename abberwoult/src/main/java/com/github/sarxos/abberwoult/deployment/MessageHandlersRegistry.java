@@ -1,4 +1,4 @@
-package com.github.sarxos.abberwoult;
+package com.github.sarxos.abberwoult.deployment;
 
 import java.lang.invoke.MethodType;
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ public class MessageHandlersRegistry {
 	@Inject
 	Validator validator;
 
-	protected static void store(final Class<?> declaringClass, final String handlerName, final Class<?> handlerType, final ParameterList parameters) {
+	static void store(final Class<?> declaringClass, final String handlerName, final Class<?> handlerType, final ParameterList parameters) {
 		RECORDS
 			.computeIfAbsent(declaringClass, $ -> new HashMap<>())
 			.computeIfAbsent(getMessageClass(parameters), entry(declaringClass, handlerName, handlerType, parameters));

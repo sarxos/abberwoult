@@ -3,16 +3,19 @@ package com.github.sarxos.abberwoult;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import com.github.sarxos.abberwoult.trait.Selector;
+
 import akka.actor.ActorSystem;
+import akka.actor.Props;
 
 
 /**
- * Temporary name. Need to come up with something meaningful.
+ * Core entity used to create various actor-related stuff.
  *
  * @author Bartosz Firyn (sarxos)
  */
 @Singleton
-public class ActorEngine {
+public class ActorEngine implements Selector {
 
 	@Inject
 	Propser propser;
@@ -20,11 +23,25 @@ public class ActorEngine {
 	@Inject
 	ActorSystem system;
 
-	public Propser getPropser() {
+	/**
+	 * @return A {@link Propser} entity designed to create actor {@link Props}
+	 */
+	public Propser propser() {
 		return propser;
 	}
 
-	public ActorSystem getSystem() {
+	/**
+	 * @return The {@link ActorSystem}
+	 */
+	@Override
+	public ActorSystem system() {
 		return system;
+	}
+
+	/**
+	 * @return New actor builder
+	 */
+	public ActorBuilder<?> actor() {
+		return new ActorBuilder<>(this);
 	}
 }

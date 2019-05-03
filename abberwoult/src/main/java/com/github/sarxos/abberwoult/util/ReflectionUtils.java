@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.github.sarxos.abberwoult.MessageHandlersRegistry.MessageHandlerMethod;
+import com.github.sarxos.abberwoult.deployment.MessageHandlersRegistry.MessageHandlerMethod;
 
 import io.vavr.control.Option;
 

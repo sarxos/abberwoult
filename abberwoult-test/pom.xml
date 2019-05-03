@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>abberwoult-test</artifactId>
-  <name>Abberwoult Test Set</name>
+  <name>Abberwoult Integration Tests</name>
 
   <dependencies>
     <dependency>

@@ -15,8 +15,9 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Valid;
 import javax.validation.Validator;
 
-import com.github.sarxos.abberwoult.MessageHandlersRegistry.MessageHandlerMethod;
 import com.github.sarxos.abberwoult.annotation.MessageHandler;
+import com.github.sarxos.abberwoult.deployment.MessageHandlersRegistry;
+import com.github.sarxos.abberwoult.deployment.MessageHandlersRegistry.MessageHandlerMethod;
 import com.github.sarxos.abberwoult.exception.MessageHandlerInvocationException;
 import com.github.sarxos.abberwoult.exception.MessageHandlerValidationException;
 

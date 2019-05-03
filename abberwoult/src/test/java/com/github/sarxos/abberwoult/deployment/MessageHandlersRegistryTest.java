@@ -1,4 +1,4 @@
-package com.github.sarxos.abberwoult;
+package com.github.sarxos.abberwoult.deployment;
 
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -11,9 +11,11 @@ import javax.inject.Inject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.github.sarxos.abberwoult.MessageHandlersRegistry.MessageHandlerMethod;
-import com.github.sarxos.abberwoult.MessageHandlersRegistry.ParameterList;
+import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.ActorOf;
+import com.github.sarxos.abberwoult.deployment.MessageHandlersRegistry;
+import com.github.sarxos.abberwoult.deployment.MessageHandlersRegistry.MessageHandlerMethod;
+import com.github.sarxos.abberwoult.deployment.MessageHandlersRegistry.ParameterList;
 import com.github.sarxos.abberwoult.util.ReflectionUtils;
 
 import akka.actor.ActorRef;

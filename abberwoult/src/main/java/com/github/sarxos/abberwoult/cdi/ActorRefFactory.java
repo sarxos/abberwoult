@@ -1,4 +1,4 @@
-package com.github.sarxos.abberwoult;
+package com.github.sarxos.abberwoult.cdi;
 
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
@@ -9,6 +9,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.sarxos.abberwoult.Propser;
 import com.github.sarxos.abberwoult.annotation.ActorOf;
 import com.github.sarxos.abberwoult.util.ActorUtils;
 
@@ -19,7 +20,7 @@ import akka.actor.Props;
 
 
 @Singleton
-public class ActorRefFactory extends ActorInjectionFactory {
+public class ActorRefFactory extends AbstractInjectFactory {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ActorRefFactory.class);
 
