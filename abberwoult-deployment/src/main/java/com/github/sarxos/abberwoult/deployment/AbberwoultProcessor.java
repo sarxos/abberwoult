@@ -2,21 +2,13 @@ package com.github.sarxos.abberwoult.deployment;
 
 import static com.github.sarxos.abberwoult.deployment.AbberwoultClasses.ACTOR_SCOPED_ANNOTATION;
 import static com.github.sarxos.abberwoult.deployment.AbberwoultClasses.APPLICATION_SCOPED_ANNOTATION;
-import static com.github.sarxos.abberwoult.deployment.util.DeploymentUtils.isMessageHandler;
-import static com.github.sarxos.abberwoult.util.CollectorUtils.toListWithSameSizeAs;
+import static com.github.sarxos.abberwoult.deployment.AbberwoultClasses.SIMPLE_ACTOR_CLASS;
 import static io.quarkus.deployment.annotations.ExecutionTime.STATIC_INIT;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.toList;
 
-import java.lang.reflect.Modifier;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jboss.jandex.ClassInfo;
-import org.jboss.jandex.DotName;
-import org.jboss.jandex.IndexView;
-import org.jboss.jandex.MethodInfo;
-import org.jboss.jandex.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,21 +19,16 @@ import com.github.sarxos.abberwoult.cdi.ActorRefFactory;
 import com.github.sarxos.abberwoult.cdi.ActorSelectionFactory;
 import com.github.sarxos.abberwoult.cdi.ActorSystemFactory;
 import com.github.sarxos.abberwoult.cdi.BeanLocator;
-import com.github.sarxos.abberwoult.deployment.error.NoArgMessageHandlerException;
-import com.github.sarxos.abberwoult.deployment.error.PrivateMessageHandlerException;
-import com.github.sarxos.abberwoult.deployment.error.WrongAssistedArgumentsCountException;
-import com.github.sarxos.abberwoult.deployment.util.DeploymentUtils;
 
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
-import io.quarkus.arc.deployment.AnnotationsTransformerBuildItem;
 import io.quarkus.arc.deployment.BeanDefiningAnnotationBuildItem;
 import io.quarkus.arc.deployment.UnremovableBeanBuildItem;
-import io.quarkus.arc.processor.AnnotationsTransformer;
 import io.quarkus.arc.processor.BeanInfo;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
+import io.quarkus.deployment.builditem.substrate.ReflectiveClassBuildItem;
 
 
 public class AbberwoultProcessor {
@@ -108,82 +95,23 @@ public class AbberwoultProcessor {
 	}
 
 	@BuildStep
+	List<ReflectiveClassBuildItem> doRegisterReflectiveClasses(final CombinedIndexBuildItem combinedIndex) {
+		return combinedIndex
+			.getIndex()
+			.getAllKnownSubclasses(SIMPLE_ACTOR_CLASS)
+			.stream()
+			.map(clazz -> new ReflectiveClassBuildItem(true, false, clazz.name().toString()))
+			.collect(toList());
+
+	}
+
+	@BuildStep
 	@Record(STATIC_INIT)
-	AnnotationsTransformerBuildItem doRegisterMessageHandlers(
-		final MessageHandlersRegistryTemplate template,
-		final CombinedIndexBuildItem combinedIndex) {
-
-		final IndexView index = combinedIndex.getIndex();
-		final AnnotationsTransformer transformer = findAndIndexMessageHandlers(template, index);
-
-		return new AnnotationsTransformerBuildItem(transformer);
-	}
-
-	private AnnotationsTransformer findAndIndexMessageHandlers(final MessageHandlersRegistryTemplate template, final IndexView index) {
-		return tc -> {
-
-			if (!isMessageHandler(tc)) {
-				return;
-			}
-
-			final MethodInfo handler = tc.getTarget().asMethod();
-			final ClassInfo recipientClass = handler.declaringClass();
-			final short flags = handler.flags();
-
-			if (!Modifier.isPublic(flags)) {
-				throw new PrivateMessageHandlerException(handler, recipientClass);
-			}
-
-			final String clazzName = recipientClass.name().toString();
-			final String handlerName = handler.name();
-			final String handlerType = handler.returnType().name().toString();
-			final List<String> parameters = getParameterTypeNames(handler);
-			final Set<Short> validables = getValidablePositions(handler);
-			final Set<Short> assisted = getAssistedPositions(handler);
-			final boolean injectPresent = isInjectPresent(handler);
-
-			if (parameters.isEmpty()) {
-				throw new NoArgMessageHandlerException(handler, recipientClass);
-			}
-			if (injectPresent && assisted.size() != 1) {
-				throw new WrongAssistedArgumentsCountException(handler, recipientClass, assisted.size());
-			}
-
-			LOG.debug("Register message handler {} {} {} from class {}", handlerType, handlerName, parameters, clazzName);
-
-			template.register(clazzName, handlerName, handlerType, parameters, validables, assisted);
-		};
-	}
-
-	private static boolean isInjectPresent(final MethodInfo method) {
-		return method.annotations().stream()
-			.filter(DeploymentUtils::isMethodAnnotation)
-			.filter(DeploymentUtils::isInjectAnnotation)
-			.findAny()
-			.isPresent();
-	}
-
-	private static List<String> getParameterTypeNames(final MethodInfo method) {
-		final List<Type> parameters = method.parameters();
-		return parameters.stream()
-			.map(Type::name)
-			.map(DotName::toString)
-			.collect(toListWithSameSizeAs(parameters));
-	}
-
-	private static Set<Short> getValidablePositions(final MethodInfo method) {
-		return method.annotations().stream()
-			.filter(DeploymentUtils::isMethodParameterAnnotation)
-			.filter(DeploymentUtils::isValidAnnotation)
-			.map(DeploymentUtils::toMethodParameterPosition)
-			.collect(toSet());
-	}
-
-	private static Set<Short> getAssistedPositions(final MethodInfo method) {
-		return method.annotations().stream()
-			.filter(DeploymentUtils::isMethodParameterAnnotation)
-			.filter(DeploymentUtils::isAssistedAnnotation)
-			.map(DeploymentUtils::toMethodParameterPosition)
-			.collect(toSet());
+	void doRegisterMessageHandlers(final MessageHandlersRegistryTemplate template, final CombinedIndexBuildItem combinedIndex) {
+		combinedIndex.getIndex()
+			.getAllKnownSubclasses(SIMPLE_ACTOR_CLASS)
+			.stream()
+			.peek(clazz -> LOG.debug("Record actor class {} registration in registry", clazz))
+			.forEach(clazz -> template.register(clazz.name().toString()));
 	}
 }

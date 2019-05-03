@@ -1,20 +1,30 @@
 package com.github.sarxos.abberwoult.deployment;
 
-import java.lang.invoke.MethodType;
-import java.util.ArrayList;
+import static com.github.sarxos.abberwoult.util.ReflectionUtils.getObjectDistance;
+import static com.github.sarxos.abberwoult.util.ReflectionUtils.hasValidableParameters;
+import static com.github.sarxos.abberwoult.util.ReflectionUtils.unreflect;
+import static java.util.stream.Collectors.toList;
+
+import java.lang.invoke.MethodHandle;
+import java.lang.reflect.Method;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
+import java.util.function.Predicate;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.Valid;
 import javax.validation.Validator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.MessageHandler;
-import com.github.sarxos.abberwoult.util.CollectorUtils;
+import com.github.sarxos.abberwoult.util.ReflectionUtils;
 
 import io.vavr.control.Option;
 
@@ -22,11 +32,30 @@ import io.vavr.control.Option;
 @Singleton
 public class MessageHandlersRegistry {
 
+	private static final Logger LOG = LoggerFactory.getLogger(MessageHandlersRegistry.class);
+
 	/**
 	 * A static map where all {@link MessageHandler} annotation points are stored. This map is
 	 * populated by a {@link MessageHandlersRegistryTemplate} recorded in the compile time.
 	 */
-	private static final Map<Class<?>, Map<Class<?>, MessageHandlerMethod>> RECORDS = new HashMap<>();
+	private static final Map<String, Map<String, MessageHandlerMethod>> RECORDS = new HashMap<>();
+
+	private static final Predicate<Method> HAS_ARGUMENTS = m -> m.getParameterCount() > 0;
+
+	/**
+	 * Comparator to sort {@link MessageHandlerMethod} by a distance between a message type and an
+	 * {@link Object} class. The more specialized methods will be listed first.
+	 */
+	private static final Comparator<MessageHandlerMethod> BY_OBJECT_DISTANCE = (a, b) -> {
+		final int distanceA = getObjectDistance(a.getMessageClass());
+		final int distanceB = getObjectDistance(b.getMessageClass());
+		return Integer.compare(distanceA, distanceB);
+	};
+
+	/**
+	 * Where to stop inheritance tree scanning.
+	 */
+	private static final Class<?> STOP_CLASS = SimpleActor.class.getSuperclass();
 
 	/**
 	 * A validator instance used to validate message in case when {@link MessageHandler} annotated
@@ -35,42 +64,40 @@ public class MessageHandlersRegistry {
 	@Inject
 	Validator validator;
 
-	static void store(final Class<?> declaringClass, final String handlerName, final Class<?> handlerType, final ParameterList parameters) {
-		RECORDS
-			.computeIfAbsent(declaringClass, $ -> new HashMap<>())
-			.computeIfAbsent(getMessageClass(parameters), entry(declaringClass, handlerName, handlerType, parameters));
-	}
+	static void register(final Class<?> clazz) {
 
-	private static Function<Class<?>, MessageHandlerMethod> entry(final Class<?> declaringClass, final String handlerName, final Class<?> handlerType, final ParameterList parameters) {
-		return messageClass -> new MessageHandlerMethod(messageClass, declaringClass, handlerName, handlerType, parameters);
-	}
+		LOG.debug("Register message handlers from actor {}", clazz);
 
-	/**
-	 * Infer message class from the parameters list.
-	 *
-	 * @param parameters the parameters list
-	 * @return Message class
-	 */
-	private static Class<?> getMessageClass(final List<ParameterEntry> parameters) {
-		if (parameters.size() == 1) {
-			return parameters.get(0).getType();
+		final List<MessageHandlerMethod> methods = ReflectionUtils
+			.getAnnotatedMethodsFromClass(clazz, MessageHandler.class, STOP_CLASS)
+			.stream()
+			.filter(HAS_ARGUMENTS)
+			.map(MessageHandlerMethod::new)
+			.collect(toList());
+
+		if (methods.isEmpty()) {
+			return;
 		} else {
-			return parameters.stream()
-				.filter(ParameterEntry::isAssisted)
-				.map(ParameterEntry::getType)
-				.findAny()
-				.get();
+			methods.sort(BY_OBJECT_DISTANCE);
 		}
+
+		final String classKey = clazz.getName();
+		final Map<String, MessageHandlerMethod> handlers = RECORDS.computeIfAbsent(classKey, $ -> new LinkedHashMap<>());
+
+		methods
+			.stream()
+			.peek(entry -> LOG.debug("Register message handler {}", entry.getName()))
+			.forEach(entry -> handlers.putIfAbsent(entry.getMessageKey(), entry));
 	}
 
 	/**
 	 * Return a mapping between message class and corresponding handlers.
 	 *
-	 * @param declaringClass a declaring class
+	 * @param clazz a declaring class
 	 * @return A mapping between message class and corresponding handlers
 	 */
-	public Option<Map<Class<?>, MessageHandlerMethod>> getHandlersFor(final Class<?> declaringClass) {
-		return Option.of(RECORDS.get(declaringClass));
+	public Option<Map<String, MessageHandlerMethod>> getHandlersFor(final Class<?> clazz) {
+		return Option.of(RECORDS.get(clazz.getName()));
 	}
 
 	/**
@@ -82,138 +109,52 @@ public class MessageHandlersRegistry {
 	 * @return A {@link MessageHandlerMethod} entry
 	 */
 	public Option<MessageHandlerMethod> getHandlerFor(final Class<?> declaringClass, final Class<?> messageClass) {
-		return getHandlersFor(declaringClass).map(mapping -> mapping.get(messageClass));
+		return getHandlersFor(declaringClass).map(mapping -> mapping.get(messageClass.getName()));
 	}
 
 	public static class MessageHandlerMethod {
 
-		private static final Class<?>[] EMPTY_CLASS_ARRAY = new Class<?>[0];
-
+		private final Method method;
 		private final Class<?> messageClass;
-		private final Class<?> declaringClass;
-		private final String name;
-		private final Class<?> returnedType;
-		private final ParameterList parameters;
-		private final MethodType type;
+		private final MethodHandle handle;
 		private final boolean validable;
 
-		public MessageHandlerMethod(final Class<?> messageClass, final Class<?> declartingClass, final String name, final Class<?> returnedType, final ParameterList parameters) {
-			this.messageClass = messageClass;
-			this.declaringClass = declartingClass;
-			this.name = name;
-			this.returnedType = returnedType;
-			this.parameters = parameters;
-			this.type = MethodType.methodType(returnedType, getParameterTypes(parameters));
-			this.validable = hasValidableParameters(parameters);
+		public MessageHandlerMethod(final Method method) {
+			this.method = method;
+			this.messageClass = method.getParameterTypes()[0];
+			this.handle = unreflect(getDeclaringClass(), method);
+			this.validable = hasValidableParameters(method);
 		}
 
-		private static final Class<?>[] getParameterTypes(final ParameterList parameters) {
-			return parameters.stream()
-				.map(ParameterEntry::getType)
-				.collect(CollectorUtils.toListWithSameSizeAs(parameters))
-				.toArray(EMPTY_CLASS_ARRAY);
-		}
-
-		private static final boolean hasValidableParameters(final ParameterList parameters) {
-			return parameters.stream()
-				.filter(ParameterEntry::isValidable)
-				.findAny()
-				.isPresent();
+		public Class<?> getDeclaringClass() {
+			return method.getDeclaringClass();
 		}
 
 		public Class<?> getMessageClass() {
 			return messageClass;
 		}
 
-		public Class<?> getDeclaringClass() {
-			return declaringClass;
+		public MethodHandle getHandle() {
+			return handle;
 		}
 
+		public boolean isValidable() {
+			return validable;
+		}
+
+		public String getMessageKey() {
+			return getMessageClass().getName();
+		}
+
+		/**
+		 * @return Interned method name
+		 */
 		public String getName() {
-			return name;
+			return method.getName();
 		}
 
 		public Class<?> getReturnedType() {
-			return returnedType;
-		}
-
-		public boolean isValidable() {
-			return validable;
-		}
-
-		public ParameterList getParameters() {
-			return parameters;
-		}
-
-		public MethodType getType() {
-			return type;
-		}
-	}
-
-	public static class ParameterList extends ArrayList<ParameterEntry> {
-
-		private static final long serialVersionUID = 1L;
-
-		/**
-		 * @param capacity initial capacity
-		 */
-		private ParameterList(final int capacity) {
-			super(capacity);
-		}
-
-		/**
-		 * @param types parameter types
-		 * @param validate positions of parameters to validate
-		 * @param assist positions of parameters to assist
-		 */
-		public static ParameterList of(final List<Class<?>> types, final Set<Short> validate, final Set<Short> assist) {
-
-			final int parametersCount = types.size();
-			final ParameterList parameters = new ParameterList(parametersCount);
-
-			// we work with short because java method cannot have more parameters
-
-			for (short i = 0; i < parametersCount; i++) {
-
-				final Class<?> type = types.get(i);
-				final boolean isValidable = validate.contains(i);
-				final boolean isAssisted = assist.contains(i);
-
-				parameters.add(new ParameterEntry(type, i, isValidable, isAssisted));
-			}
-
-			return parameters;
-		}
-	}
-
-	public static class ParameterEntry {
-
-		private final Class<?> type;
-		private final short position;
-		private final boolean validable;
-		private final boolean assisted;
-
-		public ParameterEntry(Class<?> type, short position, boolean validable, boolean assisted) {
-			this.type = type;
-			this.position = position;
-			this.validable = validable;
-			this.assisted = assisted;
-		}
-
-		public Class<?> getType() {
-			return type;
-		}
-
-		public short getPosition() {
-			return position;
-		}
-
-		public boolean isValidable() {
-			return validable;
-		}
-
-		public boolean isAssisted() {
-			return assisted;
+			return method.getReturnType();
 		}
 	}
 }

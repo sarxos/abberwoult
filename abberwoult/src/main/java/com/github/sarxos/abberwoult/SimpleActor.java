@@ -1,12 +1,8 @@
 package com.github.sarxos.abberwoult;
 
-import static com.github.sarxos.abberwoult.util.ReflectionUtils.findVirtualMethod;
-
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.enterprise.inject.spi.CDI;
@@ -52,11 +48,10 @@ public class SimpleActor extends AbstractActor {
 	private Receive createReceiveAutomation() {
 
 		final Class<?> declaringClass = getClass();
-		final Lookup caller = MethodHandles.lookup().in(declaringClass);
 
 		return getMessageHandlersRegistry()
 			.getHandlersFor(declaringClass)
-			.map(handlers -> createReceiveForHandlers(caller, handlers))
+			.map(handlers -> createReceiveForHandlers(handlers))
 			.getOrElse(() -> createReceiveForUnmatched());
 	}
 
@@ -67,15 +62,14 @@ public class SimpleActor extends AbstractActor {
 	 * @param handlers a mapping between message class and corresponding {@link MessageHandler}
 	 * @return New {@link Receive}
 	 */
-	private Receive createReceiveForHandlers(final Lookup caller, final Map<Class<?>, MessageHandlerMethod> handlers) {
+	private Receive createReceiveForHandlers(final Map<String, MessageHandlerMethod> handlers) {
 
 		final ReceiveBuilder builder = ReceiveBuilder.create();
 
-		for (final Entry<Class<?>, MessageHandlerMethod> entry : handlers.entrySet()) {
+		for (final MessageHandlerMethod method : handlers.values()) {
 
-			final Class<?> messageClass = entry.getKey();
-			final MessageHandlerMethod method = entry.getValue();
-			final MethodHandle handle = findVirtualMethod(caller, method);
+			final Class<?> messageClass = method.getMessageClass();
+			final MethodHandle handle = method.getHandle();
 
 			if (method.isValidable()) {
 				builder.match(messageClass, consumeValid(handle));

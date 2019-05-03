@@ -1,25 +1,27 @@
 package com.github.sarxos.abberwoult.util;
 
+import static java.lang.invoke.MethodHandles.lookup;
 import static java.util.Collections.emptyList;
 
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles.Lookup;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
-import com.github.sarxos.abberwoult.deployment.MessageHandlersRegistry.MessageHandlerMethod;
+import javax.validation.Valid;
 
 import io.vavr.control.Option;
 
@@ -48,6 +50,8 @@ public class ReflectionUtils {
 			put("double", double.class);
 		}
 	};
+
+	private static final Predicate<Parameter> HAS_VALID_ANNOTATION = p -> p.isAnnotationPresent(Valid.class);
 
 	/**
 	 * Make sure {@link Field} is accessible.
@@ -192,6 +196,9 @@ public class ReflectionUtils {
 					methods.add(method);
 				}
 			}
+			for (final Class<?> interf : clazz.getInterfaces()) {
+				methods.addAll(getAnnotatedMethodsFromClass(interf, annotation, stop));
+			}
 			clazz = clazz.getSuperclass();
 		}
 
@@ -255,15 +262,26 @@ public class ReflectionUtils {
 		}
 	}
 
-	public static MethodHandle findVirtualMethod(final Lookup caller, final MessageHandlerMethod method) {
+	public static int getObjectDistance(Class<?> clazz) {
+		for (int i = 0; true; i++) {
+			if ((clazz = clazz.getSuperclass()) == null) {
+				return i;
+			}
+		}
+	}
 
-		final Class<?> declaringClass = method.getDeclaringClass();
-		final String name = method.getName();
-		final MethodType methodType = method.getType();
+	public static boolean hasValidableParameters(final Method method) {
+		return Arrays
+			.stream(method.getParameters())
+			.filter(HAS_VALID_ANNOTATION)
+			.findAny()
+			.isPresent();
+	}
 
+	public static MethodHandle unreflect(final Class<?> clazz, final Method method) {
 		try {
-			return caller.findVirtual(declaringClass, name, methodType);
-		} catch (NoSuchMethodException | IllegalAccessException e) {
+			return lookup().in(clazz).unreflect(accessible(method));
+		} catch (IllegalAccessException e) {
 			throw new IllegalStateException(e);
 		}
 	}
