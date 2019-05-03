@@ -4,11 +4,9 @@ import static com.github.sarxos.abberwoult.deployment.AbberwoultClasses.ACTOR_SC
 import static com.github.sarxos.abberwoult.deployment.AbberwoultClasses.APPLICATION_SCOPED_ANNOTATION;
 import static com.github.sarxos.abberwoult.deployment.AbberwoultClasses.SIMPLE_ACTOR_CLASS;
 import static io.quarkus.deployment.annotations.ExecutionTime.STATIC_INIT;
-import static java.util.stream.Collectors.toList;
-
-import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jboss.jandex.IndexView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +22,7 @@ import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.arc.deployment.BeanDefiningAnnotationBuildItem;
 import io.quarkus.arc.deployment.UnremovableBeanBuildItem;
 import io.quarkus.arc.processor.BeanInfo;
+import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
@@ -43,7 +42,7 @@ public class AbberwoultProcessor {
 		ActorSelectionFactory.class.getName(),
 		ActorSystemFactory.class.getName(),
 		Propser.class.getName(),
-		MessageHandlersRegistry.class.getName(),
+		MessageHandlerRegistry.class.getName(),
 	};
 
 	/**
@@ -95,19 +94,32 @@ public class AbberwoultProcessor {
 	}
 
 	@BuildStep
-	List<ReflectiveClassBuildItem> doRegisterReflectiveClasses(final CombinedIndexBuildItem combinedIndex) {
-		return combinedIndex
-			.getIndex()
+	void doRegisterReflectiveClasses(
+		final CombinedIndexBuildItem combinedIndex,
+		final BuildProducer<ReflectiveClassBuildItem> reflectives) {
+
+		final IndexView index = combinedIndex.getIndex();
+
+		index
 			.getAllKnownSubclasses(SIMPLE_ACTOR_CLASS)
 			.stream()
 			.map(clazz -> new ReflectiveClassBuildItem(true, false, clazz.name().toString()))
-			.collect(toList());
-
+			.forEach(item -> reflectives.produce(item));
 	}
 
 	@BuildStep
 	@Record(STATIC_INIT)
-	void doRegisterMessageHandlers(final MessageHandlersRegistryTemplate template, final CombinedIndexBuildItem combinedIndex) {
+	void doRegisterMessageHandlers(final MessageHandlerRegistryTemplate template, final CombinedIndexBuildItem combinedIndex) {
+		combinedIndex.getIndex()
+			.getAllKnownSubclasses(SIMPLE_ACTOR_CLASS)
+			.stream()
+			.peek(clazz -> LOG.debug("Record actor class {} registration in registry", clazz))
+			.forEach(clazz -> template.register(clazz.name().toString()));
+	}
+
+	@BuildStep
+	@Record(STATIC_INIT)
+	void doRegisterPreStartInvokers(final PreStartRegistryTemplate template, final CombinedIndexBuildItem combinedIndex) {
 		combinedIndex.getIndex()
 			.getAllKnownSubclasses(SIMPLE_ACTOR_CLASS)
 			.stream()

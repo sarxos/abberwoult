@@ -7,17 +7,13 @@ import static java.util.stream.Collectors.toList;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import javax.validation.Valid;
-import javax.validation.Validator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,14 +25,13 @@ import com.github.sarxos.abberwoult.util.ReflectionUtils;
 import io.vavr.control.Option;
 
 
-@Singleton
-public class MessageHandlersRegistry {
+public class MessageHandlerRegistry {
 
-	private static final Logger LOG = LoggerFactory.getLogger(MessageHandlersRegistry.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MessageHandlerRegistry.class);
 
 	/**
 	 * A static map where all {@link MessageHandler} annotation points are stored. This map is
-	 * populated by a {@link MessageHandlersRegistryTemplate} recorded in the compile time.
+	 * populated by a {@link MessageHandlerRegistryTemplate} recorded in the compile time.
 	 */
 	private static final Map<String, Map<String, MessageHandlerMethod>> RECORDS = new HashMap<>();
 
@@ -58,15 +53,19 @@ public class MessageHandlersRegistry {
 	private static final Class<?> STOP_CLASS = SimpleActor.class.getSuperclass();
 
 	/**
-	 * A validator instance used to validate message in case when {@link MessageHandler} annotated
-	 * method contains an argument which was annotated with {@link Valid} annotation.
+	 * Register given class as a {@link MessageHandler} definer. This class inheritance tree will be
+	 * scanned and all methods annotated with {@link MessageHandler} annotations present will be
+	 * stored in internal handlers registry,
+	 *
+	 * @param clazz the class to register
 	 */
-	@Inject
-	Validator validator;
-
 	static void register(final Class<?> clazz) {
 
-		LOG.debug("Register message handlers from actor {}", clazz);
+		// allow concrete classes only
+
+		if (clazz.isAnonymousClass() || Modifier.isAbstract(clazz.getModifiers())) {
+			return;
+		}
 
 		final List<MessageHandlerMethod> methods = ReflectionUtils
 			.getAnnotatedMethodsFromClass(clazz, MessageHandler.class, STOP_CLASS)
@@ -81,12 +80,14 @@ public class MessageHandlersRegistry {
 			methods.sort(BY_OBJECT_DISTANCE);
 		}
 
+		LOG.debug("Register {} message handlers for actor {}", methods.size(), clazz);
+
 		final String classKey = clazz.getName();
 		final Map<String, MessageHandlerMethod> handlers = RECORDS.computeIfAbsent(classKey, $ -> new LinkedHashMap<>());
 
 		methods
 			.stream()
-			.peek(entry -> LOG.debug("Register message handler {}", entry.getName()))
+			.peek(entry -> LOG.trace("Register message handler {}", entry.getName()))
 			.forEach(entry -> handlers.putIfAbsent(entry.getMessageKey(), entry));
 	}
 
@@ -96,7 +97,7 @@ public class MessageHandlersRegistry {
 	 * @param clazz a declaring class
 	 * @return A mapping between message class and corresponding handlers
 	 */
-	public Option<Map<String, MessageHandlerMethod>> getHandlersFor(final Class<?> clazz) {
+	public static Option<Map<String, MessageHandlerMethod>> getMessageHandlersFor(final Class<?> clazz) {
 		return Option.of(RECORDS.get(clazz.getName()));
 	}
 
@@ -108,8 +109,8 @@ public class MessageHandlersRegistry {
 	 * @param messageClass a message class
 	 * @return A {@link MessageHandlerMethod} entry
 	 */
-	public Option<MessageHandlerMethod> getHandlerFor(final Class<?> declaringClass, final Class<?> messageClass) {
-		return getHandlersFor(declaringClass).map(mapping -> mapping.get(messageClass.getName()));
+	public static Option<MessageHandlerMethod> getHandlerFor(final Class<?> declaringClass, final Class<?> messageClass) {
+		return getMessageHandlersFor(declaringClass).map(mapping -> mapping.get(messageClass.getName()));
 	}
 
 	public static class MessageHandlerMethod {

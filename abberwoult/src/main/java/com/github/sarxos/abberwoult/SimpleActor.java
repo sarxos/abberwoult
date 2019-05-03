@@ -1,21 +1,24 @@
 package com.github.sarxos.abberwoult;
 
+import static com.github.sarxos.abberwoult.deployment.MessageHandlerRegistry.getMessageHandlersFor;
+import static com.github.sarxos.abberwoult.deployment.PreStartRegistry.getPreStartsFor;
+
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles.Lookup;
 import java.util.Map;
 import java.util.Set;
 
-import javax.enterprise.inject.spi.CDI;
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.Valid;
 import javax.validation.Validator;
 
 import com.github.sarxos.abberwoult.annotation.MessageHandler;
-import com.github.sarxos.abberwoult.deployment.MessageHandlersRegistry;
-import com.github.sarxos.abberwoult.deployment.MessageHandlersRegistry.MessageHandlerMethod;
+import com.github.sarxos.abberwoult.deployment.MessageHandlerRegistry.MessageHandlerMethod;
+import com.github.sarxos.abberwoult.deployment.PreStartRegistry.PreStartMethod;
 import com.github.sarxos.abberwoult.exception.MessageHandlerInvocationException;
 import com.github.sarxos.abberwoult.exception.MessageHandlerValidationException;
+import com.github.sarxos.abberwoult.exception.PreStartInvocationException;
 
 import akka.actor.AbstractActor;
 import akka.japi.pf.FI.UnitApply;
@@ -32,25 +35,29 @@ public class SimpleActor extends AbstractActor {
 	Validator validator;
 
 	@Override
+	public final void preStart() throws Exception {
+		getPreStartsFor(getClass()).forEach(this::invokePreStart);
+	}
+
+	@Override
 	public Receive createReceive() {
 		return createReceiveAutomation();
 	}
 
-	private MessageHandlersRegistry getMessageHandlersRegistry() {
-		return CDI.current()
-			.select(MessageHandlersRegistry.class)
-			.get();
+	private void invokePreStart(final PreStartMethod method) {
+		final MethodHandle handle = method.getHandle();
+		try {
+			handle.invoke(this);
+		} catch (Throwable e) {
+			throw new PreStartInvocationException(this, handle, e);
+		}
 	}
 
 	/**
 	 * @return Automated {@link Receive} constructed form {@link MessageHandler} methods
 	 */
 	private Receive createReceiveAutomation() {
-
-		final Class<?> declaringClass = getClass();
-
-		return getMessageHandlersRegistry()
-			.getHandlersFor(declaringClass)
+		return getMessageHandlersFor(getClass())
 			.map(handlers -> createReceiveForHandlers(handlers))
 			.getOrElse(() -> createReceiveForUnmatched());
 	}

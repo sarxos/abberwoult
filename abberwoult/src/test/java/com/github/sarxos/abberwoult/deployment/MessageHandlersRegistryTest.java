@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.MessageHandler;
-import com.github.sarxos.abberwoult.deployment.MessageHandlersRegistry.MessageHandlerMethod;
+import com.github.sarxos.abberwoult.deployment.MessageHandlerRegistry.MessageHandlerMethod;
 import com.github.sarxos.abberwoult.util.ReflectionUtils;
 
 
@@ -33,15 +33,15 @@ public class MessageHandlersRegistryTest {
 
 	@BeforeAll
 	static void setup() {
-		MessageHandlersRegistry.register(TestDeclaratorA.class);
-		MessageHandlersRegistry.register(TestDeclaratorB.class);
+		MessageHandlerRegistry.register(TestDeclaratorA.class);
+		MessageHandlerRegistry.register(TestDeclaratorB.class);
 	}
 
 	@Test
 	void test_store() {
 
-		final MessageHandlersRegistry registry = new MessageHandlersRegistry();
-		final Map<String, MessageHandlerMethod> handlers = registry.getHandlersFor(TestDeclaratorA.class).get();
+		final MessageHandlerRegistry registry = new MessageHandlerRegistry();
+		final Map<String, MessageHandlerMethod> handlers = registry.getMessageHandlersFor(TestDeclaratorA.class).get();
 
 		assertThat(handlers)
 			.isNotNull()
@@ -51,7 +51,7 @@ public class MessageHandlersRegistryTest {
 	@Test
 	void test_methodFromActualClassShouldBeUsed() {
 
-		final MessageHandlersRegistry registry = new MessageHandlersRegistry();
+		final MessageHandlerRegistry registry = new MessageHandlerRegistry();
 		final MessageHandlerMethod entry = registry.getHandlerFor(TestDeclaratorA.class, Integer.class).get();
 
 		assertThat(entry).isNotNull();
@@ -64,7 +64,7 @@ public class MessageHandlersRegistryTest {
 	@Test
 	void test_methodFromSubclassShouldBeUsed() {
 
-		final MessageHandlersRegistry registry = new MessageHandlersRegistry();
+		final MessageHandlerRegistry registry = new MessageHandlerRegistry();
 		final MessageHandlerMethod entry = registry.getHandlerFor(TestDeclaratorB.class, Integer.class).get();
 
 		assertThat(entry).isNotNull();

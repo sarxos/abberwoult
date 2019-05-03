@@ -10,6 +10,7 @@ import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.ActorScoped;
 import com.github.sarxos.abberwoult.annotation.Assisted;
 import com.github.sarxos.abberwoult.annotation.MessageHandler;
+import com.github.sarxos.abberwoult.annotation.PreStart;
 
 
 public class AbberwoultClasses {
@@ -17,6 +18,7 @@ public class AbberwoultClasses {
 	public static final DotName ACTOR_SCOPED_ANNOTATION = DotName.createSimple(ActorScoped.class.getName());
 	public static final DotName APPLICATION_SCOPED_ANNOTATION = DotName.createSimple(ApplicationScoped.class.getName());
 	public static final DotName MESSAGE_HANDLER_ANNOTATION = DotName.createSimple(MessageHandler.class.getName());
+	public static final DotName PRE_START_ANNOTATION = DotName.createSimple(PreStart.class.getName());
 	public static final DotName INJECT_ANNOTATION = DotName.createSimple(Inject.class.getName());
 	public static final DotName VALID_ANNOTATION = DotName.createSimple(Valid.class.getName());
 	public static final DotName ASSISTED_ANNOTATION = DotName.createSimple(Assisted.class.getName());

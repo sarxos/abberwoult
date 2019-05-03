@@ -18,7 +18,7 @@ import akka.japi.Creator;
 @SuppressWarnings("serial")
 public class ActorCreator<T extends Actor> extends BeanFactory<T> implements Creator<T> {
 
-	private static final Class<?> STOP_CLASS = SimpleActor.class.getSuperclass();
+	public static final Class<?> STOP_CLASS = SimpleActor.class.getSuperclass();
 
 	/**
 	 * Creates new {@link ActorCreator} instance with given {@link BeanLocator} and class which

@@ -1,4 +1,4 @@
-package com.testing;
+package com.github.sarxos.abberwoult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

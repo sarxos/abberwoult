@@ -1,4 +1,4 @@
-package com.testing;
+package com.github.sarxos.abberwoult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -68,7 +68,6 @@ public class MessageHandlerTest {
 		assertThat(askResult(ref, 1)).isEqualTo(1);
 
 		kill(ref);
-
 	}
 
 	private Object askResult(final ActorRef ref, final Object message) throws Exception {

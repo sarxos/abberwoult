@@ -23,6 +23,10 @@ import java.util.function.Predicate;
 
 import javax.validation.Valid;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.github.sarxos.abberwoult.exception.PreStartInvocationException;
+
 import io.vavr.control.Option;
 
 
@@ -283,6 +287,51 @@ public class ReflectionUtils {
 			return lookup().in(clazz).unreflect(accessible(method));
 		} catch (IllegalAccessException e) {
 			throw new IllegalStateException(e);
+		}
+	}
+
+	public static void invokeVoidNoArg(final MethodHandle handle, final Object thiz) {
+		try {
+			handle.invoke(thiz);
+		} catch (Throwable e) {
+			throw new PreStartInvocationException(thiz, handle, e);
+		}
+	}
+
+	public static boolean hasSameSignature(final Method a, final Method b) {
+		return true
+			&& a.getReturnType() == b.getReturnType()
+			&& StringUtils.equals(a.getName(), b.getName())
+			&& areParametersTheSame(a.getParameters(), b.getParameters());
+	}
+
+	private static boolean areParametersTheSame(final Parameter[] a, final Parameter[] b) {
+		if (a.length != b.length) {
+			return false;
+		}
+		for (int i = 0; i < a.length; i++) {
+			if (a[i].getType() != b[i].getType()) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Remove overridden methods from a list.
+	 *
+	 * @param methods
+	 */
+	public static final void nonOverridden(final List<Method> methods) {
+
+		final ArrayDeque<Method> input = new ArrayDeque<>(methods);
+
+		methods.clear();
+
+		while (input.size() > 0) {
+			final Method method = input.poll();
+			input.removeIf(m -> hasSameSignature(method, m));
+			methods.add(method);
 		}
 	}
 }
