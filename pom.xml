@@ -20,7 +20,8 @@
     <module>abberwoult-deployment</module>
     <module>abberwoult-annotations</module>
     <module>abberwoult-example</module>
-    <module>abberwoult-test</module>
+    <module>abberwoult-integration-tests</module>
+    <module>abberwoult-testkit</module>
   </modules>
 
   <properties>
@@ -41,6 +42,11 @@
       <dependency>
         <groupId>com.typesafe.akka</groupId>
         <artifactId>akka-actor_2.11</artifactId>
+        <version>${akka.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.typesafe.akka</groupId>
+        <artifactId>akka-testkit_2.11</artifactId>
         <version>${akka.version}</version>
       </dependency>
       <dependency>

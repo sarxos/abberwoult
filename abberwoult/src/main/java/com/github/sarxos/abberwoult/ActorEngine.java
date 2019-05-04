@@ -42,6 +42,6 @@ public class ActorEngine implements Selector {
 	 * @return New actor builder
 	 */
 	public ActorBuilder<?> actor() {
-		return new ActorBuilder<>(this);
+		return new ActorBuilder<>(propser, system);
 	}
 }

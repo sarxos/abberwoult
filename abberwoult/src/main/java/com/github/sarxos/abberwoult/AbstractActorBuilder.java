@@ -40,36 +40,28 @@ public abstract class AbstractActorBuilder<T, S> implements Builder<T> {
 		ActorRef create(final ActorRefFactory factory, final Props props, final Option<String> name);
 	}
 
-	/**
-	 * The {@link ActorEngine}.
-	 */
-	private final ActorEngine engine;
+	private final Propser propser;
+	private final ActorSystem system;
 
 	/**
 	 * @param engine the {@link ActorEngine} instance
 	 */
-	public AbstractActorBuilder(final ActorEngine engine) {
-		this.engine = notNull(engine);
+	public AbstractActorBuilder(final Propser propser, final ActorSystem system) {
+		this.propser = notNull(propser, "Props factory must not be null!");
+		this.system = notNull(system, "Actor system must not be null!");
 	}
 
 	/**
 	 * @return {@link Propser}
 	 */
 	protected Propser propser() {
-		return engine.propser();
+		return propser;
 	}
 
 	/**
 	 * @return {@link ActorSystem}
 	 */
 	protected ActorSystem system() {
-		return engine.system();
-	}
-
-	/**
-	 * @return The {@link ActorEngine}
-	 */
-	protected ActorEngine engine() {
-		return engine;
+		return system;
 	}
 }

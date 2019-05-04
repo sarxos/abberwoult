@@ -8,13 +8,11 @@ import javax.inject.Named;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.sarxos.abberwoult.ActorBuilder;
-import com.github.sarxos.abberwoult.ActorEngine;
-import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.MessageHandler;
 import com.github.sarxos.abberwoult.trait.Comm;
 
 import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
 import akka.actor.InvalidActorNameException;
 import akka.actor.PoisonPill;
 import akka.pattern.Patterns;
@@ -54,12 +52,15 @@ public class ActorBuilderTest {
 	}
 
 	@Inject
-	ActorEngine engine;
+	Propser propser;
+
+	@Inject
+	ActorSystem system;
 
 	@Test
 	void test_buildOridinaryActor() throws Exception {
 
-		final ActorRef ref = new ActorBuilder<>(engine)
+		final ActorRef ref = new ActorBuilder<>(propser, system)
 			.of(OrdinaryActor.class)
 			.build();
 
@@ -71,7 +72,7 @@ public class ActorBuilderTest {
 	@Test
 	void test_buildUnnamedActor() throws Exception {
 
-		final ActorRef ref = new ActorBuilder<>(engine)
+		final ActorRef ref = new ActorBuilder<>(propser, system)
 			.of(UnnamedActor.class)
 			.build();
 
@@ -83,7 +84,7 @@ public class ActorBuilderTest {
 	@Test
 	void test_buildNamedActor() throws Exception {
 
-		final ActorRef ref = new ActorBuilder<>(engine)
+		final ActorRef ref = new ActorBuilder<>(propser, system)
 			.of(NamedActor.class)
 			.build();
 
@@ -95,11 +96,11 @@ public class ActorBuilderTest {
 	@Test
 	void test_buildNamedActorTwoce() throws Exception {
 
-		final ActorRef ref = new ActorBuilder<>(engine)
+		final ActorRef ref = new ActorBuilder<>(propser, system)
 			.of(NamedActor.class)
 			.build();
 
-		assertThatThrownBy(() -> new ActorBuilder<>(engine)
+		assertThatThrownBy(() -> new ActorBuilder<>(propser, system)
 			.of(NamedActor.class)
 			.build())
 				.isInstanceOf(InvalidActorNameException.class)

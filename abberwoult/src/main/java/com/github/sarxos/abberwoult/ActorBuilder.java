@@ -39,8 +39,8 @@ public class ActorBuilder<S extends ActorBuilder<?>> extends AbstractActorBuilde
 	 *
 	 * @param engine the {@link ActorEngine} instance
 	 */
-	protected ActorBuilder(final ActorEngine engine) {
-		this(engine, null);
+	public ActorBuilder(final Propser propser, final ActorSystem system) {
+		this(propser, system, null);
 	}
 
 	/**
@@ -50,9 +50,9 @@ public class ActorBuilder<S extends ActorBuilder<?>> extends AbstractActorBuilde
 	 * @param engine the entity which creates various actor-related stuff
 	 * @param builder the original builder.
 	 */
-	protected ActorBuilder(final ActorEngine engine, final ActorBuilder<?> builder) {
+	protected ActorBuilder(final Propser propser, final ActorSystem system, final ActorBuilder<?> builder) {
 
-		super(engine);
+		super(propser, system);
 
 		if (builder != null) {
 			this.clazz = builder.clazz;
