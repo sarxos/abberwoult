@@ -1,4 +1,4 @@
-package com.github.sarxos.abberwoult.validation;
+package com.github.sarxos.abberwoult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -7,8 +7,9 @@ import javax.validation.Validator;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.ActorOf;
+import com.github.sarxos.abberwoult.annotation.MessageHandler;
+import com.github.sarxos.abberwoult.trait.Comm;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
@@ -25,20 +26,14 @@ public class ValidationTest {
 	static final class ValidatorGetMsg {
 	}
 
-	static final class TestActor extends SimpleActor {
+	static final class TestActor extends SimpleActor implements Comm {
 
 		@Inject
 		Validator validator;
 
-		@Override
-		public Receive createReceive() {
-			return receiveBuilder()
-				.match(ValidatorGetMsg.class, this::doReplyValidator)
-				.build();
-		}
-
-		void doReplyValidator(final ValidatorGetMsg msg) {
-			sender().tell(validator, self());
+		@MessageHandler
+		public void handleValidatorGetMsg(final ValidatorGetMsg msg) {
+			reply(validator);
 		}
 	}
 

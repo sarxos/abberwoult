@@ -8,6 +8,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles.Lookup;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
@@ -24,7 +25,6 @@ import com.github.sarxos.abberwoult.exception.PostStopInvocationException;
 import com.github.sarxos.abberwoult.exception.PreStartInvocationException;
 
 import akka.actor.AbstractActor;
-import akka.japi.pf.FI.UnitApply;
 import akka.japi.pf.ReceiveBuilder;
 
 
@@ -37,18 +37,21 @@ public class SimpleActor extends AbstractActor {
 	@Inject
 	Validator validator;
 
+	// final, we do not want anyone to override it
 	@Override
 	public final void preStart() throws Exception {
 		getPreStartsFor(getClass()).forEach(this::invokePreStart);
 	}
 
+	// final, we do not want anyone to override it
 	@Override
 	public final void postStop() throws Exception {
 		getPostStopsFor(getClass()).forEach(this::invokePostStop);
 	}
 
+	// final, we do not want anyone to override it
 	@Override
-	public Receive createReceive() {
+	public final Receive createReceive() {
 		return createReceiveAutomation();
 	}
 
@@ -74,9 +77,10 @@ public class SimpleActor extends AbstractActor {
 	 * @return Automated {@link Receive} constructed form {@link MessageHandler} methods
 	 */
 	private Receive createReceiveAutomation() {
+		final ReceiveBuilder builder = ReceiveBuilder.create();
 		return getMessageHandlersFor(getClass())
-			.map(handlers -> createReceiveForHandlers(handlers))
-			.getOrElse(() -> createReceiveForUnmatched());
+			.map(handlers -> createReceiveForHandlers(builder, handlers))
+			.getOrElse(() -> createReceiveForUnmatched(builder));
 	}
 
 	/**
@@ -86,9 +90,7 @@ public class SimpleActor extends AbstractActor {
 	 * @param handlers a mapping between message class and corresponding {@link MessageHandler}
 	 * @return New {@link Receive}
 	 */
-	private Receive createReceiveForHandlers(final Map<String, MessageHandlerMethod> handlers) {
-
-		final ReceiveBuilder builder = ReceiveBuilder.create();
+	private Receive createReceiveForHandlers(final ReceiveBuilder builder, final Map<String, MessageHandlerMethod> handlers) {
 
 		for (final MessageHandlerMethod method : handlers.values()) {
 
@@ -96,9 +98,9 @@ public class SimpleActor extends AbstractActor {
 			final MethodHandle handle = method.getHandle();
 
 			if (method.isValidable()) {
-				builder.match(messageClass, consumeValid(handle));
+				builder.match(messageClass, consumeValid(handle)::accept);
 			} else {
-				builder.match(messageClass, consume(handle));
+				builder.match(messageClass, consume(handle)::accept);
 			}
 		}
 
@@ -110,17 +112,31 @@ public class SimpleActor extends AbstractActor {
 	/**
 	 * @return New {@link Receive} which invokes unmatched
 	 */
-	private Receive createReceiveForUnmatched() {
-		return ReceiveBuilder.create()
+	private Receive createReceiveForUnmatched(final ReceiveBuilder builder) {
+		return builder
 			.matchAny(this::unhandled)
 			.build();
 	}
 
-	private <T> UnitApply<T> consumeValid(final MethodHandle handle) {
+	/**
+	 * This method validates a message before it's consumed.
+	 *
+	 * @param <T> the generic message type
+	 * @param handle the {@link MethodHandle} to invoke
+	 * @return The message {@link Consumer}
+	 */
+	private <T> Consumer<T> consumeValid(final MethodHandle handle) {
 		return message -> invoke(handle, validate(message));
 	}
 
-	private <T> UnitApply<T> consume(final MethodHandle handle) {
+	/**
+	 * This method consume a message.
+	 *
+	 * @param <T> the generic message type
+	 * @param handle the {@link MethodHandle} to invoke
+	 * @return The message {@link Consumer}
+	 */
+	private <T> Consumer<T> consume(final MethodHandle handle) {
 		return message -> invoke(handle, message);
 	}
 
@@ -139,13 +155,22 @@ public class SimpleActor extends AbstractActor {
 		}
 	}
 
+	/**
+	 * Validate input message.
+	 *
+	 * @param <T> the generic message type
+	 * @param message the message to validate
+	 * @return Same message but valid
+	 * @throws MessageHandlerValidationException if message is invalid
+	 */
 	private <T> T validate(final T message) {
 
 		final Set<ConstraintViolation<T>> violations = validator.validate(message);
-		if (!violations.isEmpty()) {
-			throw new MessageHandlerValidationException(violations);
+
+		if (violations.isEmpty()) {
+			return message;
 		}
 
-		return message;
+		throw new MessageHandlerValidationException(violations);
 	}
 }
