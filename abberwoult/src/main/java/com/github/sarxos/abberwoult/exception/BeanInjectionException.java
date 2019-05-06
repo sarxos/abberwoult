@@ -1,4 +1,4 @@
-package com.github.sarxos.abberwoult.cdi;
+package com.github.sarxos.abberwoult.exception;
 
 @SuppressWarnings("serial")
 public abstract class BeanInjectionException extends IllegalStateException {

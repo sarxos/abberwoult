@@ -5,6 +5,7 @@ import static com.github.sarxos.abberwoult.cdi.BeanUtils.getQualifier;
 import javax.enterprise.inject.spi.InjectionPoint;
 
 import com.github.sarxos.abberwoult.annotation.ActorOf;
+import com.github.sarxos.abberwoult.exception.BeanInjectionException;
 
 import akka.actor.Actor;
 import akka.actor.ActorRef;

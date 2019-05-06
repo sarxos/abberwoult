@@ -25,6 +25,7 @@ import javax.enterprise.inject.UnsatisfiedResolutionException;
 import javax.inject.Inject;
 
 import com.github.sarxos.abberwoult.annotation.Assisted;
+import com.github.sarxos.abberwoult.exception.BeanInjectionException;
 import com.github.sarxos.abberwoult.util.ReflectionUtils;
 
 import io.vavr.control.Option;
