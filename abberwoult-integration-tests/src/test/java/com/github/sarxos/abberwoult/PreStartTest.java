@@ -11,7 +11,7 @@ import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.sarxos.abberwoult.ActorEngine;
+import com.github.sarxos.abberwoult.Coupler;
 import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.PreStart;
 
@@ -110,7 +110,7 @@ public class PreStartTest {
 	}
 
 	@Inject
-	ActorEngine engine;
+	Coupler engine;
 
 	@Test
 	public void test_ifCorrectNumberOfPreStartsIsRegistered() {

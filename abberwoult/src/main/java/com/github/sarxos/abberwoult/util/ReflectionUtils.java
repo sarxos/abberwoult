@@ -187,7 +187,7 @@ public class ReflectionUtils {
 	 * with a provided annotation.
 	 *
 	 * @param clazz the class to get methods from
-	 * @param annotation the annotation which should be present on field
+	 * @param annotation the annotation which should be present on method
 	 * @return List of methods annotated with a given annotation or empty list if not found
 	 */
 	public static Collection<Method> getAnnotatedMethodsFromClass(Class<?> clazz, final Class<? extends Annotation> annotation, final Class<?> stop) {
@@ -225,6 +225,42 @@ public class ReflectionUtils {
 		}
 
 		return Option.none();
+	}
+
+	/**
+	 * Iterate through all {@link Method} from the class, all implemented interfaces and extended
+	 * super classes to collect only these methods which defines a {@link Parameter} annotated with
+	 * a given annotation. The resultant list is returned to the caller. It will be empty if no
+	 * methods within a class, implemented interfaces or any of the super classes define a parameter
+	 * with a given annotation present. This method will never return null.
+	 *
+	 * @param clazz the class to get methods from
+	 * @param annotation the annotation which should be present on parameter
+	 * @return List of methods containing parameter annotated with a given annotation or empty
+	 */
+	public static Collection<Method> getAnnotatedParameterMethodsFromClass(Class<?> clazz, final Class<? extends Annotation> annotation, final Class<?> stop) {
+
+		final Collection<Method> methods = new ArrayDeque<>();
+
+		while (clazz != stop && clazz != null) {
+			for (final Method method : clazz.getDeclaredMethods()) {
+				for (final Parameter parameter : method.getParameters()) {
+					if (parameter.isAnnotationPresent(annotation)) {
+						methods.add(method);
+					}
+				}
+			}
+			for (final Class<?> interf : clazz.getInterfaces()) {
+				methods.addAll(getAnnotatedMethodsFromClass(interf, annotation, stop));
+			}
+			clazz = clazz.getSuperclass();
+		}
+
+		if (methods.isEmpty()) {
+			return emptyList();
+		}
+
+		return methods;
 	}
 
 	public static Object invoke(final Object thiz, final Method method) {
@@ -333,5 +369,29 @@ public class ReflectionUtils {
 			input.removeIf(m -> hasSameSignature(method, m));
 			methods.add(method);
 		}
+	}
+
+	/**
+	 * Get position of first parameter in method annotated with a given annotation.
+	 *
+	 * @param method the method to get parameters from
+	 * @param annotation the annotation to search for on parameter
+	 * @return Parameter position or zero
+	 */
+	public static int getAnnotatedParameterPosition(final Method method, final Class<? extends Annotation> annotation) {
+
+		final Parameter[] parameters = method.getParameters();
+
+		if (parameters.length == 0) {
+			throw new IllegalArgumentException("Method " + method + " has no parameters");
+		}
+
+		for (int i = 0; i < parameters.length; i++) {
+			if (parameters[i].isAnnotationPresent(annotation)) {
+				return i;
+			}
+		}
+
+		return 0;
 	}
 }

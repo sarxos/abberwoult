@@ -2,14 +2,14 @@ package com.github.sarxos.abberwoult.trait;
 
 import java.util.function.Supplier;
 
-import com.github.sarxos.abberwoult.trait.internal.ActorContextAccess;
+import com.github.sarxos.abberwoult.trait.internal.InActor;
 
 import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
 import io.vavr.control.Option;
 
 
-public interface Disposing extends ActorContextAccess {
+public interface Disposing extends InActor {
 
 	/**
 	 * Dispose actor referenced by a given {@link ActorRef}.

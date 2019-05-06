@@ -11,7 +11,7 @@ import org.awaitility.Awaitility;
 
 import com.github.sarxos.abberwoult.AbstractActorBuilder.ActorBuilderRefCreator;
 import com.github.sarxos.abberwoult.ActorBuilder;
-import com.github.sarxos.abberwoult.Propser;
+import com.github.sarxos.abberwoult.Coupler;
 
 import akka.actor.Actor;
 import akka.actor.ActorIdentity;
@@ -45,11 +45,12 @@ public class TestKit {
 		}
 	};
 
-	@Inject
-	Propser propser;
+	private final Coupler coupler;
 
 	@Inject
-	ActorSystem system;
+	public TestKit(final Coupler coupler) {
+		this.coupler = coupler;
+	}
 
 	/**
 	 * Extract {@link Actor} instance from {@link ActorRef}.
@@ -177,14 +178,16 @@ public class TestKit {
 	 * @return New actor builder
 	 */
 	public ActorBuilder<?> actor() {
-		return new ActorBuilder<>(propser, system).withActorRefCreator(CREATOR);
+		return coupler
+			.actor()
+			.withActorRefCreator(CREATOR);
 	}
 
 	/**
 	 * @return The {@link TestKitProbe} to probe messages
 	 */
 	public TestKitProbe probe() {
-		return new TestKitProbe(system);
+		return new TestKitProbe(coupler.system());
 	}
 
 	public void kill(final ActorRef ref) {

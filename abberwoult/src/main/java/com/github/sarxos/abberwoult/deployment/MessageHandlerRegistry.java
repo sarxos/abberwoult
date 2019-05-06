@@ -1,5 +1,6 @@
 package com.github.sarxos.abberwoult.deployment;
 
+import static com.github.sarxos.abberwoult.util.ReflectionUtils.getAnnotatedParameterPosition;
 import static com.github.sarxos.abberwoult.util.ReflectionUtils.getObjectDistance;
 import static com.github.sarxos.abberwoult.util.ReflectionUtils.hasValidableParameters;
 import static com.github.sarxos.abberwoult.util.ReflectionUtils.unreflect;
@@ -15,11 +16,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
+import javax.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.sarxos.abberwoult.SimpleActor;
-import com.github.sarxos.abberwoult.annotation.MessageHandler;
+import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.util.ReflectionUtils;
 
 import io.vavr.control.Option;
@@ -30,8 +33,8 @@ public class MessageHandlerRegistry {
 	private static final Logger LOG = LoggerFactory.getLogger(MessageHandlerRegistry.class);
 
 	/**
-	 * A static map where all {@link MessageHandler} annotation points are stored. This map is
-	 * populated by a {@link ActorRegistryTemplate} recorded in the compile time.
+	 * A static map where all {@link Receives} annotation points are stored. This map is populated
+	 * by a {@link ActorRegistryTemplate} recorded in the compile time.
 	 */
 	private static final Map<String, Map<String, MessageHandlerMethod>> RECORDS = new HashMap<>();
 
@@ -53,11 +56,11 @@ public class MessageHandlerRegistry {
 	private static final Class<?> STOP_CLASS = SimpleActor.class.getSuperclass();
 
 	/**
-	 * Register given class as a {@link MessageHandler} definer. This class inheritance tree will be
-	 * scanned and all methods annotated with {@link MessageHandler} annotations present will be
-	 * stored in internal handlers registry,
+	 * Register given class as a {@link Receives} definer. Given class inheritance tree will be
+	 * scanned and all methods which contains at least one parameter annotated with {@link Receives}
+	 * annotations will be stored in internal handlers registry,
 	 *
-	 * @param clazz the class to register
+	 * @param clazz the class to scan
 	 */
 	static void register(final Class<?> clazz) {
 
@@ -68,7 +71,7 @@ public class MessageHandlerRegistry {
 		}
 
 		final List<MessageHandlerMethod> methods = ReflectionUtils
-			.getAnnotatedMethodsFromClass(clazz, MessageHandler.class, STOP_CLASS)
+			.getAnnotatedParameterMethodsFromClass(clazz, Receives.class, STOP_CLASS)
 			.stream()
 			.filter(HAS_ARGUMENTS)
 			.map(MessageHandlerMethod::new)
@@ -117,14 +120,18 @@ public class MessageHandlerRegistry {
 
 		private final Method method;
 		private final Class<?> messageClass;
+		private final int messageParameterPosition;
 		private final MethodHandle handle;
 		private final boolean validable;
+		private final boolean injectable;
 
 		public MessageHandlerMethod(final Method method) {
 			this.method = method;
 			this.messageClass = method.getParameterTypes()[0];
+			this.messageParameterPosition = getAnnotatedParameterPosition(method, Receives.class);
 			this.handle = unreflect(getDeclaringClass(), method);
 			this.validable = hasValidableParameters(method);
+			this.injectable = method.isAnnotationPresent(Inject.class);
 		}
 
 		public Class<?> getDeclaringClass() {
@@ -135,12 +142,20 @@ public class MessageHandlerRegistry {
 			return messageClass;
 		}
 
+		public int getMessageParameterPosition() {
+			return messageParameterPosition;
+		}
+
 		public MethodHandle getHandle() {
 			return handle;
 		}
 
 		public boolean isValidable() {
 			return validable;
+		}
+
+		public boolean isInjectable() {
+			return injectable;
 		}
 
 		public String getMessageKey() {

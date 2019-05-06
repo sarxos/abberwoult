@@ -2,11 +2,11 @@ package com.github.sarxos.abberwoult.exception;
 
 import java.lang.invoke.MethodHandle;
 
-import com.github.sarxos.abberwoult.annotation.MessageHandler;
+import com.github.sarxos.abberwoult.annotation.Receives;
 
 
 /**
- * This exception is thrown when invocation of a method annotated with {@link MessageHandler}
+ * This exception is thrown when invocation of a method annotated with {@link Receives}
  * failed.
  *
  * @author Bartosz Firyn (sarxos)

@@ -1,15 +1,17 @@
 package com.github.sarxos.abberwoult.trait;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.function.Supplier;
 
-import com.github.sarxos.abberwoult.trait.internal.ActorContextAccess;
+import com.github.sarxos.abberwoult.trait.internal.InActor;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
 import io.vavr.control.Option;
 
 
-public interface Comm extends ActorContextAccess {
+public interface Comm extends InActor {
 
 	/**
 	 * Send message to a given actor reference.
@@ -48,7 +50,7 @@ public interface Comm extends ActorContextAccess {
 	 * @param message the message
 	 */
 	default void reply(final Object message) {
-		tell(sender(), message);
+		tell(sender(), requireNonNull(message, "Reply message must not be null!"));
 	}
 
 	/**

@@ -2,12 +2,15 @@ package com.github.sarxos.abberwoult.util;
 
 import static com.github.sarxos.abberwoult.util.ReflectionUtils.getAnnotationFromClass;
 
+import java.util.Objects;
+
 import javax.inject.Named;
 
 import com.github.sarxos.abberwoult.annotation.Dispatcher;
 import com.github.sarxos.abberwoult.annotation.Mailbox;
 
 import akka.actor.Actor;
+import akka.actor.ActorRef;
 import akka.dispatch.Dispatchers;
 import akka.dispatch.Mailboxes;
 import io.vavr.control.Option;
@@ -64,5 +67,9 @@ public class ActorUtils {
 		final String name = getActorName(clazz).getOrElse(clazz::getName);
 		final String path = "/" + USER + "/" + name;
 		return path;
+	}
+
+	public static boolean equals(final ActorRef a, final ActorRef b) {
+		return Objects.equals(a.path(), b.path());
 	}
 }

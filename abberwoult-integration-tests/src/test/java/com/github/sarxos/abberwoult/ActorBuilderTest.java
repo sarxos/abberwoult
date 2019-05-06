@@ -8,7 +8,7 @@ import javax.inject.Named;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.sarxos.abberwoult.annotation.MessageHandler;
+import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.trait.Comm;
 
 import akka.actor.ActorRef;
@@ -28,16 +28,14 @@ public class ActorBuilderTest {
 
 	public static class OrdinaryActor extends SimpleActor implements Comm {
 
-		@MessageHandler
-		public void handleInteger(Integer i) {
+		public void handleInteger(@Receives Integer i) {
 			reply(i);
 		}
 	}
 
 	public static class UnnamedActor extends SimpleActor implements Comm {
 
-		@MessageHandler
-		public void handleInteger(Integer i) {
+		public void handleInteger(@Receives Integer i) {
 			reply(self().path().name());
 		}
 	}
@@ -45,8 +43,7 @@ public class ActorBuilderTest {
 	@Named("bubu")
 	public static class NamedActor extends SimpleActor implements Comm {
 
-		@MessageHandler
-		public void handleInteger(Integer i) {
+		public void handleInteger(@Receives Integer i) {
 			reply(self().path().name());
 		}
 	}

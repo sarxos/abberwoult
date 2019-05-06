@@ -4,9 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.inject.Inject;
 
-import com.github.sarxos.abberwoult.ActorEngine;
-import com.github.sarxos.abberwoult.SimpleActor;
-import com.github.sarxos.abberwoult.annotation.MessageHandler;
+import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.trait.Comm;
 
 import akka.actor.ActorRef;
@@ -24,16 +22,14 @@ public class MessageHandlerTest {
 
 	public static class TestActor extends SimpleActor implements Comm {
 
-		@MessageHandler
-		public void handleInteger(Integer i) {
+		public void handleInteger(@Receives Integer i) {
 			reply(i);
 		}
 	}
 
 	public static class TestActorSuperclass extends SimpleActor implements Comm {
 
-		@MessageHandler
-		public void handleInteger(Integer i) {
+		public void handleInteger(@Receives Integer i) {
 			reply(i);
 		}
 	}
@@ -43,7 +39,7 @@ public class MessageHandlerTest {
 	}
 
 	@Inject
-	ActorEngine engine;
+	Coupler engine;
 
 	// @Test
 	void test_messageHandlerInClass() throws Exception {

@@ -1,6 +1,6 @@
 package com.github.sarxos.abberwoult.annotation;
 
-import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Documented;
@@ -9,13 +9,14 @@ import java.lang.annotation.Target;
 
 
 /**
- * This annotation is to annotate method to be used to handle message.
+ * This annotation is to annotate method parameter which will be used to receive message by the
+ * actor.
  *
  * @author Bartosz Firyn (sarxos)
  */
 @Documented
-@Target(METHOD)
+@Target(PARAMETER)
 @Retention(RUNTIME)
-public @interface MessageHandler {
+public @interface Receives {
 
 }

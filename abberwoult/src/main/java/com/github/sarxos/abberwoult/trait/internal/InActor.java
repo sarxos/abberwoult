@@ -4,7 +4,7 @@ import akka.actor.ActorContext;
 import akka.actor.ActorRef;
 
 
-public interface ActorContextAccess {
+public interface InActor {
 
 	ActorRef self();
 

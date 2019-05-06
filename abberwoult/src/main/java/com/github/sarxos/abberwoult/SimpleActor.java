@@ -13,9 +13,8 @@ import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.Valid;
-import javax.validation.Validator;
 
-import com.github.sarxos.abberwoult.annotation.MessageHandler;
+import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.deployment.MessageHandlerRegistry.MessageHandlerMethod;
 import com.github.sarxos.abberwoult.deployment.PostStopRegistry.PostStopMethod;
 import com.github.sarxos.abberwoult.deployment.PreStartRegistry.PreStartMethod;
@@ -23,19 +22,20 @@ import com.github.sarxos.abberwoult.exception.MessageHandlerInvocationException;
 import com.github.sarxos.abberwoult.exception.MessageHandlerValidationException;
 import com.github.sarxos.abberwoult.exception.PostStopInvocationException;
 import com.github.sarxos.abberwoult.exception.PreStartInvocationException;
+import com.github.sarxos.abberwoult.trait.internal.CouplerAccess;
 
 import akka.actor.AbstractActor;
 import akka.japi.pf.ReceiveBuilder;
 
 
-public class SimpleActor extends AbstractActor {
+public class SimpleActor extends AbstractActor implements CouplerAccess {
 
 	/**
-	 * A validator instance used to validate message in case when {@link MessageHandler} annotated
-	 * method contains an argument which was annotated with {@link Valid} annotation.
+	 * A validator instance used to validate message in case when {@link Receives} annotated method
+	 * contains an argument which was annotated with {@link Valid} annotation.
 	 */
 	@Inject
-	Validator validator;
+	private Coupler coupler;
 
 	// final, we do not want anyone to override it
 	@Override
@@ -54,6 +54,19 @@ public class SimpleActor extends AbstractActor {
 	public final Receive createReceive() {
 		return createReceiveAutomation();
 	}
+
+	@Override
+	public Coupler coupler() {
+		return coupler;
+	}
+
+	public ActorBuilder<?> actor() {
+		return coupler
+			.actor()
+			.withParent(context());
+	}
+
+	// internals
 
 	private void invokePreStart(final PreStartMethod method) {
 		final MethodHandle handle = method.getHandle();
@@ -74,7 +87,7 @@ public class SimpleActor extends AbstractActor {
 	}
 
 	/**
-	 * @return Automated {@link Receive} constructed form {@link MessageHandler} methods
+	 * @return Automated {@link Receive} constructed form {@link Receives} methods
 	 */
 	private Receive createReceiveAutomation() {
 		final ReceiveBuilder builder = ReceiveBuilder.create();
@@ -84,10 +97,10 @@ public class SimpleActor extends AbstractActor {
 	}
 
 	/**
-	 * Create new {@link Receive} for {@link MessageHandler} annotated methods.
+	 * Create new {@link Receive} for {@link Receives} annotated methods.
 	 *
 	 * @param caller a called {@link Lookup}
-	 * @param handlers a mapping between message class and corresponding {@link MessageHandler}
+	 * @param handlers a mapping between message class and corresponding {@link Receives}
 	 * @return New {@link Receive}
 	 */
 	private Receive createReceiveForHandlers(final ReceiveBuilder builder, final Map<String, MessageHandlerMethod> handlers) {
@@ -141,8 +154,8 @@ public class SimpleActor extends AbstractActor {
 	}
 
 	/**
-	 * Invoke a method which corresponds to the provided {@link MessageHandler} using this object as
-	 * a context and a message object as an argument.
+	 * Invoke a method which corresponds to the provided {@link Receives} using this object as a
+	 * context and a message object as an argument.
 	 *
 	 * @param handle the {@link MethodHandle} to invoke
 	 * @param message the message object to be passed as the argument
@@ -165,7 +178,7 @@ public class SimpleActor extends AbstractActor {
 	 */
 	private <T> T validate(final T message) {
 
-		final Set<ConstraintViolation<T>> violations = validator.validate(message);
+		final Set<ConstraintViolation<T>> violations = coupler.validator().validate(message);
 
 		if (violations.isEmpty()) {
 			return message;

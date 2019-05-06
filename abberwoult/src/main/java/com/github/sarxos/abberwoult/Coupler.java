@@ -2,6 +2,7 @@ package com.github.sarxos.abberwoult;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.validation.Validator;
 
 import com.github.sarxos.abberwoult.trait.Selector;
 
@@ -10,18 +11,21 @@ import akka.actor.Props;
 
 
 /**
- * Core entity used to create various actor-related stuff.
- *
  * @author Bartosz Firyn (sarxos)
  */
 @Singleton
-public class ActorEngine implements Selector {
+public class Coupler implements Selector {
+
+	private final ActorSystem system;
+	private final Propser propser;
+	private final Validator validator;
 
 	@Inject
-	Propser propser;
-
-	@Inject
-	ActorSystem system;
+	public Coupler(ActorSystem system, Propser propser, Validator validator) {
+		this.system = system;
+		this.propser = propser;
+		this.validator = validator;
+	}
 
 	/**
 	 * @return A {@link Propser} entity designed to create actor {@link Props}
@@ -36,6 +40,10 @@ public class ActorEngine implements Selector {
 	@Override
 	public ActorSystem system() {
 		return system;
+	}
+
+	public Validator validator() {
+		return validator;
 	}
 
 	/**
