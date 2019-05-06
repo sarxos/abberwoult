@@ -251,7 +251,7 @@ public class ReflectionUtils {
 				}
 			}
 			for (final Class<?> interf : clazz.getInterfaces()) {
-				methods.addAll(getAnnotatedMethodsFromClass(interf, annotation, stop));
+				methods.addAll(getAnnotatedParameterMethodsFromClass(interf, annotation, stop));
 			}
 			clazz = clazz.getSuperclass();
 		}

@@ -17,6 +17,8 @@ import com.github.sarxos.abberwoult.testkit.TestKit;
 import com.github.sarxos.abberwoult.util.ActorUtils;
 
 import akka.actor.ActorRef;
+import akka.actor.PoisonPill;
+import akka.actor.Terminated;
 import io.quarkus.test.junit.QuarkusTest;
 
 
@@ -63,7 +65,7 @@ public class EventsTest {
 	TestKit testkit;
 
 	@Test
-	public void test_watch() {
+	public void test_watch() throws InterruptedException {
 
 		final AtomicBoolean terminated = new AtomicBoolean();
 
@@ -79,7 +81,8 @@ public class EventsTest {
 		assertThat(actor.terminated).isFalse();
 
 		watcher.tell(new WatchMsg(), ActorRef.noSender());
-		actor.watched.tell(new WatchMsg(), ActorRef.noSender());
+
+		actor.watched.tell(PoisonPill.getInstance(), ActorRef.noSender());
 
 		await().untilTrue(actor.terminated);
 	}
