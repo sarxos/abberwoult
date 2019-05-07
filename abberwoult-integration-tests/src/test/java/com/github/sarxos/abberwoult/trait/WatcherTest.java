@@ -23,7 +23,7 @@ import io.quarkus.test.junit.QuarkusTest;
 
 
 @QuarkusTest
-public class EventsTest {
+public class WatcherTest {
 
 	static class WatchMsg {
 	}

@@ -10,7 +10,7 @@ import org.jboss.jandex.IndexView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.sarxos.abberwoult.QuarkusLifecycleListener;
+import com.github.sarxos.abberwoult.EventsBypass;
 import com.github.sarxos.abberwoult.Coupler;
 import com.github.sarxos.abberwoult.Propser;
 import com.github.sarxos.abberwoult.cdi.ActorRefFactory;
@@ -35,7 +35,7 @@ public class AbberwoultProcessor {
 	private static final Logger LOG = LoggerFactory.getLogger(AbberwoultProcessor.class);
 
 	private static final String[] CORE_BEAN_CLASSES = {
-		QuarkusLifecycleListener.class.getName(),
+		EventsBypass.class.getName(),
 		BeanLocator.class.getName(),
 		Coupler.class.getName(),
 		ActorRefFactory.class.getName(),
