@@ -18,7 +18,12 @@ public class EventsBypass {
 		this.stream = system.getEventStream();
 	}
 
-	void bypass(@Observes Object event) {
+	public void bypass(@Observes Object event) {
+
+		if (event instanceof String) {
+			return;
+		}
+
 		stream.publish(event);
 	}
 }
