@@ -13,7 +13,7 @@ import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.annotation.PreStart;
 
 
-public class AbberwoultClasses {
+public class DotNames {
 
 	public static final DotName ACTOR_SCOPED_ANNOTATION = DotName.createSimple(ActorScoped.class.getName());
 	public static final DotName APPLICATION_SCOPED_ANNOTATION = DotName.createSimple(ApplicationScoped.class.getName());
@@ -24,7 +24,7 @@ public class AbberwoultClasses {
 	public static final DotName ASSISTED_ANNOTATION = DotName.createSimple(Assisted.class.getName());
 	public static final DotName SIMPLE_ACTOR_CLASS = DotName.createSimple(SimpleActor.class.getName());
 
-	private AbberwoultClasses() {
+	private DotNames() {
 		// class enum
 	}
 }

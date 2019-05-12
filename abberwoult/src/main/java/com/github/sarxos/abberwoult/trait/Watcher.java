@@ -1,13 +1,12 @@
 package com.github.sarxos.abberwoult.trait;
 
 import com.github.sarxos.abberwoult.annotation.Receives;
-import com.github.sarxos.abberwoult.trait.internal.InActor;
 
 import akka.actor.ActorRef;
 import akka.actor.Terminated;
 
 
-public interface Watcher extends InActor {
+public interface Watcher extends ActorInternal {
 
 	/**
 	 * Watch given {@link ActorRef}.

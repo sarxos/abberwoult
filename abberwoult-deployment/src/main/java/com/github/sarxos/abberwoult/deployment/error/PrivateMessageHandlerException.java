@@ -1,6 +1,6 @@
 package com.github.sarxos.abberwoult.deployment.error;
 
-import static com.github.sarxos.abberwoult.deployment.AbberwoultClasses.MESSAGE_HANDLER_ANNOTATION;
+import static com.github.sarxos.abberwoult.deployment.DotNames.MESSAGE_HANDLER_ANNOTATION;
 
 import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.MethodInfo;

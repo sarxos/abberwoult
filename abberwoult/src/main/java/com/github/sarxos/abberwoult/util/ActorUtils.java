@@ -22,6 +22,7 @@ public class ActorUtils {
 
 	public static final String DEFAULT_MAILBOX_ID = Mailboxes.DefaultMailboxId();
 	public static final String DEFAULT_MESSAGE_DISPATCHER_ID = Dispatchers.DefaultDispatcherId();
+	public static final String DEFAULT_TIMEOUT_SECONDS = "10";
 
 	/**
 	 * Return actor name. Only the latest actor in inheritance tree is scanned for name.

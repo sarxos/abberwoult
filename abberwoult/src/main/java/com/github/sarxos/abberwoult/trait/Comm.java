@@ -4,14 +4,12 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.function.Supplier;
 
-import com.github.sarxos.abberwoult.trait.internal.InActor;
-
 import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
 import io.vavr.control.Option;
 
 
-public interface Comm extends InActor {
+public interface Comm extends ActorInternal {
 
 	/**
 	 * Send message to a given actor reference.

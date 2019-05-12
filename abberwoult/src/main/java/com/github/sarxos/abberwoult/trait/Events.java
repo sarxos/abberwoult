@@ -2,13 +2,11 @@ package com.github.sarxos.abberwoult.trait;
 
 import static java.util.Objects.requireNonNull;
 
-import com.github.sarxos.abberwoult.trait.internal.InActor;
-
 import akka.actor.ActorSystem;
 import akka.event.EventStream;
 
 
-public interface Events extends InActor {
+public interface Events extends ActorInternal {
 
 	/**
 	 * Subscribe to all events of a given class propagated via system {@link EventStream}.

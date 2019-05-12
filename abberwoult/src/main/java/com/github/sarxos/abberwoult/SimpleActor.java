@@ -12,7 +12,6 @@ import java.util.function.Consumer;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
-import javax.validation.Valid;
 
 import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.deployment.MessageHandlerRegistry.MessageHandlerMethod;
@@ -22,20 +21,15 @@ import com.github.sarxos.abberwoult.exception.MessageHandlerInvocationException;
 import com.github.sarxos.abberwoult.exception.MessageHandlerValidationException;
 import com.github.sarxos.abberwoult.exception.PostStopInvocationException;
 import com.github.sarxos.abberwoult.exception.PreStartInvocationException;
-import com.github.sarxos.abberwoult.trait.internal.CouplerAccess;
 
 import akka.actor.AbstractActor;
 import akka.japi.pf.ReceiveBuilder;
 
 
-public class SimpleActor extends AbstractActor implements CouplerAccess {
+public class SimpleActor extends AbstractActor {
 
-	/**
-	 * A validator instance used to validate message in case when {@link Receives} annotated method
-	 * contains an argument which was annotated with {@link Valid} annotation.
-	 */
 	@Inject
-	private Coupler coupler;
+	private ActorSystemProxy proxy;
 
 	// final, we do not want anyone to override it
 	@Override
@@ -55,13 +49,8 @@ public class SimpleActor extends AbstractActor implements CouplerAccess {
 		return createReceiveAutomation();
 	}
 
-	@Override
-	public Coupler coupler() {
-		return coupler;
-	}
-
 	public ActorBuilder<?> actor() {
-		return coupler
+		return proxy
 			.actor()
 			.withParent(context());
 	}
@@ -178,7 +167,7 @@ public class SimpleActor extends AbstractActor implements CouplerAccess {
 	 */
 	private <T> T validate(final T message) {
 
-		final Set<ConstraintViolation<T>> violations = coupler.validator().validate(message);
+		final Set<ConstraintViolation<T>> violations = proxy.validator().validate(message);
 
 		if (violations.isEmpty()) {
 			return message;

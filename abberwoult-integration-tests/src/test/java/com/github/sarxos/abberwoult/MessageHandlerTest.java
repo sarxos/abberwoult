@@ -39,12 +39,12 @@ public class MessageHandlerTest {
 	}
 
 	@Inject
-	Coupler engine;
+	ActorSystemProxy proxy;
 
 	// @Test
 	void test_messageHandlerInClass() throws Exception {
 
-		final ActorRef ref = engine.actor()
+		final ActorRef ref = proxy.actor()
 			.of(TestActor.class)
 			.build();
 
@@ -57,7 +57,7 @@ public class MessageHandlerTest {
 	// @Test
 	void test_messageHandlerInSuperclass() throws Exception {
 
-		final ActorRef ref = engine.actor()
+		final ActorRef ref = proxy.actor()
 			.of(TestActorSubclass.class)
 			.build();
 

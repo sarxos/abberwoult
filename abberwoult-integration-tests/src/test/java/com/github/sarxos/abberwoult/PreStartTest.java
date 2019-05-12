@@ -11,8 +11,6 @@ import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.sarxos.abberwoult.Coupler;
-import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.PreStart;
 
 import akka.actor.ActorRef;
@@ -110,7 +108,7 @@ public class PreStartTest {
 	}
 
 	@Inject
-	Coupler engine;
+	ActorSystemProxy proxy;
 
 	@Test
 	public void test_ifCorrectNumberOfPreStartsIsRegistered() {
@@ -126,7 +124,7 @@ public class PreStartTest {
 
 		final AtomicBoolean started = new AtomicBoolean(false);
 
-		final ActorRef ref = engine.actor()
+		final ActorRef ref = proxy.actor()
 			.of(TestActorWithSinglePreStart.class)
 			.withArguments(started)
 			.build();
@@ -142,7 +140,7 @@ public class PreStartTest {
 		final AtomicBoolean started1 = new AtomicBoolean(false);
 		final AtomicBoolean started2 = new AtomicBoolean(false);
 
-		final ActorRef ref = engine.actor()
+		final ActorRef ref = proxy.actor()
 			.of(TestActorWithMultiplePreStarts.class)
 			.withArguments(started1, started2)
 			.build();
@@ -158,7 +156,7 @@ public class PreStartTest {
 
 		final AtomicBoolean started = new AtomicBoolean(false);
 
-		final ActorRef ref = engine.actor()
+		final ActorRef ref = proxy.actor()
 			.of(TestSubClassActorWithSinglePreStart.class)
 			.withArguments(started)
 			.build();
@@ -174,7 +172,7 @@ public class PreStartTest {
 		final AtomicBoolean started1 = new AtomicBoolean(false);
 		final AtomicBoolean started2 = new AtomicBoolean(false);
 
-		final ActorRef ref = engine.actor()
+		final ActorRef ref = proxy.actor()
 			.of(TestSubClassActorWithOverridenPreStart.class)
 			.withArguments(started1, started2)
 			.build();
@@ -191,7 +189,7 @@ public class PreStartTest {
 
 		DummyInterface.started.set(false);
 
-		final ActorRef ref = engine.actor()
+		final ActorRef ref = proxy.actor()
 			.of(TestActorImplementingInterface.class)
 			.build();
 

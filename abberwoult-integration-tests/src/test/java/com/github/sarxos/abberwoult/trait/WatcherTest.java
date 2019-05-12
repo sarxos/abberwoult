@@ -9,7 +9,6 @@ import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.sarxos.abberwoult.Coupler;
 import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.PreStart;
 import com.github.sarxos.abberwoult.annotation.Receives;
@@ -17,8 +16,8 @@ import com.github.sarxos.abberwoult.testkit.TestKit;
 import com.github.sarxos.abberwoult.util.ActorUtils;
 
 import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
 import akka.actor.PoisonPill;
-import akka.actor.Terminated;
 import io.quarkus.test.junit.QuarkusTest;
 
 
@@ -59,7 +58,7 @@ public class WatcherTest {
 	}
 
 	@Inject
-	Coupler coupler;
+	ActorSystem system;
 
 	@Inject
 	TestKit testkit;

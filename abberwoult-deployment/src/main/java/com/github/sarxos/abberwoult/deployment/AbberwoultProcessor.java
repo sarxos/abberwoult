@@ -1,8 +1,8 @@
 package com.github.sarxos.abberwoult.deployment;
 
-import static com.github.sarxos.abberwoult.deployment.AbberwoultClasses.ACTOR_SCOPED_ANNOTATION;
-import static com.github.sarxos.abberwoult.deployment.AbberwoultClasses.APPLICATION_SCOPED_ANNOTATION;
-import static com.github.sarxos.abberwoult.deployment.AbberwoultClasses.SIMPLE_ACTOR_CLASS;
+import static com.github.sarxos.abberwoult.deployment.DotNames.ACTOR_SCOPED_ANNOTATION;
+import static com.github.sarxos.abberwoult.deployment.DotNames.APPLICATION_SCOPED_ANNOTATION;
+import static com.github.sarxos.abberwoult.deployment.DotNames.SIMPLE_ACTOR_CLASS;
 import static io.quarkus.deployment.annotations.ExecutionTime.STATIC_INIT;
 
 import org.apache.commons.lang3.StringUtils;
@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.sarxos.abberwoult.EventsBypass;
-import com.github.sarxos.abberwoult.Coupler;
 import com.github.sarxos.abberwoult.Propser;
 import com.github.sarxos.abberwoult.cdi.ActorRefFactory;
 import com.github.sarxos.abberwoult.cdi.ActorSelectionFactory;
@@ -37,7 +36,6 @@ public class AbberwoultProcessor {
 	private static final String[] CORE_BEAN_CLASSES = {
 		EventsBypass.class.getName(),
 		BeanLocator.class.getName(),
-		Coupler.class.getName(),
 		ActorRefFactory.class.getName(),
 		ActorSelectionFactory.class.getName(),
 		ActorSystemFactory.class.getName(),
@@ -116,4 +114,11 @@ public class AbberwoultProcessor {
 			.peek(clazz -> LOG.debug("Record actor class {} in registry", clazz))
 			.forEach(clazz -> template.register(clazz.name().toString()));
 	}
+	//
+	// @BuildStep
+	// public void setUpConverters(final BuildProducer<ConfigurationCustomConverterBuildItem>
+	// converters) {
+	// converters.produce(new ConfigurationCustomConverterBuildItem(200, Timeout.class,
+	// TimeoutConverter.class));
+	// }
 }

@@ -1,14 +1,14 @@
 package com.github.sarxos.abberwoult.trait;
 
-import com.github.sarxos.abberwoult.trait.internal.ActorSystemAccess;
-import com.github.sarxos.abberwoult.util.ActorUtils;
+import static com.github.sarxos.abberwoult.util.ActorUtils.getActorPath;
 
 import akka.actor.Actor;
 import akka.actor.ActorPath;
 import akka.actor.ActorSelection;
+import akka.actor.ActorSystem;
 
 
-public interface Selector extends ActorSystemAccess {
+public interface Selector {
 
 	/**
 	 * Select actor from the underlying actor system.
@@ -37,6 +37,8 @@ public interface Selector extends ActorSystemAccess {
 	 * @return The {@link ActorSelection}
 	 */
 	default ActorSelection select(final Class<? extends Actor> clazz) {
-		return select(ActorUtils.getActorPath(clazz));
+		return select(getActorPath(clazz));
 	}
+
+	ActorSystem system();
 }

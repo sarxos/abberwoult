@@ -1,10 +1,10 @@
-package com.github.sarxos.abberwoult.trait.internal;
+package com.github.sarxos.abberwoult.trait;
 
 import akka.actor.ActorContext;
 import akka.actor.ActorRef;
 
 
-public interface InActor {
+interface ActorInternal {
 
 	ActorRef self();
 
