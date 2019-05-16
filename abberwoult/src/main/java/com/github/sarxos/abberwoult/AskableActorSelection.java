@@ -1,6 +1,6 @@
 package com.github.sarxos.abberwoult;
 
-import static akka.actor.ActorRef.noSender;
+import static com.github.sarxos.abberwoult.util.AskableUtils.throwIfThrowable;
 
 import java.time.Duration;
 import java.util.concurrent.CompletionStage;
@@ -28,26 +28,18 @@ public class AskableActorSelection implements Askable {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public <T> CompletionStage<T> ask(final Object message) {
-		return (CompletionStage<T>) PatternsCS.ask(selection, message, timeout);
+		return throwIfThrowable(PatternsCS.ask(selection, message, timeout));
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public <T> CompletionStage<T> ask(final Object message, final Timeout timeout) {
-		return (CompletionStage<T>) PatternsCS.ask(selection, message, timeout);
+		return throwIfThrowable(PatternsCS.ask(selection, message, timeout));
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public <T> CompletionStage<T> ask(final Object message, final Duration timeout) {
-		return (CompletionStage<T>) PatternsCS.ask(selection, message, timeout);
-	}
-
-	@Override
-	public void tell(Object message) {
-		tell(message, noSender());
+		return throwIfThrowable(PatternsCS.ask(selection, message, timeout));
 	}
 
 	@Override
