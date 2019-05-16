@@ -108,7 +108,7 @@ public class PreStartTest {
 	}
 
 	@Inject
-	ActorSystemProxy proxy;
+	ActorSystemUniverse universe;
 
 	@Test
 	public void test_ifCorrectNumberOfPreStartsIsRegistered() {
@@ -124,7 +124,7 @@ public class PreStartTest {
 
 		final AtomicBoolean started = new AtomicBoolean(false);
 
-		final ActorRef ref = proxy.actor()
+		final ActorRef ref = universe.actor()
 			.of(TestActorWithSinglePreStart.class)
 			.withArguments(started)
 			.build();
@@ -140,7 +140,7 @@ public class PreStartTest {
 		final AtomicBoolean started1 = new AtomicBoolean(false);
 		final AtomicBoolean started2 = new AtomicBoolean(false);
 
-		final ActorRef ref = proxy.actor()
+		final ActorRef ref = universe.actor()
 			.of(TestActorWithMultiplePreStarts.class)
 			.withArguments(started1, started2)
 			.build();
@@ -156,7 +156,7 @@ public class PreStartTest {
 
 		final AtomicBoolean started = new AtomicBoolean(false);
 
-		final ActorRef ref = proxy.actor()
+		final ActorRef ref = universe.actor()
 			.of(TestSubClassActorWithSinglePreStart.class)
 			.withArguments(started)
 			.build();
@@ -172,7 +172,7 @@ public class PreStartTest {
 		final AtomicBoolean started1 = new AtomicBoolean(false);
 		final AtomicBoolean started2 = new AtomicBoolean(false);
 
-		final ActorRef ref = proxy.actor()
+		final ActorRef ref = universe.actor()
 			.of(TestSubClassActorWithOverridenPreStart.class)
 			.withArguments(started1, started2)
 			.build();
@@ -189,7 +189,7 @@ public class PreStartTest {
 
 		DummyInterface.started.set(false);
 
-		final ActorRef ref = proxy.actor()
+		final ActorRef ref = universe.actor()
 			.of(TestActorImplementingInterface.class)
 			.build();
 

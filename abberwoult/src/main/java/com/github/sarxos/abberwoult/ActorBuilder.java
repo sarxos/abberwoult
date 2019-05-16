@@ -37,7 +37,7 @@ public class ActorBuilder<S extends ActorBuilder<?>> extends AbstractActorBuilde
 	/**
 	 * To be used internally. Please do not use this constructor!
 	 *
-	 * @param engine the {@link ActorSystemProxy} instance
+	 * @param engine the {@link ActorSystemUniverse} instance
 	 */
 	public ActorBuilder(final Propser propser, final ActorSystem system) {
 		this(propser, system, null);

@@ -6,7 +6,6 @@ import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
-import javax.inject.Provider;
 import javax.inject.Singleton;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -32,7 +31,7 @@ public class AskableActorSelectionFactory {
 	private final ActorSelectionFactory factory;
 
 	@ConfigProperty(name = "akka.default-timeout", defaultValue = DEFAULT_TIMEOUT_SECONDS)
-	Provider<Timeout> timeout;
+	Timeout timeout;
 
 	@Inject
 	public AskableActorSelectionFactory(final ActorSelectionFactory factory) {
@@ -50,6 +49,6 @@ public class AskableActorSelectionFactory {
 	@Dependent
 	@ActorOf
 	public AskableActorSelection create(final InjectionPoint injection) {
-		return new AskableActorSelection(factory.create(injection), timeout::get);
+		return new AskableActorSelection(factory.create(injection), timeout);
 	}
 }

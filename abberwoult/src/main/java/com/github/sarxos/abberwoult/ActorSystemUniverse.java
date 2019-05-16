@@ -14,14 +14,14 @@ import akka.actor.Props;
  * @author Bartosz Firyn (sarxos)
  */
 @Singleton
-public class ActorSystemProxy implements Selector {
+public class ActorSystemUniverse implements Selector {
 
 	private final ActorSystem system;
 	private final Propser propser;
 	private final Validator validator;
 
 	@Inject
-	public ActorSystemProxy(final ActorSystem system, final Propser propser, final Validator validator) {
+	public ActorSystemUniverse(final ActorSystem system, final Propser propser, final Validator validator) {
 		this.system = system;
 		this.propser = propser;
 		this.validator = validator;

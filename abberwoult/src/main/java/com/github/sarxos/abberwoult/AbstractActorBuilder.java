@@ -44,7 +44,8 @@ public abstract class AbstractActorBuilder<T, S> implements Builder<T> {
 	private final ActorSystem system;
 
 	/**
-	 * @param engine the {@link ActorSystemProxy} instance
+	 * @param propser the {@link Propser}
+	 * @param system the {@link ActorSystem}
 	 */
 	public AbstractActorBuilder(final Propser propser, final ActorSystem system) {
 		this.propser = notNull(propser, "Props factory must not be null!");

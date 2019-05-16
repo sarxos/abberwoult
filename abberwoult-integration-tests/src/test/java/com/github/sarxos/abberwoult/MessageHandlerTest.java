@@ -39,12 +39,12 @@ public class MessageHandlerTest {
 	}
 
 	@Inject
-	ActorSystemProxy proxy;
+	ActorSystemUniverse universe;
 
 	// @Test
 	void test_messageHandlerInClass() throws Exception {
 
-		final ActorRef ref = proxy.actor()
+		final ActorRef ref = universe.actor()
 			.of(TestActor.class)
 			.build();
 
@@ -57,7 +57,7 @@ public class MessageHandlerTest {
 	// @Test
 	void test_messageHandlerInSuperclass() throws Exception {
 
-		final ActorRef ref = proxy.actor()
+		final ActorRef ref = universe.actor()
 			.of(TestActorSubclass.class)
 			.build();
 

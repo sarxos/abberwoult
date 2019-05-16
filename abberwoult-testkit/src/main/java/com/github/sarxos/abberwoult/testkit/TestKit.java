@@ -11,7 +11,7 @@ import org.awaitility.Awaitility;
 
 import com.github.sarxos.abberwoult.AbstractActorBuilder.ActorBuilderRefCreator;
 import com.github.sarxos.abberwoult.ActorBuilder;
-import com.github.sarxos.abberwoult.ActorSystemProxy;
+import com.github.sarxos.abberwoult.ActorSystemUniverse;
 
 import akka.actor.Actor;
 import akka.actor.ActorIdentity;
@@ -45,11 +45,11 @@ public class TestKit {
 		}
 	};
 
-	private final ActorSystemProxy proxy;
+	private final ActorSystemUniverse universe;
 
 	@Inject
-	public TestKit(final ActorSystemProxy proxy) {
-		this.proxy = proxy;
+	public TestKit(final ActorSystemUniverse universe) {
+		this.universe = universe;
 	}
 
 	/**
@@ -178,7 +178,7 @@ public class TestKit {
 	 * @return New actor builder
 	 */
 	public ActorBuilder<?> actor() {
-		return proxy
+		return universe
 			.actor()
 			.withActorRefCreator(CREATOR);
 	}
@@ -187,7 +187,7 @@ public class TestKit {
 	 * @return The {@link TestKitProbe} to probe messages
 	 */
 	public TestKitProbe probe() {
-		return new TestKitProbe(proxy.system());
+		return new TestKitProbe(universe.system());
 	}
 
 	public void kill(final ActorRef ref) {

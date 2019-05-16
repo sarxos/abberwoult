@@ -29,7 +29,7 @@ import akka.japi.pf.ReceiveBuilder;
 public class SimpleActor extends AbstractActor {
 
 	@Inject
-	private ActorSystemProxy proxy;
+	private ActorSystemUniverse proxy;
 
 	// final, we do not want anyone to override it
 	@Override
