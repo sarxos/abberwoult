@@ -1,8 +1,8 @@
 package com.github.sarxos.abberwoult;
 
-import static com.github.sarxos.abberwoult.deployment.MessageHandlerRegistry.getMessageHandlersFor;
-import static com.github.sarxos.abberwoult.deployment.PostStopRegistry.getPostStopsFor;
-import static com.github.sarxos.abberwoult.deployment.PreStartRegistry.getPreStartsFor;
+import static com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.getPostStopsFor;
+import static com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.getPreStartsFor;
+import static com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.getReceiversFor;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles.Lookup;
@@ -14,9 +14,9 @@ import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 
 import com.github.sarxos.abberwoult.annotation.Receives;
-import com.github.sarxos.abberwoult.deployment.MessageHandlerRegistry.MessageHandlerMethod;
-import com.github.sarxos.abberwoult.deployment.PostStopRegistry.PostStopMethod;
-import com.github.sarxos.abberwoult.deployment.PreStartRegistry.PreStartMethod;
+import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.MessageReceiverMethod;
+import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.PostStopMethod;
+import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.PreStartMethod;
 import com.github.sarxos.abberwoult.exception.MessageHandlerInvocationException;
 import com.github.sarxos.abberwoult.exception.MessageHandlerValidationException;
 import com.github.sarxos.abberwoult.exception.PostStopInvocationException;
@@ -29,7 +29,7 @@ import akka.japi.pf.ReceiveBuilder;
 public class SimpleActor extends AbstractActor {
 
 	@Inject
-	private ActorSystemUniverse proxy;
+	private ActorSystemUniverse universe;
 
 	// final, we do not want anyone to override it
 	@Override
@@ -50,7 +50,7 @@ public class SimpleActor extends AbstractActor {
 	}
 
 	public ActorBuilder<?> actor() {
-		return proxy
+		return universe
 			.actor()
 			.withParent(context());
 	}
@@ -80,8 +80,8 @@ public class SimpleActor extends AbstractActor {
 	 */
 	private Receive createReceiveAutomation() {
 		final ReceiveBuilder builder = ReceiveBuilder.create();
-		return getMessageHandlersFor(getClass())
-			.map(handlers -> createReceiveForHandlers(builder, handlers))
+		return getReceiversFor(getClass())
+			.map(handlers -> createReceiveForReceivers(builder, handlers))
 			.getOrElse(() -> createReceiveForUnmatched(builder));
 	}
 
@@ -89,12 +89,12 @@ public class SimpleActor extends AbstractActor {
 	 * Create new {@link Receive} for {@link Receives} annotated methods.
 	 *
 	 * @param caller a called {@link Lookup}
-	 * @param handlers a mapping between message class and corresponding {@link Receives}
+	 * @param receivers a mapping between message class and corresponding {@link Receives}
 	 * @return New {@link Receive}
 	 */
-	private Receive createReceiveForHandlers(final ReceiveBuilder builder, final Map<String, MessageHandlerMethod> handlers) {
+	private Receive createReceiveForReceivers(final ReceiveBuilder builder, final Map<String, MessageReceiverMethod> receivers) {
 
-		for (final MessageHandlerMethod method : handlers.values()) {
+		for (final MessageReceiverMethod method : receivers.values()) {
 
 			final Class<?> messageClass = method.getMessageClass();
 			final MethodHandle handle = method.getHandle();
@@ -121,7 +121,7 @@ public class SimpleActor extends AbstractActor {
 	}
 
 	/**
-	 * This method validates a message before it's consumed.
+	 * Create consumer which validates a message before it's received.
 	 *
 	 * @param <T> the generic message type
 	 * @param handle the {@link MethodHandle} to invoke
@@ -132,7 +132,7 @@ public class SimpleActor extends AbstractActor {
 	}
 
 	/**
-	 * This method consume a message.
+	 * Create consumer which receives a message.
 	 *
 	 * @param <T> the generic message type
 	 * @param handle the {@link MethodHandle} to invoke
@@ -167,7 +167,7 @@ public class SimpleActor extends AbstractActor {
 	 */
 	private <T> T validate(final T message) {
 
-		final Set<ConstraintViolation<T>> violations = proxy.validator().validate(message);
+		final Set<ConstraintViolation<T>> violations = universe.validator().validate(message);
 
 		if (violations.isEmpty()) {
 			return message;

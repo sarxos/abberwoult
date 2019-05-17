@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.Receives;
-import com.github.sarxos.abberwoult.deployment.MessageHandlerRegistry.MessageHandlerMethod;
+import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.MessageReceiverMethod;
 import com.github.sarxos.abberwoult.util.ReflectionUtils;
 
 
@@ -31,14 +31,14 @@ public class MessageHandlersRegistryTest {
 
 	@BeforeAll
 	static void setup() {
-		MessageHandlerRegistry.register(TestDeclaratorA.class);
-		MessageHandlerRegistry.register(TestDeclaratorB.class);
+		ActorInterceptorRegistry.registerReceiversFrom(TestDeclaratorA.class);
+		ActorInterceptorRegistry.registerReceiversFrom(TestDeclaratorB.class);
 	}
 
 	@Test
 	void test_store() {
 
-		final Map<String, MessageHandlerMethod> handlers = MessageHandlerRegistry.getMessageHandlersFor(TestDeclaratorA.class).get();
+		final Map<String, MessageReceiverMethod> handlers = ActorInterceptorRegistry.getReceiversFor(TestDeclaratorA.class).get();
 
 		assertThat(handlers)
 			.isNotNull()
@@ -48,7 +48,7 @@ public class MessageHandlersRegistryTest {
 	@Test
 	void test_methodFromActualClassShouldBeUsed() {
 
-		final MessageHandlerMethod entry = MessageHandlerRegistry.getHandlerFor(TestDeclaratorA.class, Integer.class).get();
+		final MessageReceiverMethod entry = ActorInterceptorRegistry.getReceiversFor(TestDeclaratorA.class, Integer.class).get();
 
 		assertThat(entry).isNotNull();
 		assertThat(entry.getDeclaringClass()).isSameAs(TestDeclaratorA.class);
@@ -60,7 +60,7 @@ public class MessageHandlersRegistryTest {
 	@Test
 	void test_methodFromSubclassShouldBeUsed() {
 
-		final MessageHandlerMethod entry = MessageHandlerRegistry.getHandlerFor(TestDeclaratorB.class, Integer.class).get();
+		final MessageReceiverMethod entry = ActorInterceptorRegistry.getReceiversFor(TestDeclaratorB.class, Integer.class).get();
 
 		assertThat(entry).isNotNull();
 		assertThat(entry.getDeclaringClass()).isSameAs(TestDeclaratorB.class);

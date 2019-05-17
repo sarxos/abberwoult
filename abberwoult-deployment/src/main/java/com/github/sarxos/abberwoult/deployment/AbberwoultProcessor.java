@@ -40,7 +40,7 @@ public class AbberwoultProcessor {
 		ActorSelectionFactory.class.getName(),
 		ActorSystemFactory.class.getName(),
 		Propser.class.getName(),
-		MessageHandlerRegistry.class.getName(),
+		ActorInterceptorRegistry.class.getName(),
 	};
 
 	/**
@@ -107,7 +107,7 @@ public class AbberwoultProcessor {
 
 	@BuildStep
 	@Record(STATIC_INIT)
-	void doRegisterActors(final ActorRegistryTemplate template, final CombinedIndexBuildItem combinedIndex) {
+	void doRegisterActors(final ActorInterceptorRegistryTemplate template, final CombinedIndexBuildItem combinedIndex) {
 		combinedIndex.getIndex()
 			.getAllKnownSubclasses(SIMPLE_ACTOR_CLASS)
 			.stream()

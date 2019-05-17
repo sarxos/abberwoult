@@ -354,11 +354,11 @@ public class ReflectionUtils {
 	}
 
 	/**
-	 * Remove overridden methods from a list.
+	 * Remove overridden methods from a given list.
 	 *
-	 * @param methods
+	 * @param methods the methods to filter
 	 */
-	public static final void nonOverridden(final List<Method> methods) {
+	public static final List<Method> removeOverriddenFrom(final List<Method> methods) {
 
 		final ArrayDeque<Method> input = new ArrayDeque<>(methods);
 
@@ -369,6 +369,8 @@ public class ReflectionUtils {
 			input.removeIf(m -> hasSameSignature(method, m));
 			methods.add(method);
 		}
+
+		return methods;
 	}
 
 	/**
@@ -393,5 +395,9 @@ public class ReflectionUtils {
 		}
 
 		return 0;
+	}
+
+	public static boolean isAnonymousOrAbstract(final Class<?> clazz) {
+		return clazz.isAnonymousClass() || Modifier.isAbstract(clazz.getModifiers());
 	}
 }

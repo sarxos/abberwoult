@@ -1,7 +1,7 @@
 package com.github.sarxos.abberwoult;
 
 import static akka.actor.ActorRef.noSender;
-import static com.github.sarxos.abberwoult.deployment.PreStartRegistry.getPreStartsFor;
+import static com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.getPreStartsFor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
