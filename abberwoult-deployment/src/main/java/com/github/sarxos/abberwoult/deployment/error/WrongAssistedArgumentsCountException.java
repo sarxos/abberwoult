@@ -2,7 +2,7 @@ package com.github.sarxos.abberwoult.deployment.error;
 
 import static com.github.sarxos.abberwoult.deployment.DotNames.ASSISTED_ANNOTATION;
 import static com.github.sarxos.abberwoult.deployment.DotNames.INJECT_ANNOTATION;
-import static com.github.sarxos.abberwoult.deployment.DotNames.MESSAGE_HANDLER_ANNOTATION;
+import static com.github.sarxos.abberwoult.deployment.DotNames.RECEIVES_ANNOTATION;
 
 import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.MethodInfo;
@@ -13,7 +13,7 @@ public class WrongAssistedArgumentsCountException extends IllegalStateException 
 
 	public WrongAssistedArgumentsCountException(final MethodInfo handler, final ClassInfo recipientClass, final int assistedCount) {
 		super(""
-			+ "Methods annotated with both " + MESSAGE_HANDLER_ANNOTATION + " "
+			+ "Methods annotated with both " + RECEIVES_ANNOTATION + " "
 			+ "and " + INJECT_ANNOTATION + " must consume exactly one assisted "
 			+ "argument, i.e. argument annotated with " + ASSISTED_ANNOTATION + " "
 			+ "but found " + assistedCount + " assisted arguments on " + handler + " "

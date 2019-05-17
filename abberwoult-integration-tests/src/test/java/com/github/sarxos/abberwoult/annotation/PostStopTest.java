@@ -1,4 +1,4 @@
-package com.github.sarxos.abberwoult;
+package com.github.sarxos.abberwoult.annotation;
 
 import static akka.actor.ActorRef.noSender;
 import static com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.getPostStopsFor;
@@ -11,6 +11,8 @@ import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
+import com.github.sarxos.abberwoult.ActorSystemUniverse;
+import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.PostStop;
 
 import akka.actor.ActorRef;

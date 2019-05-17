@@ -114,11 +114,4 @@ public class AbberwoultProcessor {
 			.peek(clazz -> LOG.debug("Record actor class {} in registry", clazz))
 			.forEach(clazz -> template.register(clazz.name().toString()));
 	}
-	//
-	// @BuildStep
-	// public void setUpConverters(final BuildProducer<ConfigurationCustomConverterBuildItem>
-	// converters) {
-	// converters.produce(new ConfigurationCustomConverterBuildItem(200, Timeout.class,
-	// TimeoutConverter.class));
-	// }
 }

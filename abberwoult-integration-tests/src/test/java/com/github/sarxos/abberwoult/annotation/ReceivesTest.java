@@ -1,10 +1,11 @@
-package com.github.sarxos.abberwoult;
+package com.github.sarxos.abberwoult.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.inject.Inject;
 
-import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.ActorSystemUniverse;
+import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.trait.Comm;
 
 import akka.actor.ActorRef;
@@ -18,7 +19,7 @@ import scala.concurrent.duration.Duration;
 
 
 @QuarkusTest
-public class MessageHandlerTest {
+public class ReceivesTest {
 
 	public static class TestActor extends SimpleActor implements Comm {
 
@@ -29,7 +30,7 @@ public class MessageHandlerTest {
 
 	public static class TestActorSuperclass extends SimpleActor implements Comm {
 
-		public void handleInteger(@Receives Integer i) {
+		public void handleIntegerXXX(@Receives Integer i) {
 			reply(i);
 		}
 	}

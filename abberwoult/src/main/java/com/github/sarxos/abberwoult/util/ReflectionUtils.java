@@ -25,6 +25,7 @@ import javax.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.github.sarxos.abberwoult.annotation.Observed;
 import com.github.sarxos.abberwoult.exception.PreStartInvocationException;
 
 import io.vavr.control.Option;
@@ -56,6 +57,7 @@ public class ReflectionUtils {
 	};
 
 	private static final Predicate<Parameter> HAS_VALID_ANNOTATION = p -> p.isAnnotationPresent(Valid.class);
+	private static final Predicate<Parameter> HAS_OBSERVED_ANNOTATION = p -> p.isAnnotationPresent(Observed.class);
 
 	/**
 	 * Make sure {@link Field} is accessible.
@@ -238,20 +240,23 @@ public class ReflectionUtils {
 	 * @param annotation the annotation which should be present on parameter
 	 * @return List of methods containing parameter annotated with a given annotation or empty
 	 */
-	public static Collection<Method> getAnnotatedParameterMethodsFromClass(Class<?> clazz, final Class<? extends Annotation> annotation, final Class<?> stop) {
+	public static Collection<Method> getAnnotatedParameterMethodsFromClass(Class<?> clazz, final Collection<Class<? extends Annotation>> annotations, final Class<?> stop) {
 
 		final Collection<Method> methods = new ArrayDeque<>();
 
 		while (clazz != stop && clazz != null) {
 			for (final Method method : clazz.getDeclaredMethods()) {
-				for (final Parameter parameter : method.getParameters()) {
-					if (parameter.isAnnotationPresent(annotation)) {
-						methods.add(method);
+				parameters: for (final Parameter parameter : method.getParameters()) {
+					for (Class<? extends Annotation> annotation : annotations) {
+						if (parameter.isAnnotationPresent(annotation)) {
+							methods.add(method);
+							break parameters;
+						}
 					}
 				}
 			}
 			for (final Class<?> interf : clazz.getInterfaces()) {
-				methods.addAll(getAnnotatedParameterMethodsFromClass(interf, annotation, stop));
+				methods.addAll(getAnnotatedParameterMethodsFromClass(interf, annotations, stop));
 			}
 			clazz = clazz.getSuperclass();
 		}
@@ -287,8 +292,12 @@ public class ReflectionUtils {
 		}
 	}
 
-	public static boolean isAbstract(Class<?> clazz) {
+	public static boolean isAbstract(final Class<?> clazz) {
 		return Modifier.isAbstract(clazz.getModifiers());
+	}
+
+	public static boolean isInterface(final Class<?> clazz) {
+		return Modifier.isInterface(clazz.getModifiers());
 	}
 
 	public static Class<?> getClazz(final String clazzName) {
@@ -314,6 +323,14 @@ public class ReflectionUtils {
 		return Arrays
 			.stream(method.getParameters())
 			.filter(HAS_VALID_ANNOTATION)
+			.findAny()
+			.isPresent();
+	}
+
+	public static boolean hasObservedParameters(final Method method) {
+		return Arrays
+			.stream(method.getParameters())
+			.filter(HAS_OBSERVED_ANNOTATION)
 			.findAny()
 			.isPresent();
 	}
@@ -395,9 +412,5 @@ public class ReflectionUtils {
 		}
 
 		return 0;
-	}
-
-	public static boolean isAnonymousOrAbstract(final Class<?> clazz) {
-		return clazz.isAnonymousClass() || Modifier.isAbstract(clazz.getModifiers());
 	}
 }

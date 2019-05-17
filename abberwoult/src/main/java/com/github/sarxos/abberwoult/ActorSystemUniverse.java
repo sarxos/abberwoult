@@ -6,8 +6,10 @@ import javax.validation.Validator;
 
 import com.github.sarxos.abberwoult.trait.Selector;
 
+import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
+import akka.event.EventStream;
 
 
 /**
@@ -51,5 +53,13 @@ public class ActorSystemUniverse implements Selector {
 	 */
 	public ActorBuilder<?> actor() {
 		return new ActorBuilder<>(propser, system);
+	}
+
+	public EventStream getEventStream() {
+		return system.getEventStream();
+	}
+
+	public void subscribeEvent(final ActorRef ref, final Class<?> eventClass) {
+		getEventStream().subscribe(ref, eventClass);
 	}
 }

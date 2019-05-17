@@ -1,25 +1,32 @@
 package com.github.sarxos.abberwoult.deployment;
 
+import static com.github.sarxos.abberwoult.util.CollectorUtils.optimizedList;
 import static com.github.sarxos.abberwoult.util.CollectorUtils.toListWithSameSizeAs;
 import static com.github.sarxos.abberwoult.util.ReflectionUtils.getAnnotatedParameterPosition;
 import static com.github.sarxos.abberwoult.util.ReflectionUtils.getObjectDistance;
+import static com.github.sarxos.abberwoult.util.ReflectionUtils.hasObservedParameters;
 import static com.github.sarxos.abberwoult.util.ReflectionUtils.hasValidableParameters;
-import static com.github.sarxos.abberwoult.util.ReflectionUtils.isAnonymousOrAbstract;
+import static com.github.sarxos.abberwoult.util.ReflectionUtils.isAbstract;
+import static com.github.sarxos.abberwoult.util.ReflectionUtils.isInterface;
 import static com.github.sarxos.abberwoult.util.ReflectionUtils.removeOverriddenFrom;
 import static com.github.sarxos.abberwoult.util.ReflectionUtils.unreflect;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import javax.inject.Inject;
@@ -30,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import com.github.sarxos.abberwoult.ActorCreator;
 import com.github.sarxos.abberwoult.SimpleActor;
+import com.github.sarxos.abberwoult.annotation.Observed;
 import com.github.sarxos.abberwoult.annotation.PostStop;
 import com.github.sarxos.abberwoult.annotation.PreStart;
 import com.github.sarxos.abberwoult.annotation.Receives;
@@ -48,11 +56,20 @@ public class ActorInterceptorRegistry {
 	 */
 	private static final Map<String, Map<String, MessageReceiverMethod>> RECEIVERS = new HashMap<>();
 
+	/**
+	 * List of observed events per class.
+	 */
+	private static final Map<String, List<Class<?>>> OBSERVED_EVENTS = new HashMap<>();
+
+	/**
+	 * A static map where all {@link PreStart} annotation points are stored per class. This map is
+	 * populated by a {@link ActorInterceptorRegistryTemplate} recorded in the compile time.
+	 */
 	private static final Map<String, List<PreStartMethod>> PRESTARTS = new HashMap<>();
 
 	/**
-	 * A static map where all {@link PostStop} annotation points are stored per actor class. This
-	 * map is populated by a {@link ActorInterceptorRegistryTemplate} recorded in the compile time.
+	 * A static map where all {@link PostStop} annotation points are stored per class. This map is
+	 * populated by a {@link ActorInterceptorRegistryTemplate} recorded in the compile time.
 	 */
 	private static final Map<String, List<PostStopMethod>> POSTSTOPS = new HashMap<>();
 
@@ -86,6 +103,10 @@ public class ActorInterceptorRegistry {
 	 */
 	private static final Class<?> STOP_CLASS = SimpleActor.class.getSuperclass();
 
+	private static final Collection<Class<? extends Annotation>> MESSAGE_ANNOTATIONS = asList(
+		Receives.class,
+		Observed.class);
+
 	/**
 	 * Register given class as a {@link Receives} definer. Given class inheritance tree will be
 	 * scanned and all methods which contains at least one parameter annotated with {@link Receives}
@@ -97,12 +118,12 @@ public class ActorInterceptorRegistry {
 
 		// allow concrete classes only
 
-		if (isAnonymousOrAbstract(clazz)) {
+		if (isNonRegistrable(clazz)) {
 			return;
 		}
 
 		final List<MessageReceiverMethod> methods = ReflectionUtils
-			.getAnnotatedParameterMethodsFromClass(clazz, Receives.class, STOP_CLASS)
+			.getAnnotatedParameterMethodsFromClass(clazz, MESSAGE_ANNOTATIONS, STOP_CLASS)
 			.stream()
 			.filter(HAS_ARGUMENTS)
 			.map(MessageReceiverMethod::new)
@@ -117,12 +138,38 @@ public class ActorInterceptorRegistry {
 		LOG.debug("Register {} message receivers for actor {}", methods.size(), clazz);
 
 		final String classKey = clazz.getName();
-		final Map<String, MessageReceiverMethod> handlers = RECEIVERS.computeIfAbsent(classKey, $ -> new LinkedHashMap<>());
+
+		RECEIVERS.computeIfAbsent(classKey, $ -> prepareReceiversEntry(methods));
+
+		OBSERVED_EVENTS.computeIfAbsent(classKey, $ -> prepareObservedEventsEntry(methods));
+	}
+
+	private static Map<String, MessageReceiverMethod> prepareReceiversEntry(final List<MessageReceiverMethod> methods) {
+
+		final Map<String, MessageReceiverMethod> receivers = new LinkedHashMap<>();
 
 		methods
 			.stream()
 			.peek(entry -> LOG.trace("Register message receiver {}", entry.getName()))
-			.forEach(entry -> handlers.putIfAbsent(entry.getMessageKey(), entry));
+			.forEach(entry -> receivers.putIfAbsent(entry.getMessageKey(), entry));
+
+		return receivers;
+	}
+
+	private static List<Class<?>> prepareObservedEventsEntry(final List<MessageReceiverMethod> receivers) {
+
+		final Set<Class<?>> observed = receivers
+			.stream()
+			.filter(MessageReceiverMethod::isObserved)
+			.map(MessageReceiverMethod::getMessageClass)
+			.peek(eventClass -> LOG.trace("Register observed event type {}", eventClass))
+			.collect(toSet());
+
+		if (observed.isEmpty()) {
+			return emptyList();
+		}
+
+		return unmodifiableList(optimizedList(observed));
 	}
 
 	/**
@@ -169,7 +216,7 @@ public class ActorInterceptorRegistry {
 	 */
 	private static List<Method> getNoArgVoidMethodsAnnotatedWith(final Class<?> clazz, final Class<? extends Annotation> annotation) {
 
-		if (isAnonymousOrAbstract(clazz)) {
+		if (isNonRegistrable(clazz)) {
 			return emptyList();
 		}
 
@@ -247,6 +294,22 @@ public class ActorInterceptorRegistry {
 			.getOrElse(Collections::emptyList);
 	}
 
+	public static List<Class<?>> getObservedEventsFor(final Class<?> clazz) {
+		return Option
+			.of(OBSERVED_EVENTS.get(clazz.getName()))
+			.getOrElse(Collections::emptyList);
+	}
+
+	/**
+	 * Anonymous, abstract and interface classes are non-registrable.
+	 *
+	 * @param clazz
+	 * @return
+	 */
+	public static boolean isNonRegistrable(final Class<?> clazz) {
+		return clazz.isAnonymousClass() || isAbstract(clazz) || isInterface(clazz);
+	}
+
 	public static class MessageReceiverMethod {
 
 		private final Method method;
@@ -254,6 +317,7 @@ public class ActorInterceptorRegistry {
 		private final int messageParameterPosition;
 		private final MethodHandle handle;
 		private final boolean validable;
+		private final boolean observed;
 		private final boolean injectable;
 
 		public MessageReceiverMethod(final Method method) {
@@ -262,6 +326,7 @@ public class ActorInterceptorRegistry {
 			this.messageParameterPosition = getAnnotatedParameterPosition(method, Receives.class);
 			this.handle = unreflect(getDeclaringClass(), method);
 			this.validable = hasValidableParameters(method);
+			this.observed = hasObservedParameters(method);
 			this.injectable = method.isAnnotationPresent(Inject.class);
 		}
 
@@ -286,6 +351,10 @@ public class ActorInterceptorRegistry {
 		 */
 		public boolean isValidable() {
 			return validable;
+		}
+
+		public boolean isObserved() {
+			return observed;
 		}
 
 		/**

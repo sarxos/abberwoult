@@ -1,5 +1,6 @@
 package com.github.sarxos.abberwoult;
 
+import static com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.getObservedEventsFor;
 import static com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.getPostStopsFor;
 import static com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.getPreStartsFor;
 import static com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.getReceiversFor;
@@ -34,7 +35,9 @@ public class SimpleActor extends AbstractActor {
 	// final, we do not want anyone to override it
 	@Override
 	public final void preStart() throws Exception {
-		getPreStartsFor(getClass()).forEach(this::invokePreStart);
+		final Class<?> clazz = getClass();
+		getPreStartsFor(clazz).forEach(this::invokePreStart);
+		getObservedEventsFor(clazz).forEach(this::subscribeEvent);
 	}
 
 	// final, we do not want anyone to override it
@@ -73,6 +76,10 @@ public class SimpleActor extends AbstractActor {
 		} catch (Throwable e) {
 			throw new PostStopInvocationException(this, handle, e);
 		}
+	}
+
+	private void subscribeEvent(final Class<?> eventClass) {
+		universe.subscribeEvent(self(), eventClass);
 	}
 
 	/**

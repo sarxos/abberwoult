@@ -21,7 +21,7 @@ import scala.concurrent.duration.Duration;
 
 
 @QuarkusTest
-public class ValidationTest {
+public class ValidatorTest {
 
 	static final class ValidatorGetMsg {
 	}

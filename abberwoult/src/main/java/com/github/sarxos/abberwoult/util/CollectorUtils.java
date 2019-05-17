@@ -76,8 +76,8 @@ public class CollectorUtils {
 	}
 
 	/**
-	 * Collect {@link Stream} elements into the {@link HashSet} with a given size and load factor
-	 * of 1.0. Example use case:<br>
+	 * Collect {@link Stream} elements into the {@link HashSet} with a given size and load factor of
+	 * 1.0. Example use case:<br>
 	 *
 	 * <pre>
 	 * // there is 5 elements on input, thus collect to set of size 5
@@ -134,5 +134,9 @@ public class CollectorUtils {
 
 	public static <K, T, U> Map<K, U> map(final Collection<T> collection, final Supplier<Map<K, U>> mapSupplier, Function<T, K> keyMapper, Function<T, U> valueMapper) {
 		return stream(collection).collect(toMap(keyMapper, valueMapper, (a, b) -> a, mapSupplier));
+	}
+
+	public static <T> List<T> optimizedList(final Collection<T> list) {
+		return list.stream().collect(toListWithSameSizeAs(list));
 	}
 }

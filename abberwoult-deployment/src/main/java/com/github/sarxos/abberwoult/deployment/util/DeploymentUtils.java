@@ -2,7 +2,8 @@ package com.github.sarxos.abberwoult.deployment.util;
 
 import static com.github.sarxos.abberwoult.deployment.DotNames.ASSISTED_ANNOTATION;
 import static com.github.sarxos.abberwoult.deployment.DotNames.INJECT_ANNOTATION;
-import static com.github.sarxos.abberwoult.deployment.DotNames.MESSAGE_HANDLER_ANNOTATION;
+import static com.github.sarxos.abberwoult.deployment.DotNames.OBSERVED_ANNOTATION;
+import static com.github.sarxos.abberwoult.deployment.DotNames.RECEIVES_ANNOTATION;
 import static com.github.sarxos.abberwoult.deployment.DotNames.SIMPLE_ACTOR_CLASS;
 import static com.github.sarxos.abberwoult.deployment.DotNames.VALID_ANNOTATION;
 import static java.util.Collections.emptySet;
@@ -131,10 +132,10 @@ public class DeploymentUtils {
 	 * @return True if given method is a message handler, false otherwise
 	 */
 	private static boolean isMessageHandler(final MethodInfo method) {
-		return method.hasAnnotation(MESSAGE_HANDLER_ANNOTATION);
+		return method.hasAnnotation(RECEIVES_ANNOTATION);
 	}
 
-	public static boolean isMessageHandler(final TransformationContext tc) {
+	public static boolean isReceivesPresentIn(final TransformationContext tc) {
 
 		// only methods can be message handlers
 
@@ -145,7 +146,33 @@ public class DeploymentUtils {
 		// check if method is annotated with the proper annotation
 
 		final MethodInfo info = tc.getTarget().asMethod();
-		final AnnotationInstance annotation = info.annotation(MESSAGE_HANDLER_ANNOTATION);
+		final AnnotationInstance annotation = info.annotation(RECEIVES_ANNOTATION);
+
+		// null annotation means that given annotation was not present on the element
+
+		if (annotation == null) {
+			return false;
+		}
+
+		// if we found given annotation on the element then we need to double check if
+		// this is method annotations and not for example parameter or type annotation,
+		// this can be done by checking target kind which needs to indicate a method
+
+		return annotation.target().kind() == Kind.METHOD;
+	}
+
+	public static boolean isObservedPresentIn(final TransformationContext tc) {
+
+		// only methods can be message handlers
+
+		if (!tc.isMethod()) {
+			return false;
+		}
+
+		// check if method is annotated with the proper annotation
+
+		final MethodInfo info = tc.getTarget().asMethod();
+		final AnnotationInstance annotation = info.annotation(OBSERVED_ANNOTATION);
 
 		// null annotation means that given annotation was not present on the element
 
