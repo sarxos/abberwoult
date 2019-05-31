@@ -5,6 +5,8 @@ import java.util.UUID;
 import javax.enterprise.inject.Produces;
 import javax.inject.Singleton;
 
+import com.github.sarxos.abberwoult.config.ApplicationConfLoader;
+
 import akka.actor.ActorSystem;
 
 
@@ -14,7 +16,7 @@ public class ActorSystemFactory {
 	@Produces
 	@Singleton
 	public ActorSystem create() {
-		return ActorSystem.create(getName());
+		return ActorSystem.create(getName(), ApplicationConfLoader.load());
 	}
 
 	private String getName() {

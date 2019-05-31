@@ -27,6 +27,10 @@
       <artifactId>akka-actor_2.11</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.typesafe.akka</groupId>
+      <artifactId>akka-cluster-tools_2.11</artifactId>
+    </dependency>
+    <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-arc</artifactId>
     </dependency>

@@ -284,7 +284,7 @@ public class BeanFactory<T> {
 					.of(locator.findBeanFor(constructor, parameter, position))
 					.getOrElseThrow(() -> new ParameterInjecteeNotAvailableException(parameter));
 			} catch (UnsatisfiedResolutionException e) {
-				throw new UnsatisfiedParameterInjectionException(parameter, e);
+				throw new UnsatisfiedParameterInjectionException(constructor, parameter, e);
 			}
 		}
 	}
@@ -403,8 +403,8 @@ public class BeanFactory<T> {
 
 	@SuppressWarnings("serial")
 	public static final class UnsatisfiedParameterInjectionException extends BeanInjectionException {
-		public UnsatisfiedParameterInjectionException(final Parameter parameter, final UnsatisfiedResolutionException e) {
-			super("Cannot resolve injectee for parameter " + parameter + " of " + parameter.getParameterizedType(), e);
+		public UnsatisfiedParameterInjectionException(final Constructor<?> constructor, final Parameter parameter, final UnsatisfiedResolutionException e) {
+			super("Cannot resolve injectee for parameter " + parameter + " in " + constructor, e);
 		}
 	}
 }
