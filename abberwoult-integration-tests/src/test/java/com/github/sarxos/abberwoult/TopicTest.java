@@ -6,9 +6,9 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.github.sarxos.abberwoult.annotation.Assisted;
+import com.github.sarxos.abberwoult.annotation.Labeled;
 import com.github.sarxos.abberwoult.annotation.PreStart;
 import com.github.sarxos.abberwoult.annotation.Receives;
-import com.github.sarxos.abberwoult.annotation.Labeled;
 import com.github.sarxos.abberwoult.testkit.TestKit;
 import com.github.sarxos.abberwoult.testkit.TestKitProbe;
 import com.github.sarxos.abberwoult.trait.Comm;
@@ -59,7 +59,7 @@ public class TopicTest {
 	}
 
 	@Test
-	public void test_pubsub() {
+	public void test_subscribe() {
 
 		final TestKitProbe probe = testkit.probe();
 
@@ -73,6 +73,26 @@ public class TopicTest {
 		Assertions
 			.assertThat(ack)
 			.isNotNull();
+	}
 
+	@Test
+	public void test_publish() {
+
+		final TestKitProbe probe = testkit.probe();
+
+		testkit.actor()
+			.of(TestActor.class)
+			.withArguments(probe)
+			.build();
+
+		probe.expectMsgClass(SubscribeAck.class);
+
+		topic.publish(234);
+
+		final Integer value = probe.expectMsgClass(Integer.class);
+
+		Assertions
+			.assertThat(value)
+			.isEqualTo(234);
 	}
 }

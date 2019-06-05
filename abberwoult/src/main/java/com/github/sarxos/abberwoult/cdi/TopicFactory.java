@@ -28,7 +28,7 @@ public class TopicFactory {
 
 	@Produces
 	@Labeled
-	public Topic createDistributed(final InjectionPoint injection) {
+	public Topic create(final InjectionPoint injection) {
 
 		if (injection == null) {
 			throw new NoDistributedTopicNameException(injection);

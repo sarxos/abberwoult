@@ -1,6 +1,6 @@
 package com.github.sarxos.abberwoult;
 
-import static com.github.sarxos.abberwoult.util.AskableUtils.throwIfThrowable;
+import static com.github.sarxos.abberwoult.AskableActorUtils.throwIfThrowable;
 
 import java.time.Duration;
 import java.util.concurrent.CompletionStage;

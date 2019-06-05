@@ -1,13 +1,17 @@
-package com.github.sarxos.abberwoult.util;
+package com.github.sarxos.abberwoult;
 
 import java.util.concurrent.CompletionStage;
 
 
-public class AskableUtils {
+class AskableActorUtils {
+
+	private AskableActorUtils() {
+		// utility class
+	}
 
 	@SuppressWarnings("unchecked")
 	public static <T> CompletionStage<T> throwIfThrowable(final CompletionStage<?> stage) {
-		return (CompletionStage<T>) stage.thenApply(AskableUtils::throwIfThrowable);
+		return (CompletionStage<T>) stage.thenApply(AskableActorUtils::throwIfThrowable);
 	}
 
 	@SuppressWarnings("unchecked")

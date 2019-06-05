@@ -352,10 +352,19 @@ public class ReflectionUtils {
 	}
 
 	public static boolean hasSameSignature(final Method a, final Method b) {
-		return true
-			&& a.getReturnType() == b.getReturnType()
-			&& StringUtils.equals(a.getName(), b.getName())
-			&& areParametersTheSame(a.getParameters(), b.getParameters());
+		return hasSameReturnType(a, b) && hasSameName(a, b) && hasSameParameters(a, b);
+	}
+
+	public static boolean hasSameReturnType(final Method a, final Method b) {
+		return a.getReturnType() == b.getReturnType();
+	}
+
+	public static boolean hasSameName(final Method a, final Method b) {
+		return StringUtils.equals(a.getName(), b.getName());
+	}
+
+	public static boolean hasSameParameters(final Method a, final Method b) {
+		return areParametersTheSame(a.getParameters(), b.getParameters());
 	}
 
 	private static boolean areParametersTheSame(final Parameter[] a, final Parameter[] b) {
