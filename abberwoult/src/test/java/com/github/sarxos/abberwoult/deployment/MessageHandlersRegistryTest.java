@@ -8,7 +8,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.github.sarxos.abberwoult.SimpleActor;
-import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.annotation.Received;
 import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.MessageReceiverMethod;
 import com.github.sarxos.abberwoult.util.ReflectionUtils;
 
@@ -17,14 +17,14 @@ public class MessageHandlersRegistryTest {
 
 	public static class TestDeclaratorA extends SimpleActor {
 
-		public void handleInteger(@Receives final Integer i) {
+		public void handleInteger(@Received final Integer i) {
 			// nothing
 		}
 	}
 
 	public static class TestDeclaratorB extends TestDeclaratorA {
 
-		public void handleInteger2(@Receives final Integer i) {
+		public void handleInteger2(@Received final Integer i) {
 			// nothing
 		}
 	}

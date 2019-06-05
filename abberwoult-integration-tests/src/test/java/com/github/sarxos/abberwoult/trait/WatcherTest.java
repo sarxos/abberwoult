@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.PreStart;
-import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.annotation.Received;
 import com.github.sarxos.abberwoult.testkit.TestKit;
 import com.github.sarxos.abberwoult.util.ActorUtils;
 
@@ -52,7 +52,7 @@ public class WatcherTest {
 			}
 		}
 
-		public void handleWatchMsg(@Receives WatchMsg msg) {
+		public void handleWatchMsg(@Received WatchMsg msg) {
 			watch(watched);
 		}
 	}

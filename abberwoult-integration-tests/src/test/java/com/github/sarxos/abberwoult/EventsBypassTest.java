@@ -9,7 +9,7 @@ import javax.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 import com.github.sarxos.abberwoult.annotation.PreStart;
-import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.annotation.Received;
 import com.github.sarxos.abberwoult.testkit.TestKit;
 import com.github.sarxos.abberwoult.testkit.TestKitProbe;
 import com.github.sarxos.abberwoult.trait.Comm;
@@ -51,15 +51,15 @@ public class EventsBypassTest {
 			eventSubscribe(Event2.class);
 		}
 
-		public void handleReady(@Receives Ready msg) {
+		public void handleReady(@Received Ready msg) {
 			forward(probe, msg);
 		}
 
-		public void handleEvent1(@Receives Event1 event) {
+		public void handleEvent1(@Received Event1 event) {
 			forward(probe, event);
 		}
 
-		public void handleEvent2(@Receives Event2 event) {
+		public void handleEvent2(@Received Event2 event) {
 			forward(probe, event);
 		}
 	}

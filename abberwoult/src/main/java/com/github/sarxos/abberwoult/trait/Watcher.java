@@ -1,6 +1,6 @@
 package com.github.sarxos.abberwoult.trait;
 
-import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.annotation.Received;
 
 import akka.actor.ActorRef;
 import akka.actor.Terminated;
@@ -35,7 +35,7 @@ public interface Watcher extends ActorInternal {
 	 *
 	 * @param terminated the {@link Terminated} message received from a system dead watch
 	 */
-	default void handleTerminated(@Receives Terminated terminated) {
+	default void handleTerminated(@Received Terminated terminated) {
 		onActorTerminated(terminated.actor());
 	}
 

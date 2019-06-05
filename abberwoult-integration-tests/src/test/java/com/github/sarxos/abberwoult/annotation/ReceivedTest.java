@@ -19,18 +19,18 @@ import scala.concurrent.duration.Duration;
 
 
 @QuarkusTest
-public class ReceivesTest {
+public class ReceivedTest {
 
 	public static class TestActor extends SimpleActor implements Comm {
 
-		public void handleInteger(@Receives Integer i) {
+		public void handleInteger(@Received Integer i) {
 			reply(i);
 		}
 	}
 
 	public static class TestActorSuperclass extends SimpleActor implements Comm {
 
-		public void handleIntegerXXX(@Receives Integer i) {
+		public void handleIntegerXXX(@Received Integer i) {
 			reply(i);
 		}
 	}

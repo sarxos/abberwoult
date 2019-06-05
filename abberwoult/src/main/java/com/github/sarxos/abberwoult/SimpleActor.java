@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 
-import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.annotation.Received;
 import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.MessageReceiverMethod;
 import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.PostStopMethod;
 import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.PreStartMethod;
@@ -83,7 +83,7 @@ public class SimpleActor extends AbstractActor {
 	}
 
 	/**
-	 * @return Automated {@link Receive} constructed form {@link Receives} methods
+	 * @return Automated {@link Receive} constructed form {@link Received} methods
 	 */
 	private Receive createReceiveAutomation() {
 		final ReceiveBuilder builder = ReceiveBuilder.create();
@@ -93,10 +93,10 @@ public class SimpleActor extends AbstractActor {
 	}
 
 	/**
-	 * Create new {@link Receive} for {@link Receives} annotated methods.
+	 * Create new {@link Receive} for {@link Received} annotated methods.
 	 *
 	 * @param caller a called {@link Lookup}
-	 * @param receivers a mapping between message class and corresponding {@link Receives}
+	 * @param receivers a mapping between message class and corresponding {@link Received}
 	 * @return New {@link Receive}
 	 */
 	private Receive createReceiveForReceivers(final ReceiveBuilder builder, final Map<String, MessageReceiverMethod> receivers) {
@@ -150,7 +150,7 @@ public class SimpleActor extends AbstractActor {
 	}
 
 	/**
-	 * Invoke a method which corresponds to the provided {@link Receives} using this object as a
+	 * Invoke a method which corresponds to the provided {@link Received} using this object as a
 	 * context and a message object as an argument.
 	 *
 	 * @param handle the {@link MethodHandle} to invoke

@@ -2,13 +2,13 @@ package com.github.sarxos.abberwoult.deployment;
 
 import static com.github.sarxos.abberwoult.util.ReflectionUtils.getClazz;
 
-import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.annotation.Received;
 
 import io.quarkus.runtime.annotations.Template;
 
 
 /**
- * A {@link Template} used to record bytecode responsible for {@link Receives} registration.
+ * A {@link Template} used to record bytecode responsible for {@link Received} registration.
  *
  * @author Bartosz Firyn (sarxos)
  */

@@ -40,7 +40,7 @@ import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.Observed;
 import com.github.sarxos.abberwoult.annotation.PostStop;
 import com.github.sarxos.abberwoult.annotation.PreStart;
-import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.annotation.Received;
 import com.github.sarxos.abberwoult.util.ReflectionUtils;
 
 import io.vavr.control.Option;
@@ -51,7 +51,7 @@ public class ActorInterceptorRegistry {
 	private static final Logger LOG = LoggerFactory.getLogger(ActorInterceptorRegistry.class);
 
 	/**
-	 * A static map where all {@link Receives} annotation points are stored. This map is populated
+	 * A static map where all {@link Received} annotation points are stored. This map is populated
 	 * by a {@link ActorInterceptorRegistryTemplate} recorded in the compile time.
 	 */
 	private static final Map<String, Map<String, MessageReceiverMethod>> RECEIVERS = new HashMap<>();
@@ -104,12 +104,12 @@ public class ActorInterceptorRegistry {
 	private static final Class<?> STOP_CLASS = SimpleActor.class.getSuperclass();
 
 	private static final Collection<Class<? extends Annotation>> MESSAGE_ANNOTATIONS = asList(
-		Receives.class,
+		Received.class,
 		Observed.class);
 
 	/**
-	 * Register given class as a {@link Receives} definer. Given class inheritance tree will be
-	 * scanned and all methods which contains at least one parameter annotated with {@link Receives}
+	 * Register given class as a {@link Received} definer. Given class inheritance tree will be
+	 * scanned and all methods which contains at least one parameter annotated with {@link Received}
 	 * annotations will be stored in internal handlers registry,
 	 *
 	 * @param clazz the class to scan
@@ -323,7 +323,7 @@ public class ActorInterceptorRegistry {
 		public MessageReceiverMethod(final Method method) {
 			this.method = method;
 			this.messageClass = method.getParameterTypes()[0];
-			this.messageParameterPosition = getAnnotatedParameterPosition(method, Receives.class);
+			this.messageParameterPosition = getAnnotatedParameterPosition(method, Received.class);
 			this.handle = unreflect(getDeclaringClass(), method);
 			this.validable = hasValidableParameters(method);
 			this.observed = hasObservedParameters(method);

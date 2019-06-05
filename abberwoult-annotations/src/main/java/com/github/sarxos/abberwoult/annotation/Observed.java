@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 /**
  * Automatically subscribes actor to the annotated event. By doing this all events of a given type
  * will be automatically received by this actor. Using this annotation cause additionally the same
- * effects as using {@link Receives}.
+ * effects as using {@link Received}.
  *
  * @author Bartosz Firyn (sarxos)
  */

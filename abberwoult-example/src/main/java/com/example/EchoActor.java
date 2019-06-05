@@ -1,7 +1,7 @@
 package com.example;
 
 import com.github.sarxos.abberwoult.SimpleActor;
-import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.annotation.Received;
 
 
 public class EchoActor extends SimpleActor {
@@ -10,7 +10,7 @@ public class EchoActor extends SimpleActor {
 
 	}
 
-	public void handleEcho(@Receives EchoMsg msg) {
+	public void handleEcho(@Received EchoMsg msg) {
 		System.out.println("echo");
 	}
 }

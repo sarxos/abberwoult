@@ -1,7 +1,7 @@
 package com.github.sarxos.abberwoult.trait;
 
 import com.github.sarxos.abberwoult.Topic;
-import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.annotation.Received;
 
 import akka.cluster.pubsub.DistributedPubSubMediator.SubscribeAck;
 
@@ -32,6 +32,6 @@ public interface PubSub extends ActorInternal {
 	 *
 	 * @param ack the subscription acknowledgement
 	 */
-	void onSubscribeAck(@Receives SubscribeAck ack);
+	void onSubscribeAck(@Received SubscribeAck ack);
 
 }

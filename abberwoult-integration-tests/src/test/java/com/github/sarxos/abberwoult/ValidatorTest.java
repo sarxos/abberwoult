@@ -8,7 +8,7 @@ import javax.validation.Validator;
 import org.junit.jupiter.api.Test;
 
 import com.github.sarxos.abberwoult.annotation.ActorOf;
-import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.annotation.Received;
 import com.github.sarxos.abberwoult.trait.Comm;
 
 import akka.actor.ActorRef;
@@ -31,7 +31,7 @@ public class ValidatorTest {
 		@Inject
 		Validator validator;
 
-		public void handleValidatorGetMsg(@Receives final ValidatorGetMsg msg) {
+		public void handleValidatorGetMsg(@Received final ValidatorGetMsg msg) {
 			reply(validator);
 		}
 	}

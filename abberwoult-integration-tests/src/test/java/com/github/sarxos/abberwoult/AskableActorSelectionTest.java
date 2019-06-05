@@ -17,7 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.github.sarxos.abberwoult.annotation.ActorOf;
-import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.annotation.Received;
 import com.github.sarxos.abberwoult.trait.Comm;
 import com.github.sarxos.abberwoult.trait.Disposing;
 
@@ -38,11 +38,11 @@ public class AskableActorSelectionTest {
 	@Named("test")
 	public static class TestClass extends SimpleActor implements Comm, Disposing {
 
-		public void handleInteger(@Receives final Integer i) {
+		public void handleInteger(@Received final Integer i) {
 			replyAndDispose(i);
 		}
 
-		public void handleThrowable(@Receives final Throwable t) {
+		public void handleThrowable(@Received final Throwable t) {
 			replyAndDispose(t);
 		}
 

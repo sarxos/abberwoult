@@ -17,6 +17,6 @@ import java.lang.annotation.Target;
 @Documented
 @Target(PARAMETER)
 @Retention(RUNTIME)
-public @interface Receives {
+public @interface Received {
 
 }

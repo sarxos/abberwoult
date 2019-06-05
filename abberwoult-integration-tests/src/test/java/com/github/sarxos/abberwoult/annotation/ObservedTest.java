@@ -38,11 +38,11 @@ public class ObservedTest {
 			forward(ref, i);
 		}
 
-		public void handleLong(@Receives @Observed Long l) {
+		public void handleLong(@Received @Observed Long l) {
 			forward(ref, l);
 		}
 
-		public void handleSomething(@Receives @Observed Something s) {
+		public void handleSomething(@Received @Observed Something s) {
 			forward(ref, s);
 		}
 	}

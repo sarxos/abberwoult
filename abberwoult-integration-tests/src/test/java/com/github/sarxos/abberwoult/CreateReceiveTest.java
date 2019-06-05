@@ -9,7 +9,7 @@ import javax.validation.constraints.Min;
 import org.junit.jupiter.api.Test;
 
 import com.github.sarxos.abberwoult.annotation.ActorOf;
-import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.annotation.Received;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
@@ -38,15 +38,15 @@ public class CreateReceiveTest {
 
 	public static final class TestActor extends SimpleActor {
 
-		public void handleSomeMsg(@Receives SomeMsg msg) {
+		public void handleSomeMsg(@Received SomeMsg msg) {
 			sender().tell(1, self());
 		}
 
-		public void handleSomeIntMsg(@Receives @Valid SomeIntMsg msg) {
+		public void handleSomeIntMsg(@Received @Valid SomeIntMsg msg) {
 			sender().tell(msg.i, self());
 		}
 
-		public void handleInteger(@Receives Integer number) {
+		public void handleInteger(@Received Integer number) {
 			sender().tell(number, self());
 		}
 	}
