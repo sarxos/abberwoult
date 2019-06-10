@@ -1,6 +1,4 @@
-package com.github.sarxos.abberwoult.cdi;
-
-import static com.github.sarxos.abberwoult.util.ActorUtils.DEFAULT_TIMEOUT_SECONDS;
+package com.github.sarxos.abberwoult;
 
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
@@ -10,10 +8,9 @@ import javax.inject.Singleton;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import com.github.sarxos.abberwoult.AskableActorRef;
 import com.github.sarxos.abberwoult.annotation.ActorOf;
+import com.github.sarxos.abberwoult.util.ActorUtils;
 
-import akka.actor.ActorRef;
 import akka.util.Timeout;
 
 
@@ -33,7 +30,7 @@ public class AskableActorRefFactory {
 	/**
 	 * Timeout used for asking actors.
 	 */
-	@ConfigProperty(name = "akka.default-timeout", defaultValue = DEFAULT_TIMEOUT_SECONDS)
+	@ConfigProperty(name = "akka.default-timeout", defaultValue = ActorUtils.DEFAULT_TIMEOUT_SECONDS)
 	Timeout timeout;
 
 	@Inject

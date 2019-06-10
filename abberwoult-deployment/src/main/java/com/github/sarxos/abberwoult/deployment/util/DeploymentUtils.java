@@ -1,11 +1,11 @@
 package com.github.sarxos.abberwoult.deployment.util;
 
-import static com.github.sarxos.abberwoult.deployment.DotNames.ASSISTED_ANNOTATION;
-import static com.github.sarxos.abberwoult.deployment.DotNames.INJECT_ANNOTATION;
-import static com.github.sarxos.abberwoult.deployment.DotNames.OBSERVED_ANNOTATION;
-import static com.github.sarxos.abberwoult.deployment.DotNames.RECEIVES_ANNOTATION;
-import static com.github.sarxos.abberwoult.deployment.DotNames.SIMPLE_ACTOR_CLASS;
-import static com.github.sarxos.abberwoult.deployment.DotNames.VALID_ANNOTATION;
+import static com.github.sarxos.abberwoult.DotNames.ASSISTED_ANNOTATION;
+import static com.github.sarxos.abberwoult.DotNames.INJECT_ANNOTATION;
+import static com.github.sarxos.abberwoult.DotNames.OBSERVED_ANNOTATION;
+import static com.github.sarxos.abberwoult.DotNames.RECEIVES_ANNOTATION;
+import static com.github.sarxos.abberwoult.DotNames.SIMPLE_ACTOR_CLASS;
+import static com.github.sarxos.abberwoult.DotNames.VALID_ANNOTATION;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toCollection;
 

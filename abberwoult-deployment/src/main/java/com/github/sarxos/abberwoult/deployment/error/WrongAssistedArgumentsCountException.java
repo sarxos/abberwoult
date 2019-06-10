@@ -1,8 +1,8 @@
 package com.github.sarxos.abberwoult.deployment.error;
 
-import static com.github.sarxos.abberwoult.deployment.DotNames.ASSISTED_ANNOTATION;
-import static com.github.sarxos.abberwoult.deployment.DotNames.INJECT_ANNOTATION;
-import static com.github.sarxos.abberwoult.deployment.DotNames.RECEIVES_ANNOTATION;
+import static com.github.sarxos.abberwoult.DotNames.ASSISTED_ANNOTATION;
+import static com.github.sarxos.abberwoult.DotNames.INJECT_ANNOTATION;
+import static com.github.sarxos.abberwoult.DotNames.RECEIVES_ANNOTATION;
 
 import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.MethodInfo;

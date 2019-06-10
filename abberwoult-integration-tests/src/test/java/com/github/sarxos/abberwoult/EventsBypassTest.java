@@ -8,6 +8,7 @@ import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
+import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.PreStart;
 import com.github.sarxos.abberwoult.annotation.Received;
 import com.github.sarxos.abberwoult.testkit.TestKit;

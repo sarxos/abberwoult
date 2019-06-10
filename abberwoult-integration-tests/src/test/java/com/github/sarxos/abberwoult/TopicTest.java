@@ -5,6 +5,9 @@ import javax.inject.Inject;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import com.github.sarxos.abberwoult.ActorSystemUniverse;
+import com.github.sarxos.abberwoult.SimpleActor;
+import com.github.sarxos.abberwoult.Topic;
 import com.github.sarxos.abberwoult.annotation.Assisted;
 import com.github.sarxos.abberwoult.annotation.Labeled;
 import com.github.sarxos.abberwoult.annotation.PreStart;

@@ -28,6 +28,10 @@
     </dependency>
     <dependency>
       <groupId>com.typesafe.akka</groupId>
+      <artifactId>akka-cluster-sharding_2.11</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.typesafe.akka</groupId>
       <artifactId>akka-cluster-tools_2.11</artifactId>
     </dependency>
     <dependency>

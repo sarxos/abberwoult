@@ -1,8 +1,8 @@
-package com.github.sarxos.abberwoult.deployment;
+package com.github.sarxos.abberwoult;
 
-import static com.github.sarxos.abberwoult.deployment.DotNames.ACTOR_SCOPED_ANNOTATION;
-import static com.github.sarxos.abberwoult.deployment.DotNames.APPLICATION_SCOPED_ANNOTATION;
-import static com.github.sarxos.abberwoult.deployment.DotNames.SIMPLE_ACTOR_CLASS;
+import static com.github.sarxos.abberwoult.DotNames.ACTOR_SCOPED_ANNOTATION;
+import static com.github.sarxos.abberwoult.DotNames.APPLICATION_SCOPED_ANNOTATION;
+import static com.github.sarxos.abberwoult.DotNames.SIMPLE_ACTOR_CLASS;
 import static io.quarkus.deployment.annotations.ExecutionTime.STATIC_INIT;
 
 import org.apache.commons.lang3.StringUtils;
@@ -10,12 +10,9 @@ import org.jboss.jandex.IndexView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.sarxos.abberwoult.EventsBypass;
-import com.github.sarxos.abberwoult.Propser;
-import com.github.sarxos.abberwoult.cdi.ActorRefFactory;
-import com.github.sarxos.abberwoult.cdi.ActorSelectionFactory;
-import com.github.sarxos.abberwoult.cdi.ActorSystemFactory;
 import com.github.sarxos.abberwoult.cdi.BeanLocator;
+import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry;
+import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistryTemplate;
 
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.arc.deployment.BeanDefiningAnnotationBuildItem;
@@ -39,7 +36,16 @@ public class AbberwoultProcessor {
 		ActorRefFactory.class.getName(),
 		ActorSelectionFactory.class.getName(),
 		ActorSystemFactory.class.getName(),
+		ActorSystemUniverse.class.getName(),
+		ActorSystemFactory.class.getName(),
+		AskableActorRefFactory.class.getName(),
+		AskableActorSelectionFactory.class.getName(),
+		ClusterFactory.class.getName(),
+		ClusterShardingFactory.class.getName(),
+		EventsBypass.class.getName(),
+		EventStreamFactory.class.getName(),
 		Propser.class.getName(),
+		TopicFactory.class.getName(),
 		ActorInterceptorRegistry.class.getName(),
 	};
 

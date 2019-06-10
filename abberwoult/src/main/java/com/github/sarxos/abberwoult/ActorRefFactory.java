@@ -1,4 +1,4 @@
-package com.github.sarxos.abberwoult.cdi;
+package com.github.sarxos.abberwoult;
 
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
@@ -9,7 +9,6 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.sarxos.abberwoult.Propser;
 import com.github.sarxos.abberwoult.annotation.ActorOf;
 import com.github.sarxos.abberwoult.util.ActorUtils;
 

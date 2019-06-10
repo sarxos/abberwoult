@@ -1,4 +1,4 @@
-package com.github.sarxos.abberwoult.deployment;
+package com.github.sarxos.abberwoult;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;

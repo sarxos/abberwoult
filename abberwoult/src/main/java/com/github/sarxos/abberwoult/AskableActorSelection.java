@@ -17,7 +17,7 @@ import akka.util.Timeout;
  *
  * @author Bartosz Firyn (sarxos)
  */
-public class AskableActorSelection implements Askable {
+public class AskableActorSelection implements Askable<Object> {
 
 	private final ActorSelection selection;
 	private final Timeout timeout;
@@ -46,5 +46,4 @@ public class AskableActorSelection implements Askable {
 	public void tell(Object message, ActorRef sender) {
 		selection.tell(message, sender);
 	}
-
 }

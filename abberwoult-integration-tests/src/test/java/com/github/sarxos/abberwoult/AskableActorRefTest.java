@@ -12,6 +12,8 @@ import javax.inject.Inject;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.Test;
 
+import com.github.sarxos.abberwoult.AskableActorRef;
+import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.ActorOf;
 import com.github.sarxos.abberwoult.annotation.Received;
 import com.github.sarxos.abberwoult.trait.Comm;

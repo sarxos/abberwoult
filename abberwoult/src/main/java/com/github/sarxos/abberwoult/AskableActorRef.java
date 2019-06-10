@@ -16,7 +16,7 @@ import akka.util.Timeout;
  *
  * @author Bartosz Firyn (sarxos)
  */
-public class AskableActorRef implements Askable {
+public class AskableActorRef implements Askable<Object> {
 
 	private final ActorRef ref;
 	private final Timeout timeout;

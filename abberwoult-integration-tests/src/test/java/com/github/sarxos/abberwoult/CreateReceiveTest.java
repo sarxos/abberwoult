@@ -8,6 +8,7 @@ import javax.validation.constraints.Min;
 
 import org.junit.jupiter.api.Test;
 
+import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.ActorOf;
 import com.github.sarxos.abberwoult.annotation.Received;
 

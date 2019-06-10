@@ -8,6 +8,9 @@ import javax.inject.Named;
 
 import org.junit.jupiter.api.Test;
 
+import com.github.sarxos.abberwoult.ActorBuilder;
+import com.github.sarxos.abberwoult.Propser;
+import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.Received;
 import com.github.sarxos.abberwoult.trait.Comm;
 

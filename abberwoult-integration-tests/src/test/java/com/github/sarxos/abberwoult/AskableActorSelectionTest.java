@@ -16,11 +16,15 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.github.sarxos.abberwoult.ActorSystemUniverse;
+import com.github.sarxos.abberwoult.AskableActorSelection;
+import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.ActorOf;
 import com.github.sarxos.abberwoult.annotation.Received;
 import com.github.sarxos.abberwoult.trait.Comm;
 import com.github.sarxos.abberwoult.trait.Disposing;
 
+import akka.actor.PoisonPill;
 import io.quarkus.test.junit.QuarkusTest;
 import io.vavr.concurrent.Future;
 
@@ -61,7 +65,7 @@ public class AskableActorSelectionTest {
 
 	@AfterEach
 	public void teardown() {
-		selection.dispose();
+		selection.tell(PoisonPill.getInstance());
 	}
 
 	@Test

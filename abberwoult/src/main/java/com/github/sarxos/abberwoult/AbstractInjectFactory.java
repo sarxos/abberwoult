@@ -1,4 +1,4 @@
-package com.github.sarxos.abberwoult.cdi;
+package com.github.sarxos.abberwoult;
 
 import static com.github.sarxos.abberwoult.cdi.BeanUtils.getQualifier;
 
@@ -11,7 +11,7 @@ import akka.actor.Actor;
 import akka.actor.ActorRef;
 
 
-public abstract class AbstractInjectFactory {
+abstract class AbstractInjectFactory {
 
 	protected Class<? extends Actor> getActorClass(final InjectionPoint injection) {
 		return getQualifier(injection, ActorOf.class)

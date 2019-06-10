@@ -1,4 +1,4 @@
-package com.github.sarxos.abberwoult.cdi;
+package com.github.sarxos.abberwoult;
 
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
