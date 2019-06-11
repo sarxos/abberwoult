@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import com.github.sarxos.abberwoult.ActorBuilder;
 import com.github.sarxos.abberwoult.Propser;
 import com.github.sarxos.abberwoult.SimpleActor;
-import com.github.sarxos.abberwoult.annotation.Received;
+import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.trait.Comm;
 
 import akka.actor.ActorRef;
@@ -31,14 +31,14 @@ public class ActorBuilderTest {
 
 	public static class OrdinaryActor extends SimpleActor implements Comm {
 
-		public void handleInteger(@Received Integer i) {
+		public void handleInteger(@Receives Integer i) {
 			reply(i);
 		}
 	}
 
 	public static class UnnamedActor extends SimpleActor implements Comm {
 
-		public void handleInteger(@Received Integer i) {
+		public void handleInteger(@Receives Integer i) {
 			reply(self().path().name());
 		}
 	}
@@ -46,7 +46,7 @@ public class ActorBuilderTest {
 	@Named("bubu")
 	public static class NamedActor extends SimpleActor implements Comm {
 
-		public void handleInteger(@Received Integer i) {
+		public void handleInteger(@Receives Integer i) {
 			reply(self().path().name());
 		}
 	}

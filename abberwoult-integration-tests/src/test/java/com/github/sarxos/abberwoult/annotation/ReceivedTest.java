@@ -23,14 +23,14 @@ public class ReceivedTest {
 
 	public static class TestActor extends SimpleActor implements Comm {
 
-		public void handleInteger(@Received Integer i) {
+		public void handleInteger(@Receives Integer i) {
 			reply(i);
 		}
 	}
 
 	public static class TestActorSuperclass extends SimpleActor implements Comm {
 
-		public void handleIntegerXXX(@Received Integer i) {
+		public void handleIntegerXXX(@Receives Integer i) {
 			reply(i);
 		}
 	}

@@ -37,7 +37,7 @@ public class ShardFactory {
 
 		final String name = getLabel(injection);
 		final ActorRef region = sharding.shardRegion(name);
-		final Shard shard = new Shard(name, timeout, region);
+		final Shard shard = new Shard(region, timeout);
 
 		return shard;
 	}

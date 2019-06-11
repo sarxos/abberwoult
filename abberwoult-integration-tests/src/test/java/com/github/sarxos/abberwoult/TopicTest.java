@@ -11,7 +11,7 @@ import com.github.sarxos.abberwoult.Topic;
 import com.github.sarxos.abberwoult.annotation.Assisted;
 import com.github.sarxos.abberwoult.annotation.Labeled;
 import com.github.sarxos.abberwoult.annotation.PreStart;
-import com.github.sarxos.abberwoult.annotation.Received;
+import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.testkit.TestKit;
 import com.github.sarxos.abberwoult.testkit.TestKitProbe;
 import com.github.sarxos.abberwoult.trait.Comm;
@@ -51,12 +51,12 @@ public class TopicTest {
 			subscribe(topic);
 		}
 
-		public void onIntegerReceived(@Received Integer i) {
+		public void onIntegerReceived(@Receives Integer i) {
 			forward(ref, i);
 		}
 
 		@Override
-		public void onSubscribeAck(@Received SubscribeAck ack) {
+		public void onSubscribeAck(@Receives SubscribeAck ack) {
 			forward(ref, ack);
 		}
 	}

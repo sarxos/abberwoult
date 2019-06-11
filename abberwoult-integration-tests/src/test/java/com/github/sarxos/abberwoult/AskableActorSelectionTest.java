@@ -20,7 +20,7 @@ import com.github.sarxos.abberwoult.ActorSystemUniverse;
 import com.github.sarxos.abberwoult.AskableActorSelection;
 import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.ActorOf;
-import com.github.sarxos.abberwoult.annotation.Received;
+import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.trait.Comm;
 import com.github.sarxos.abberwoult.trait.Disposing;
 
@@ -42,11 +42,11 @@ public class AskableActorSelectionTest {
 	@Named("test")
 	public static class TestClass extends SimpleActor implements Comm, Disposing {
 
-		public void handleInteger(@Received final Integer i) {
+		public void handleInteger(@Receives final Integer i) {
 			replyAndDispose(i);
 		}
 
-		public void handleThrowable(@Received final Throwable t) {
+		public void handleThrowable(@Receives final Throwable t) {
 			replyAndDispose(t);
 		}
 

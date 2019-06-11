@@ -9,15 +9,14 @@ import java.lang.annotation.Target;
 
 
 /**
- * Automatically subscribes actor to the annotated event. By doing this all events of a given type
- * will be automatically received by this actor. Using this annotation cause additionally the same
- * effects as using {@link Received}.
+ * This annotation is to annotate method parameter which will be used to receive message by the
+ * actor.
  *
  * @author Bartosz Firyn (sarxos)
  */
 @Documented
 @Target(PARAMETER)
 @Retention(RUNTIME)
-public @interface Observed {
+public @interface Receives {
 
 }

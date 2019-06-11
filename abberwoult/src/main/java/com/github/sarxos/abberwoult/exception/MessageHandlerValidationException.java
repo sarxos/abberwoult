@@ -7,13 +7,13 @@ import java.util.Set;
 import javax.validation.ConstraintViolation;
 import javax.validation.Valid;
 
-import com.github.sarxos.abberwoult.annotation.Received;
+import com.github.sarxos.abberwoult.annotation.Receives;
 
 
 /**
  * This exception is thrown when message validation failed. A message validation happen only when
  * message argument is annotated with {@link Valid} annotation in a message handler which was
- * annotated with {@link Received}.
+ * annotated with {@link Receives}.
  *
  * @author Bartosz Firyn (sarxos)
  */

@@ -34,15 +34,15 @@ public class ObservedTest {
 			this.ref = probe.getRef();
 		}
 
-		public void handleInteger(@Observed Integer i) {
+		public void handleInteger(@Observes Integer i) {
 			forward(ref, i);
 		}
 
-		public void handleLong(@Received @Observed Long l) {
+		public void handleLong(@Receives @Observes Long l) {
 			forward(ref, l);
 		}
 
-		public void handleSomething(@Received @Observed Something s) {
+		public void handleSomething(@Receives @Observes Something s) {
 			forward(ref, s);
 		}
 	}
