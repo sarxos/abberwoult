@@ -3,22 +3,14 @@
 
   <modelVersion>4.0.0</modelVersion>
 
+  <parent>
     <groupId>com.github.sarxos</groupId>
-  <artifactId>abberwoult-example</artifactId>
+    <artifactId>abberwoult-parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-  <name>Abberwoult Example</name>
+  </parent>
 
-<dependencyManagement>
-	<dependencies>
-	      <dependency>
-        <groupId>io.quarkus</groupId>
-        <artifactId>quarkus-bom</artifactId>
-        <version>999-SNAPSHOT</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-	</dependencies>
-</dependencyManagement>
+  <artifactId>abberwoult-example</artifactId>
+  <name>Abberwoult Example</name>
 
   <dependencies>
     <dependency>
@@ -48,14 +40,6 @@
             </goals>
           </execution>
         </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-        </configuration>
       </plugin>
     </plugins>
   </build>

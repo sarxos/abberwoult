@@ -25,11 +25,11 @@
   </modules>
 
   <properties>
-    <akka.version>2.5.21</akka.version>
+    <akka.version>2.5.23</akka.version>
     <junit.version>5.4.0</junit.version>
     <quarkus.version>999-SNAPSHOT</quarkus.version>
     <!--     <quarkus.version>0.14.0</quarkus.version> -->
-    <scala.version>2.11.8</scala.version>
+    <scala.version>2.12.8</scala.version>
   </properties>
 
   <dependencyManagement>
@@ -41,22 +41,22 @@
       </dependency>
       <dependency>
         <groupId>com.typesafe.akka</groupId>
-        <artifactId>akka-actor_2.11</artifactId>
+        <artifactId>akka-actor_2.12</artifactId>
         <version>${akka.version}</version>
       </dependency>
       <dependency>
         <groupId>com.typesafe.akka</groupId>
-        <artifactId>akka-cluster-sharding_2.11</artifactId>
+        <artifactId>akka-cluster-sharding_2.12</artifactId>
         <version>${akka.version}</version>
       </dependency>
       <dependency>
         <groupId>com.typesafe.akka</groupId>
-        <artifactId>akka-cluster-tools_2.11</artifactId>
+        <artifactId>akka-cluster-tools_2.12</artifactId>
         <version>${akka.version}</version>
       </dependency>
       <dependency>
         <groupId>com.typesafe.akka</groupId>
-        <artifactId>akka-testkit_2.11</artifactId>
+        <artifactId>akka-testkit_2.12</artifactId>
         <version>${akka.version}</version>
       </dependency>
       <dependency>

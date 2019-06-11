@@ -12,6 +12,16 @@
   <artifactId>abberwoult</artifactId>
   <name>Abberwoult Runtime</name>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.scala-lang</groupId>
+        <artifactId>scala-library</artifactId>
+        <version>${scala.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -24,15 +34,15 @@
     </dependency>
     <dependency>
       <groupId>com.typesafe.akka</groupId>
-      <artifactId>akka-actor_2.11</artifactId>
+      <artifactId>akka-actor_2.12</artifactId>
     </dependency>
     <dependency>
       <groupId>com.typesafe.akka</groupId>
-      <artifactId>akka-cluster-sharding_2.11</artifactId>
+      <artifactId>akka-cluster-sharding_2.12</artifactId>
     </dependency>
     <dependency>
       <groupId>com.typesafe.akka</groupId>
-      <artifactId>akka-cluster-tools_2.11</artifactId>
+      <artifactId>akka-cluster-tools_2.12</artifactId>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>

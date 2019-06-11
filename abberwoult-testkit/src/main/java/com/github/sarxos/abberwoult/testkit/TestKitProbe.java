@@ -5,6 +5,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 
 
@@ -59,5 +60,10 @@ public class TestKitProbe extends akka.testkit.javadsl.TestKit {
 				return (T) msg;
 			}
 		} while (true);
+	}
+
+	@Override
+	public ActorRef getRef() {
+		return super.getRef();
 	}
 }
