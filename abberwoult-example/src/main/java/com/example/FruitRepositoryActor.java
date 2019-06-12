@@ -7,18 +7,38 @@ import java.util.Set;
 
 import javax.validation.Valid;
 
+import org.jboss.logging.Logger;
+
 import com.github.sarxos.abberwoult.SimpleActor;
+import com.github.sarxos.abberwoult.annotation.Autostart;
+import com.github.sarxos.abberwoult.annotation.Labeled;
+import com.github.sarxos.abberwoult.annotation.PostStop;
+import com.github.sarxos.abberwoult.annotation.PreStart;
 import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.trait.Comm;
 
 
+@Autostart
+@Labeled("fruits-repo")
 public class FruitRepositoryActor extends SimpleActor implements Comm {
 
+	private static final Logger LOG = Logger.getLogger(FruitRepositoryActor.class);
+
 	/**
-	 * A {@link Set} which will hold all our fruits. It does not have to be synchronized or
-	 * concurrent because actors are inherently concurrent themselves.
+	 * A {@link Set} which holds all our fruits. It does not have to be synchronized or concurrent
+	 * because actors are inherently concurrent themselves.
 	 */
 	private final Set<Fruit> fruits = new LinkedHashSet<>();
+
+	@PreStart
+	public void setup() {
+		LOG.infof("Setting up actor %s", getSelf().path());
+	}
+
+	@PostStop
+	public void teardown() {
+		LOG.infof("Tearing down actor %s", getSelf().path());
+	}
 
 	public void onFruitListMsg(@Receives final FruitListMsg msg) {
 

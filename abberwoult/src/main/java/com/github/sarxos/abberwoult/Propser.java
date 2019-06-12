@@ -43,11 +43,10 @@ public class Propser {
 	 * @param args the optional arguments to be passed down to actor constructor
 	 * @return Actor {@link Props}
 	 */
-	public Props props(final Class<? extends Actor> clazz, final Object... args) {
+	public <T extends Actor> Props props(final Class<T> clazz, final Object... args) {
 		return Props
-			.create(new ActorCreator<>(locator, clazz, args))
+			.create(clazz, new ActorCreator<T>(locator, clazz, args))
 			.withDispatcher(ActorUtils.getMessageDispatcherId(clazz))
 			.withMailbox(ActorUtils.getMailboxId(clazz));
 	}
-
 }

@@ -33,7 +33,7 @@ public @interface ActorOf {
 	 * Class to indicate that no valid class was set. When updating it just make sure to change
 	 * default value below.
 	 */
-	static abstract class NoActor implements Actor {
+	public static abstract class NoActor implements Actor {
 	};
 
 	/**

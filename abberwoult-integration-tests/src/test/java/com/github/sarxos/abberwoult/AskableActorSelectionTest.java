@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
@@ -16,10 +15,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.github.sarxos.abberwoult.ActorSystemUniverse;
-import com.github.sarxos.abberwoult.AskableActorSelection;
-import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.ActorOf;
+import com.github.sarxos.abberwoult.annotation.Labeled;
 import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.trait.Comm;
 import com.github.sarxos.abberwoult.trait.Disposing;
@@ -39,7 +36,7 @@ public class AskableActorSelectionTest {
 	@ActorOf(TestClass.class)
 	AskableActorSelection selection;
 
-	@Named("test")
+	@Labeled("test")
 	public static class TestClass extends SimpleActor implements Comm, Disposing {
 
 		public void handleInteger(@Receives final Integer i) {

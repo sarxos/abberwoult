@@ -12,7 +12,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.github.sarxos.abberwoult.AskableActorRef;
+import com.github.sarxos.abberwoult.AskableActorSelection;
 import com.github.sarxos.abberwoult.annotation.ActorOf;
 
 
@@ -23,15 +23,19 @@ public class FruitResource {
 
 	@Inject
 	@ActorOf(FruitRepositoryActor.class)
-	AskableActorRef repository;
+	AskableActorSelection repository;
 
 	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
 	public CompletionStage<Collection<Fruit>> fruitList() {
 		return repository.ask(FruitListMsg.getInstance());
 	}
 
 	@PUT
-	public CompletionStage<Collection<Fruit>> fruitAdd(@Valid Fruit fruit) {
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public CompletionStage<Object> fruitAdd(@Valid Fruit fruit) {
 		return repository.ask(new FruitAddMsg(fruit));
 	}
 }

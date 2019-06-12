@@ -4,13 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.sarxos.abberwoult.ActorBuilder;
-import com.github.sarxos.abberwoult.Propser;
-import com.github.sarxos.abberwoult.SimpleActor;
+import com.github.sarxos.abberwoult.annotation.Labeled;
 import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.trait.Comm;
 
@@ -43,7 +40,7 @@ public class ActorBuilderTest {
 		}
 	}
 
-	@Named("bubu")
+	@Labeled("bubu")
 	public static class NamedActor extends SimpleActor implements Comm {
 
 		public void handleInteger(@Receives Integer i) {
@@ -94,7 +91,7 @@ public class ActorBuilderTest {
 	}
 
 	@Test
-	void test_buildNamedActorTwoce() throws Exception {
+	void test_buildNamedActorTwice() throws Exception {
 
 		final ActorRef ref = new ActorBuilder<>(propser, system)
 			.of(NamedActor.class)

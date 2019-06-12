@@ -3,6 +3,7 @@ package com.github.sarxos.abberwoult.annotation;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Documented;
@@ -14,13 +15,13 @@ import javax.inject.Qualifier;
 
 
 /**
- * A name qualifier for distributed pubsub channels.
+ * A name qualifier.
  *
  * @author Bartosz Firyn (sarxos)
  */
 @Qualifier
 @Documented
-@Target({ FIELD, PARAMETER, METHOD })
+@Target({ FIELD, PARAMETER, METHOD, TYPE })
 @Retention(RUNTIME)
 public @interface Labeled {
 

@@ -1,37 +1,18 @@
 package com.example;
 
+import javax.json.bind.annotation.JsonbProperty;
 import javax.validation.constraints.NotEmpty;
 
+import lombok.Data;
 
-public class Fruit {
+
+public @Data class Fruit {
 
 	@NotEmpty
+	@JsonbProperty("name")
 	private String name;
 
 	@NotEmpty
+	@JsonbProperty("desc")
 	private String description;
-
-	public Fruit() {
-	}
-
-	public Fruit(final String name, final String description) {
-		this.name = name;
-		this.description = description;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
 }

@@ -2,24 +2,31 @@ package com.github.sarxos.abberwoult;
 
 import static com.github.sarxos.abberwoult.DotNames.ACTOR_SCOPED_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.APPLICATION_SCOPED_ANNOTATION;
+import static com.github.sarxos.abberwoult.DotNames.AUTOSTART_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.SIMPLE_ACTOR_CLASS;
 import static io.quarkus.deployment.annotations.ExecutionTime.STATIC_INIT;
+import static java.util.stream.Collectors.toList;
+
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jboss.jandex.IndexView;
+import org.jboss.jandex.Index;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.sarxos.abberwoult.cdi.BeanLocator;
 import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry;
 import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistryTemplate;
+import com.github.sarxos.abberwoult.deployment.ActorStarterTemplate;
+import com.github.sarxos.abberwoult.deployment.error.AutostartableActorNoArgConstrutorMissingException;
+import com.github.sarxos.abberwoult.deployment.error.AutostartableActorNotLabeledException;
 
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.arc.deployment.BeanDefiningAnnotationBuildItem;
 import io.quarkus.arc.deployment.UnremovableBeanBuildItem;
 import io.quarkus.arc.processor.BeanInfo;
-import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
+import io.quarkus.deployment.annotations.ExecutionTime;
 import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
@@ -97,27 +104,69 @@ public class AbberwoultProcessor {
 		return new AdditionalBeanBuildItem(CORE_BEAN_CLASSES);
 	}
 
+	/**
+	 * Scan {@link Index} to get all descendants of {@link SimpleActor} class.
+	 *
+	 * @param combined the {@link CombinedIndexBuildItem}
+	 * @return The {@link List} of {@link ActorBuildItem}
+	 */
 	@BuildStep
-	void doRegisterReflectiveClasses(
-		final CombinedIndexBuildItem combinedIndex,
-		final BuildProducer<ReflectiveClassBuildItem> reflectives) {
-
-		final IndexView index = combinedIndex.getIndex();
-
-		index
+	List<ActorBuildItem> doFindActorClasses(final CombinedIndexBuildItem combined) {
+		return combined.getIndex()
 			.getAllKnownSubclasses(SIMPLE_ACTOR_CLASS)
 			.stream()
-			.map(clazz -> new ReflectiveClassBuildItem(true, false, clazz.name().toString()))
-			.forEach(item -> reflectives.produce(item));
+			.map(ActorBuildItem::new)
+			.collect(toList());
+	}
+
+	/**
+	 * Take all {@link ActorBuildItem} and register wrapped actor class as a reflective class.
+	 *
+	 * @param actors the {@link List} of {@link ActorBuildItem}
+	 * @return The {@link List} of {@link ReflectiveClassBuildItem}
+	 */
+	@BuildStep
+	List<ReflectiveClassBuildItem> doRegisterReflectiveClasses(final List<ActorBuildItem> actors) {
+		return actors.stream()
+			.map(ActorBuildItem::getActorClassName)
+			.map(clazz -> new ReflectiveClassBuildItem(true, false, clazz))
+			.collect(toList());
 	}
 
 	@BuildStep
 	@Record(STATIC_INIT)
-	void doRegisterActors(final ActorInterceptorRegistryTemplate template, final CombinedIndexBuildItem combinedIndex) {
-		combinedIndex.getIndex()
-			.getAllKnownSubclasses(SIMPLE_ACTOR_CLASS)
-			.stream()
-			.peek(clazz -> LOG.debug("Record actor class {} in registry", clazz))
-			.forEach(clazz -> template.register(clazz.name().toString()));
+	void doRegisterActors(final List<ActorBuildItem> actors, final ActorInterceptorRegistryTemplate registry) {
+		actors.stream()
+			.map(ActorBuildItem::getActorClassName)
+			.peek(clazz -> LOG.debug("Record actor {} in registry", clazz))
+			.forEach(clazz -> registry.register(clazz));
+	}
+
+	private boolean isAutostartPresent(final ActorBuildItem item) {
+		return item.getActorClass().asClass().classAnnotation(AUTOSTART_ANNOTATION) != null;
+	}
+
+	private void assertNoArgConstructorIsPresent(final ActorBuildItem item) {
+		if (!item.getActorClass().hasNoArgsConstructor()) {
+			throw new AutostartableActorNoArgConstrutorMissingException(item);
+		}
+	}
+
+	private void assertIsActorLabeled(final ActorBuildItem item) {
+		if (item.getActorClass().classAnnotation(DotNames.LABELED_ANNOTATION) == null) {
+			throw new AutostartableActorNotLabeledException(item);
+		}
+	}
+
+	@BuildStep
+	@Record(value = ExecutionTime.RUNTIME_INIT)
+	void doAutostartActors(final List<ActorBuildItem> actors, final ActorStarterTemplate autostarter) {
+		actors.stream()
+			.filter(this::isAutostartPresent)
+			.peek(this::assertNoArgConstructorIsPresent)
+			.peek(this::assertIsActorLabeled)
+			.map(ActorBuildItem::getActorClassName)
+			.peek(clazz -> LOG.debug("Autostarting actor {}", clazz))
+			.forEach(clazz -> autostarter.register(clazz));
 	}
 }

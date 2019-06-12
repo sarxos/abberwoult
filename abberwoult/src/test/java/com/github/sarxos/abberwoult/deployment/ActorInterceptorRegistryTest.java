@@ -13,7 +13,7 @@ import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.MessageR
 import com.github.sarxos.abberwoult.util.ReflectionUtils;
 
 
-public class MessageHandlersRegistryTest {
+public class ActorInterceptorRegistryTest {
 
 	public static class TestDeclaratorA extends SimpleActor {
 
