@@ -6,6 +6,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 import org.jboss.logging.Logger;
 
@@ -17,12 +18,29 @@ import com.github.sarxos.abberwoult.annotation.PreStart;
 import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.trait.Comm;
 
+import lombok.Data;
+import lombok.Getter;
+
 
 @Autostart
 @Labeled("fruits-repo")
 public class FruitRepositoryActor extends SimpleActor implements Comm {
 
 	private static final Logger LOG = Logger.getLogger(FruitRepositoryActor.class);
+
+	public static final @Data class FruitAddMsg {
+		private final @Valid @NotNull Fruit fruit;
+		public static @Data class Result {
+			private final boolean updated;
+			private final int size;
+		}
+	}
+
+	public static final @Data class FruitListMsg {
+		private static final @Getter FruitListMsg instance = new FruitListMsg();
+		private FruitListMsg() {
+		}
+	}
 
 	/**
 	 * A {@link Set} which holds all our fruits. It does not have to be synchronized or concurrent
