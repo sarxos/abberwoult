@@ -10,5 +10,5 @@ interface ActorInternal {
 
 	ActorRef sender();
 
-	ActorContext context();
+	ActorContext getContext();
 }

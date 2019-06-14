@@ -96,19 +96,19 @@ public class ActorUtils {
 		}
 	}
 
-	public static void kill(final ActorRef ref) {
+	public static void dispose(final ActorRef ref) {
 		ref.tell(PoisonPill.getInstance(), ActorRef.noSender());
 	}
 
-	public static void kill(final ActorSelection sel) {
+	public static void dispose(final ActorSelection sel) {
 		sel.tell(PoisonPill.getInstance(), ActorRef.noSender());
 	}
 
-	public static void kill(final AskableActorRef ref) {
+	public static void dispose(final AskableActorRef ref) {
 		ref.tell(PoisonPill.getInstance(), ActorRef.noSender());
 	}
 
-	public static void kill(final AskableActorSelection sel) {
+	public static void dispose(final AskableActorSelection sel) {
 		sel.tell(PoisonPill.getInstance(), ActorRef.noSender());
 	}
 }

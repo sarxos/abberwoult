@@ -13,6 +13,8 @@ import com.github.sarxos.abberwoult.annotation.Labeled;
 import com.github.sarxos.abberwoult.annotation.Observes;
 import com.github.sarxos.abberwoult.annotation.PreStart;
 import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.annotation.ShardEntityId;
+import com.github.sarxos.abberwoult.annotation.ShardId;
 
 
 public class DotNames {
@@ -27,7 +29,10 @@ public class DotNames {
 	public static final DotName ASSISTED_ANNOTATION = DotName.createSimple(Assisted.class.getName());
 	public static final DotName OBSERVED_ANNOTATION = DotName.createSimple(Observes.class.getName());
 	public static final DotName LABELED_ANNOTATION = DotName.createSimple(Labeled.class.getName());
+	public static final DotName SHARD_ID_ANNOTATION = DotName.createSimple(ShardId.class.getName());
+	public static final DotName SHARD_ENTITY_ID_ANNOTATION = DotName.createSimple(ShardEntityId.class.getName());
 	public static final DotName SIMPLE_ACTOR_CLASS = DotName.createSimple(SimpleActor.class.getName());
+	public static final DotName SHARD_ROUTABLE_MESSAGE_INTERFACE = DotName.createSimple(ShardRoutableMessage.class.getName());
 
 	private DotNames() {
 		// class enum

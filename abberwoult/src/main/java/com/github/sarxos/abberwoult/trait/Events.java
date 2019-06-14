@@ -39,7 +39,7 @@ public interface Events extends ActorInternal {
 	 * @return The {@link EventStream} provided by the running {@link ActorSystem}.
 	 */
 	default EventStream eventStream() {
-		return context()
+		return getContext()
 			.system()
 			.getEventStream();
 	}

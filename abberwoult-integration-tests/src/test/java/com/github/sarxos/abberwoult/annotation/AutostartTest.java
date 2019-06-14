@@ -1,6 +1,6 @@
 package com.github.sarxos.abberwoult.annotation;
 
-import static com.github.sarxos.abberwoult.util.ActorUtils.kill;
+import static com.github.sarxos.abberwoult.util.ActorUtils.dispose;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
@@ -45,6 +45,6 @@ public class AutostartTest {
 
 		await().until(future::isDone);
 		assertThat(future.get()).isEqualTo(1);
-		kill(askable);
+		dispose(askable);
 	}
 }

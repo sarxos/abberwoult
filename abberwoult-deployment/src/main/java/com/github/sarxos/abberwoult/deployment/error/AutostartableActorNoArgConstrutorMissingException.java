@@ -1,7 +1,7 @@
 package com.github.sarxos.abberwoult.deployment.error;
 
-import com.github.sarxos.abberwoult.ActorBuildItem;
 import com.github.sarxos.abberwoult.annotation.Autostart;
+import com.github.sarxos.abberwoult.deployment.item.ActorBuildItem;
 
 
 @SuppressWarnings("serial")

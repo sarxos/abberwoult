@@ -6,8 +6,7 @@ import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jboss.logging.Logger;
 
 import com.github.sarxos.abberwoult.annotation.ActorOf;
 import com.github.sarxos.abberwoult.util.ActorUtils;
@@ -21,7 +20,7 @@ import akka.actor.Props;
 @Singleton
 public class ActorRefFactory extends AbstractInjectFactory {
 
-	private static final Logger LOG = LoggerFactory.getLogger(ActorRefFactory.class);
+	private static final Logger LOG = Logger.getLogger(ActorRefFactory.class);
 
 	private final Propser propser;
 	private final ActorSystem system;
@@ -44,7 +43,8 @@ public class ActorRefFactory extends AbstractInjectFactory {
 		final Class<? extends Actor> clazz = getActorClass(injection);
 		final Props props = propser.props(clazz);
 
-		LOG.debug("Creating actor {} with props {}", clazz, props);
+		LOG.debugf("Creating actor %s", clazz);
+		LOG.tracef("Creating actor %s with props %s", clazz, props);
 
 		return ActorUtils
 			.getActorName(clazz)

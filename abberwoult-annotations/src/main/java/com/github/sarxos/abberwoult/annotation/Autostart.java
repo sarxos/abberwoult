@@ -10,10 +10,10 @@ import java.lang.annotation.Target;
 
 /**
  * Actors annotated with this annotation will be automatically started when application is launched.
- * Please note that actor annotated with this annotation need to have no-arg constructor present. If
- * such constructor is not present the exception is thrown in augmentation phase. Such actors also
- * need to be identifiable in runtime and therefore require {@link Labeled} annotation to be put on
- * the class.
+ * Please note that in order to start actor it has to have no-arg constructor present. If such
+ * constructor is not present the exception is thrown in augmentation phase. Such actors also need
+ * to be identifiable in runtime and therefore require {@link Labeled} annotation to be put on the
+ * class.
  *
  * @author Bartosz Firyn (sarxos)
  */

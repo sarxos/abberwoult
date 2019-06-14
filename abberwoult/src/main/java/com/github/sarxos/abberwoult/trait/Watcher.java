@@ -14,7 +14,7 @@ public interface Watcher extends ActorInternal {
 	 * @param ref the {@link ActorRef} to be watched
 	 */
 	default void watch(final ActorRef ref) {
-		context().watch(ref);
+		getContext().watch(ref);
 	}
 
 	/**
@@ -24,7 +24,7 @@ public interface Watcher extends ActorInternal {
 	 * @return Return unwatched {@link ActorRef}
 	 */
 	default void unwatch(final ActorRef ref) {
-		context().unwatch(ref);
+		getContext().unwatch(ref);
 	}
 
 	/**

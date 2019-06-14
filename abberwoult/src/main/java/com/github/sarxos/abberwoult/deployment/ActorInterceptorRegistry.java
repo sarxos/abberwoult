@@ -32,8 +32,7 @@ import java.util.function.Predicate;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jboss.logging.Logger;
 
 import com.github.sarxos.abberwoult.ActorCreator;
 import com.github.sarxos.abberwoult.SimpleActor;
@@ -43,12 +42,14 @@ import com.github.sarxos.abberwoult.annotation.PreStart;
 import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.util.ReflectionUtils;
 
+import io.quarkus.runtime.annotations.Template;
 import io.vavr.control.Option;
 
 
+@Template
 public class ActorInterceptorRegistry {
 
-	private static final Logger LOG = LoggerFactory.getLogger(ActorInterceptorRegistry.class);
+	private static final Logger LOG = Logger.getLogger(ActorInterceptorRegistry.class);
 
 	/**
 	 * A static map where all {@link Receives} annotation points are stored. This map is populated
@@ -135,7 +136,7 @@ public class ActorInterceptorRegistry {
 			methods.sort(BY_OBJECT_DISTANCE);
 		}
 
-		LOG.debug("Register {} message receivers for actor {}", methods.size(), clazz);
+		LOG.debugf("Register %s message receivers for actor %s", methods.size(), clazz);
 
 		final String classKey = clazz.getName();
 
@@ -150,7 +151,7 @@ public class ActorInterceptorRegistry {
 
 		methods
 			.stream()
-			.peek(entry -> LOG.trace("Register message receiver {}", entry.getName()))
+			.peek(entry -> LOG.tracef("Register message receiver %s", entry.getName()))
 			.forEach(entry -> receivers.putIfAbsent(entry.getMessageKey(), entry));
 
 		return receivers;
@@ -162,7 +163,7 @@ public class ActorInterceptorRegistry {
 			.stream()
 			.filter(MessageReceiverMethod::isObserved)
 			.map(MessageReceiverMethod::getMessageClass)
-			.peek(eventClass -> LOG.trace("Register observed event type {}", eventClass))
+			.peek(eventClass -> LOG.tracef("Register observed event type %s", eventClass))
 			.collect(toSet());
 
 		if (observed.isEmpty()) {
@@ -170,6 +171,15 @@ public class ActorInterceptorRegistry {
 		}
 
 		return unmodifiableList(optimizedList(observed));
+	}
+
+	public void register(final String className) {
+
+		final Class<?> clazz = ReflectionUtils.getClazz(className);
+
+		registerReceiversFrom(clazz);
+		registerPreStartsFrom(clazz);
+		registerPostStopsFrom(clazz);
 	}
 
 	/**
@@ -184,7 +194,7 @@ public class ActorInterceptorRegistry {
 			return;
 		}
 
-		LOG.debug("Register {} pre-start bindings for actor {}", methods.size(), clazz);
+		LOG.debugf("Register %s pre-start bindings for actor %s", methods.size(), clazz);
 
 		PRESTARTS.computeIfAbsent(clazz.getName(), $ -> preparePreStartMethodEntry(methods));
 	}
@@ -201,7 +211,7 @@ public class ActorInterceptorRegistry {
 			return;
 		}
 
-		LOG.debug("Register {} post-stop bindings for actor {}", methods.size(), clazz);
+		LOG.debugf("Register %s post-stop bindings for actor %s", methods.size(), clazz);
 
 		POSTSTOPS.computeIfAbsent(clazz.getName(), $ -> preparePostStopMethodEntry(methods));
 	}

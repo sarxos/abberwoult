@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import com.github.sarxos.abberwoult.annotation.ActorOf;
 import com.github.sarxos.abberwoult.annotation.Labeled;
 import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.testkit.TestKit;
 import com.github.sarxos.abberwoult.trait.Comm;
 import com.github.sarxos.abberwoult.trait.Disposing;
 
@@ -35,6 +36,9 @@ public class AskableActorSelectionTest {
 	@Inject
 	@ActorOf(TestClass.class)
 	AskableActorSelection selection;
+
+	@Inject
+	TestKit testkit;
 
 	@Labeled("test")
 	public static class TestClass extends SimpleActor implements Comm, Disposing {
@@ -55,7 +59,7 @@ public class AskableActorSelectionTest {
 
 	@BeforeEach
 	public void setup() {
-		universe.actor()
+		testkit.actor()
 			.of(TestClass.class)
 			.build();
 	}

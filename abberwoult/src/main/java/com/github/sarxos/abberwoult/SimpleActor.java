@@ -6,7 +6,6 @@ import static com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.g
 import static com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.getReceiversFor;
 
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles.Lookup;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -24,11 +23,15 @@ import com.github.sarxos.abberwoult.exception.PostStopInvocationException;
 import com.github.sarxos.abberwoult.exception.PreStartInvocationException;
 
 import akka.actor.AbstractActor;
+import akka.actor.PoisonPill;
 import akka.japi.pf.ReceiveBuilder;
 
 
 public class SimpleActor extends AbstractActor {
 
+	/**
+	 * The actor system universe used for a bunch of things.
+	 */
 	@Inject
 	private ActorSystemUniverse universe;
 
@@ -52,13 +55,27 @@ public class SimpleActor extends AbstractActor {
 		return createReceiveAutomation();
 	}
 
+	/**
+	 * An utility methods to build new actor which will be a child of this actor.
+	 *
+	 * @return New universal {@link ActorBuilder} with pre-configured parent
+	 */
 	public ActorBuilder<?> actor() {
 		return universe
 			.actor()
-			.withParent(context());
+			.withParent(getContext());
 	}
 
-	// internals
+	/**
+	 * Gracefully disposes this actor by sending {@link PoisonPill} to {@link #self()}. If any
+	 * message was enqueued before invoking this method, it will be processed. This method can be
+	 * override in a more specialized actors.
+	 */
+	public void dispose() {
+		getSelf().tell(PoisonPill.getInstance(), getSelf());
+	}
+
+	// internal stuff
 
 	private void invokePreStart(final PreStartMethod method) {
 		final MethodHandle handle = method.getHandle();
@@ -95,9 +112,9 @@ public class SimpleActor extends AbstractActor {
 	/**
 	 * Create new {@link Receive} for {@link Receives} annotated methods.
 	 *
-	 * @param caller a called {@link Lookup}
-	 * @param receivers a mapping between message class and corresponding {@link Receives}
-	 * @return New {@link Receive}
+	 * @param builder the {@link ReceiveBuilder} used to create {@link Receive}
+	 * @param receivers the mapping between message class and corresponding {@link Receives}
+	 * @return New {@link Receive} created from receiver methods
 	 */
 	private Receive createReceiveForReceivers(final ReceiveBuilder builder, final Map<String, MessageReceiverMethod> receivers) {
 

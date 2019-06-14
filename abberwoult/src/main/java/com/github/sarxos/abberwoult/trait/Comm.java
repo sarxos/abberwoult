@@ -58,7 +58,7 @@ public interface Comm extends ActorInternal {
 	 * @param message the message to be forwarded
 	 */
 	default void forward(final ActorRef ref, final Object message) {
-		ref.forward(message, context());
+		ref.forward(message, getContext());
 	}
 
 	/**
@@ -88,6 +88,6 @@ public interface Comm extends ActorInternal {
 	 * @param message the message to be forwarded
 	 */
 	default void forward(final ActorSelection sel, final Object message) {
-		sel.forward(message, context());
+		sel.forward(message, getContext());
 	}
 }

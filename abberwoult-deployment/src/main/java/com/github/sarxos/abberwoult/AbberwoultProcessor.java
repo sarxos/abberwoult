@@ -3,39 +3,52 @@ package com.github.sarxos.abberwoult;
 import static com.github.sarxos.abberwoult.DotNames.ACTOR_SCOPED_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.APPLICATION_SCOPED_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.AUTOSTART_ANNOTATION;
+import static com.github.sarxos.abberwoult.DotNames.LABELED_ANNOTATION;
+import static com.github.sarxos.abberwoult.DotNames.SHARD_ENTITY_ID_ANNOTATION;
+import static com.github.sarxos.abberwoult.DotNames.SHARD_ID_ANNOTATION;
+import static com.github.sarxos.abberwoult.DotNames.SHARD_ROUTABLE_MESSAGE_INTERFACE;
 import static com.github.sarxos.abberwoult.DotNames.SIMPLE_ACTOR_CLASS;
+import static io.quarkus.deployment.annotations.ExecutionTime.RUNTIME_INIT;
 import static io.quarkus.deployment.annotations.ExecutionTime.STATIC_INIT;
 import static java.util.stream.Collectors.toList;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jboss.jandex.AnnotationInstance;
+import org.jboss.jandex.AnnotationTarget;
+import org.jboss.jandex.AnnotationTarget.Kind;
+import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.Index;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jboss.logging.Logger;
 
 import com.github.sarxos.abberwoult.cdi.BeanLocator;
 import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry;
-import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistryTemplate;
 import com.github.sarxos.abberwoult.deployment.ActorStarterTemplate;
 import com.github.sarxos.abberwoult.deployment.error.AutostartableActorNoArgConstrutorMissingException;
 import com.github.sarxos.abberwoult.deployment.error.AutostartableActorNotLabeledException;
+import com.github.sarxos.abberwoult.deployment.error.ImplementationMissingException;
+import com.github.sarxos.abberwoult.deployment.item.ActorBuildItem;
+import com.github.sarxos.abberwoult.deployment.item.MessageExtractorBuildItem;
+import com.github.sarxos.abberwoult.deployment.item.ShardMessageBuildItem;
 
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.arc.deployment.BeanDefiningAnnotationBuildItem;
 import io.quarkus.arc.deployment.UnremovableBeanBuildItem;
 import io.quarkus.arc.processor.BeanInfo;
 import io.quarkus.deployment.annotations.BuildStep;
-import io.quarkus.deployment.annotations.ExecutionTime;
 import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
+import io.quarkus.deployment.builditem.GeneratedClassBuildItem;
 import io.quarkus.deployment.builditem.substrate.ReflectiveClassBuildItem;
 
 
 public class AbberwoultProcessor {
 
-	private static final Logger LOG = LoggerFactory.getLogger(AbberwoultProcessor.class);
+	private static final Logger LOG = Logger.getLogger("abberwoult");
 
 	private static final String[] CORE_BEAN_CLASSES = {
 		EventsBypass.class.getName(),
@@ -135,10 +148,10 @@ public class AbberwoultProcessor {
 
 	@BuildStep
 	@Record(STATIC_INIT)
-	void doRegisterActors(final List<ActorBuildItem> actors, final ActorInterceptorRegistryTemplate registry) {
+	void doRegisterActors(final List<ActorBuildItem> actors, final ActorInterceptorRegistry registry) {
 		actors.stream()
 			.map(ActorBuildItem::getActorClassName)
-			.peek(clazz -> LOG.debug("Record actor {} in registry", clazz))
+			.peek(clazz -> LOG.debugf("Record actor %s in registry", clazz))
 			.forEach(clazz -> registry.register(clazz));
 	}
 
@@ -153,20 +166,68 @@ public class AbberwoultProcessor {
 	}
 
 	private void assertIsActorLabeled(final ActorBuildItem item) {
-		if (item.getActorClass().classAnnotation(DotNames.LABELED_ANNOTATION) == null) {
+		if (item.getActorClass().classAnnotation(LABELED_ANNOTATION) == null) {
 			throw new AutostartableActorNotLabeledException(item);
 		}
 	}
 
 	@BuildStep
-	@Record(value = ExecutionTime.RUNTIME_INIT)
+	@Record(RUNTIME_INIT)
 	void doAutostartActors(final List<ActorBuildItem> actors, final ActorStarterTemplate autostarter) {
 		actors.stream()
 			.filter(this::isAutostartPresent)
 			.peek(this::assertNoArgConstructorIsPresent)
 			.peek(this::assertIsActorLabeled)
 			.map(ActorBuildItem::getActorClassName)
-			.peek(clazz -> LOG.debug("Autostarting actor {}", clazz))
+			.peek(clazz -> LOG.debugf("Autostarting actor %s", clazz))
 			.forEach(clazz -> autostarter.register(clazz));
+	}
+
+	private ClassInfo getClassInfo(AnnotationTarget target) {
+		if (target.kind() == Kind.METHOD) {
+			return target.asMethod().declaringClass();
+		} else {
+			return target.asField().declaringClass();
+		}
+	}
+
+	private void assertShardRoutableMessageIsImplemented(final ClassInfo clazz) {
+		if (!clazz.interfaceNames().contains(SHARD_ROUTABLE_MESSAGE_INTERFACE)) {
+			throw new ImplementationMissingException(clazz, SHARD_ROUTABLE_MESSAGE_INTERFACE);
+		}
+	}
+
+	@BuildStep
+	List<ShardMessageBuildItem> doFindShardMessages(final CombinedIndexBuildItem combined) {
+
+		final Set<AnnotationInstance> annotations = new HashSet<>();
+		annotations.addAll(combined.getIndex().getAnnotations(SHARD_ID_ANNOTATION));
+		annotations.addAll(combined.getIndex().getAnnotations(SHARD_ENTITY_ID_ANNOTATION));
+
+		return annotations.stream()
+			.map(AnnotationInstance::target)
+			.map(this::getClassInfo)
+			.peek(this::assertShardRoutableMessageIsImplemented)
+			.distinct()
+			.map(ShardMessageBuildItem::new)
+			.collect(toList());
+	}
+
+	@BuildStep
+	List<MessageExtractorBuildItem> doCreateSyntheticMessageExtractors(final List<ShardMessageBuildItem> classes) {
+		return classes.stream()
+			.map(ShardMessageBuildItem::getMessageClass)
+			.peek(clazz -> LOG.debugf("Synthetizing message extractor for %s", clazz))
+			.map(MessageExtractorBuildItem::new)
+			.collect(toList());
+	}
+
+	@BuildStep
+	@Record(STATIC_INIT)
+	List<GeneratedClassBuildItem> doRecordMessageExtractors(final List<MessageExtractorBuildItem> extractors, final ShardMessageExtractor sre) {
+		return extractors.stream()
+			.peek(ext -> sre.register(ext.getMessageClassName(), ext.getSyntheticExtractorInstance()))
+			.map(ext -> new GeneratedClassBuildItem(true, ext.getSyntheticClassName(), ext.getBytecode()))
+			.collect(toList());
 	}
 }

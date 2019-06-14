@@ -1,5 +1,8 @@
 package com.github.sarxos.abberwoult.deployment;
 
+import static com.github.sarxos.abberwoult.util.ActorUtils.toActorClass;
+import static com.github.sarxos.abberwoult.util.ReflectionUtils.getClazz;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -30,11 +33,11 @@ import io.quarkus.runtime.StartupEvent;
 @Singleton
 public class ActorStarter {
 
-	private static final Logger LOG = Logger.getLogger(ActorStarter.class);
+	private static final Logger LOG = Logger.getLogger("abberwoult-autostarter");
 
 	/**
-	 * {@link Actor} classes annotated with {@link Autostart} annotation detected in augmentation
-	 * phase.
+	 * The list of {@link Actor} classes annotated with {@link Autostart} annotation detected in
+	 * augmentation phase.
 	 */
 	private static final Collection<Class<? extends Actor>> AUTOSTARTABLES = new LinkedHashSet<>();
 
@@ -52,7 +55,7 @@ public class ActorStarter {
 	 * @param universe the actor universe later used to spawn actor instances
 	 */
 	@Inject
-	public ActorStarter(final ActorSystemUniverse universe) {
+	ActorStarter(final ActorSystemUniverse universe) {
 		this.universe = universe;
 	}
 
@@ -62,8 +65,21 @@ public class ActorStarter {
 	 *
 	 * @param event the event to be intercepted
 	 */
-	void onStart(@Observes StartupEvent event) {
-		spawnAutostartableActors();
+	void onStart(@Observes final StartupEvent event) {
+		startAllRecordedActors();
+	}
+
+	/**
+	 * Register actor class name to be started.
+	 *
+	 * @param className
+	 */
+	public void register(final String className) {
+
+		final Class<?> clazz = getClazz(className);
+		final Class<? extends Actor> actor = toActorClass(clazz);
+
+		register(actor);
 	}
 
 	/**
@@ -75,22 +91,15 @@ public class ActorStarter {
 		AUTOSTARTABLES.add(clazz);
 	}
 
-	private void spawnAutostartableActors() {
+	private void startAllRecordedActors() {
 		AUTOSTARTABLES.stream()
 			.peek(clazz -> LOG.infof("Autostarting actor %s", clazz))
 			.forEach(clazz -> references.computeIfAbsent(clazz.getName(), start(clazz)));
 	}
 
 	private Function<String, ActorRef> start(final Class<? extends Actor> clazz) {
-		return name -> {
-
-			final ActorRef ref = universe.actor()
-				.of(clazz)
-				.build();
-
-			LOG.debugf("Created actor %s", ref);
-
-			return ref;
-		};
+		return name -> universe.actor()
+			.of(clazz)
+			.build();
 	}
 }

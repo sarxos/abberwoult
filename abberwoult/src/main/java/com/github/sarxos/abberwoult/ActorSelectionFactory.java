@@ -6,8 +6,7 @@ import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jboss.logging.Logger;
 
 import com.github.sarxos.abberwoult.annotation.ActorOf;
 import com.github.sarxos.abberwoult.util.ActorUtils;
@@ -20,7 +19,7 @@ import akka.actor.ActorSystem;
 @Singleton
 public class ActorSelectionFactory extends AbstractInjectFactory {
 
-	private static final Logger LOG = LoggerFactory.getLogger(ActorSelectionFactory.class);
+	private static final Logger LOG = Logger.getLogger(ActorSelectionFactory.class);
 
 	private final ActorSystem system;
 
@@ -41,7 +40,7 @@ public class ActorSelectionFactory extends AbstractInjectFactory {
 		final Class<? extends Actor> clazz = getActorClass(injection);
 		final String path = ActorUtils.getActorPath(clazz);
 
-		LOG.debug("Creating actor selection for path {}", path);
+		LOG.debugf("Creating actor selection for path %s", path);
 
 		return system.actorSelection(path);
 	}
