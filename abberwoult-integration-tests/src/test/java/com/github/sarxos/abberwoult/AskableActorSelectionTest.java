@@ -19,10 +19,13 @@ import com.github.sarxos.abberwoult.annotation.ActorOf;
 import com.github.sarxos.abberwoult.annotation.Labeled;
 import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.testkit.TestKit;
+import com.github.sarxos.abberwoult.testkit.TestKitProbe;
 import com.github.sarxos.abberwoult.trait.Comm;
 import com.github.sarxos.abberwoult.trait.Disposing;
 
+import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
+import akka.actor.Terminated;
 import io.quarkus.test.junit.QuarkusTest;
 import io.vavr.concurrent.Future;
 
@@ -40,6 +43,8 @@ public class AskableActorSelectionTest {
 	@Inject
 	TestKit testkit;
 
+	ActorRef ref;
+	
 	@Labeled("test")
 	public static class TestClass extends SimpleActor implements Comm, Disposing {
 
@@ -59,14 +64,17 @@ public class AskableActorSelectionTest {
 
 	@BeforeEach
 	public void setup() {
-		testkit.actor()
+		ref = testkit.actor()
 			.of(TestClass.class)
 			.build();
 	}
 
 	@AfterEach
 	public void teardown() {
+		final TestKitProbe probe =  testkit.probe();
+		probe.watch(ref);
 		selection.tell(PoisonPill.getInstance());
+		probe.expectMsgClass(Terminated.class);
 	}
 
 	@Test

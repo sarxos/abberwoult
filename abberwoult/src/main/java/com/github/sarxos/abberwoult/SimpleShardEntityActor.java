@@ -8,6 +8,14 @@ import akka.actor.ReceiveTimeout;
 import akka.cluster.sharding.ShardRegion.Passivate;
 
 
+/**
+ * This is a father of all shard entity actors, that is the actors which resides inside the sharding.
+ * It's worth to note that all sharded actors has a default receive timeout of 300 seconds enabled.
+ * 
+ * @see Timeouts 
+ *
+ * @author Bartosz Firyn (sarxos)
+ */
 public abstract class SimpleShardEntityActor extends SimpleActor implements Timeouts {
 
 	/**

@@ -17,7 +17,7 @@ import akka.actor.ActorSystem;
 
 
 @Singleton
-public class ActorSelectionFactory extends AbstractInjectFactory {
+public class ActorSelectionFactory extends AbstractActorInjectFactory {
 
 	private static final Logger LOG = Logger.getLogger(ActorSelectionFactory.class);
 

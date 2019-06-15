@@ -11,14 +11,14 @@ import akka.actor.Props;
 
 
 /**
- * This is injectable factory service which creates {@link Props} instances that are used to build
+ * This is injectable factory service which creates {@link Props} instances used to build
  * actors. Every {@link Props} object created by this factory keeps reference to the special
- * {@link ActorCreator} designed to instantiate actor and wire it (inject all required injectees).
- * This factory can be injected but does not have to, but does not have to.
+ * {@link ActorCreator} responsible for creating and wiring actor instances. This factory can
+ * be injected but does not have to.
  *
  * @author Bartosz Firyn (sarxos)
  */
-@Singleton
+@Singleton 
 public class Propser {
 
 	/**

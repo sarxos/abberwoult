@@ -10,12 +10,29 @@ import akka.pattern.PatternsCS;
 import akka.util.Timeout;
 
 
+/**
+ * Injectable {@link Askable} instance used to communicate with a sharding. This class is meant
+ * to be injectable but it can also be extended and used as a regular POJO.
+ *
+ * @author Bartosz Firyn (sarxos)
+ */
 public class Shard implements Askable<ShardRoutableMessage> {
 
+	/**
+	 * A shard region {@link ActorRef} used to communicate with sharding.
+	 */
 	private final ActorRef region;
+	
+	/**
+	 * The ask {@link Timeout}.
+	 */
 	private final Timeout timeout;
 
-	public Shard(final ActorRef region, final Timeout timeout) {
+	/**
+	 * @param region the shard region
+	 * @param timeout the ask timeout
+	 */
+	Shard(final ActorRef region, final Timeout timeout) {
 		this.region = region;
 		this.timeout = timeout;
 	}

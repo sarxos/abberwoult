@@ -9,13 +9,18 @@ import akka.actor.ActorSystem;
 import akka.event.EventStream;
 
 
+/**
+ * This is a factory bean to produce {@link EventStream} instance used by {@link ActorSystem}.
+ *
+ * @author Bartosz Firyn (sarxos)
+ */
 @Singleton
 public class EventStreamFactory {
 
 	private final ActorSystem system;
 
 	@Inject
-	public EventStreamFactory(ActorSystem system) {
+	public EventStreamFactory(final ActorSystem system) {
 		this.system = system;
 	}
 

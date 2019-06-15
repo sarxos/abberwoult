@@ -8,6 +8,11 @@ import akka.actor.ActorSystem;
 import akka.cluster.Cluster;
 
 
+/**
+ * A factory bean which creates {@link Cluster}.
+ *
+ * @author Bartosz Firyn (sarxos)
+ */
 @Singleton
 public class ClusterFactory {
 

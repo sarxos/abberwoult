@@ -9,7 +9,8 @@ import akka.event.EventStream;
 
 
 /**
- * This is class used to move events from CDI into the events stream exposed by the actor system.
+ * This is class used to move events from CDI notifiers into the events stream exposed by the
+ * actor system.
  *
  * @author Bartosz Firyn (sarxos)
  */
@@ -29,6 +30,12 @@ public class EventsBypass {
 		this.stream = system.getEventStream();
 	}
 
+	/**
+	 * Interceptor method to capture all events emitted by CDI notifiers. Please note that
+	 * this method will filter off all {@link String} events.
+	 *
+	 * @param event the event
+	 */
 	public void bypass(@Observes Object event) {
 
 		// Drop all string events, we don't want. Them are emitted because CDI specification

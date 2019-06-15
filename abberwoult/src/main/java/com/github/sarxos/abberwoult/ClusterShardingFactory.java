@@ -8,6 +8,11 @@ import akka.actor.ActorSystem;
 import akka.cluster.sharding.ClusterSharding;
 
 
+/**
+ * A factory bean which creates {@link ClusterSharding}.
+ *
+ * @author Bartosz Firyn (sarxos)
+ */
 @Singleton
 public class ClusterShardingFactory {
 

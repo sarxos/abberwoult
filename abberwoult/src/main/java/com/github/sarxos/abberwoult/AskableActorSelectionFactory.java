@@ -15,6 +15,11 @@ import akka.actor.ActorSelection;
 import akka.util.Timeout;
 
 
+/**
+ * A factory bean which creates {@link AskableActorSelection} instances with {@link Dependent} scope.
+ *
+ * @author Bartosz Firyn (sarxos)
+ */
 @Singleton
 public class AskableActorSelectionFactory {
 

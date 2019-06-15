@@ -4,14 +4,23 @@ import static akka.actor.ActorRef.noSender;
 
 import java.io.Serializable;
 
+import javax.enterprise.context.Dependent;
+
+import com.github.sarxos.abberwoult.annotation.Labeled;
+
 import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
+import akka.actor.ActorSystem;
 import akka.cluster.pubsub.DistributedPubSubMediator.Publish;
 import akka.cluster.pubsub.DistributedPubSubMediator.Subscribe;
 import akka.cluster.pubsub.DistributedPubSubMediator.Unsubscribe;
 
 
 /**
- * A distributed pub-sub topic actors can subscribe to.
+ * A distributed pub-sub topic actors can subscribe to. This class is meant to be injectable.
+ * It can be used inside of actors as well as in the application context. The topic must be
+ * annotated with {@link Labeled} qualifier to be injected. It's a {@link Dependent} scope
+ * and created by {@link TopicFactory}.
  *
  * @author Bartosz Firyn (sarxos)
  */
@@ -20,7 +29,11 @@ public class Topic {
 	private final String name;
 	private final ActorRef mediator;
 
-	public Topic(final String name, final ActorRef mediator) {
+	/**
+	 * @param name a topic name (label)
+	 * @param mediator a pub-sub mediator from {@link ActorSystem}
+	 */
+	Topic(final String name, final ActorRef mediator) {
 		this.name = name;
 		this.mediator = mediator;
 	}

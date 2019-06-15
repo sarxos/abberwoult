@@ -8,6 +8,11 @@ import akka.actor.ActorSystem;
 import akka.actor.CoordinatedShutdown;
 
 
+/**
+ * A factory bean which creates {@link CoordinatedShutdown}.
+ *
+ * @author Bartosz Firyn (sarxos)
+ */
 @Singleton
 public class CoordinatedShutdownFactory {
 

@@ -11,7 +11,7 @@ import akka.actor.Actor;
 import akka.actor.ActorRef;
 
 
-abstract class AbstractInjectFactory {
+abstract class AbstractActorInjectFactory {
 
 	protected Class<? extends Actor> getActorClass(final InjectionPoint injection) {
 		return getQualifier(injection, ActorOf.class)

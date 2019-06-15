@@ -3,6 +3,11 @@ package com.github.sarxos.abberwoult;
 import java.util.concurrent.CompletionStage;
 
 
+/**
+ * {@link Askable} utility stuff.
+ *
+ * @author Bartosz Firyn (sarxos)
+ */
 class AskableActorUtils {
 
 	private AskableActorUtils() {
