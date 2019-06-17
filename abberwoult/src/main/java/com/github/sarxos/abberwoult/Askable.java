@@ -6,7 +6,6 @@ import java.time.Duration;
 import java.util.concurrent.CompletionStage;
 
 import akka.actor.ActorRef;
-import akka.util.Timeout;
 
 
 public interface Askable<M> {
@@ -19,10 +18,19 @@ public interface Askable<M> {
 	 * @param message the message to send to actor
 	 * @return {@link CompletionStage} to extract response from
 	 */
-	<T> CompletionStage<T> ask(final M message);
+	default <T> CompletionStage<T> ask(final M message) {
+		return ask(message, getTimeout());
+	}
 
-	<T> CompletionStage<T> ask(final M message, final Timeout timeout);
-
+	/**
+	 * Ask underlying actor to reply with value, but provide non-default ask timeout. This results
+	 * in {@link CompletionStage} which will timeout if no response is received.
+	 *
+	 * @param <T> the expected response type
+	 * @param message the message to send to actor
+	 * @param timeout the ask timeout to use
+	 * @return {@link CompletionStage} to extract response from
+	 */
 	<T> CompletionStage<T> ask(final M message, final Duration timeout);
 
 	/**
@@ -30,7 +38,7 @@ public interface Askable<M> {
 	 *
 	 * @param message the message to send
 	 */
-	default void tell(M message) {
+	default void tell(final M message) {
 		tell(message, noSender());
 	}
 
@@ -41,4 +49,6 @@ public interface Askable<M> {
 	 * @param sender the sender actor should reply to
 	 */
 	void tell(final M message, final ActorRef sender);
+
+	Duration getTimeout();
 }

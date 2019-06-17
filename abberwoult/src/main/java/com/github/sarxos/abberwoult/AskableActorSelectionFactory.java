@@ -1,5 +1,7 @@
 package com.github.sarxos.abberwoult;
 
+import static com.github.sarxos.abberwoult.util.ActorUtils.durationOf;
+
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
@@ -16,7 +18,8 @@ import akka.util.Timeout;
 
 
 /**
- * A factory bean which creates {@link AskableActorSelection} instances with {@link Dependent} scope.
+ * A factory bean which creates {@link AskableActorSelection} instances with {@link Dependent}
+ * scope.
  *
  * @author Bartosz Firyn (sarxos)
  */
@@ -47,6 +50,6 @@ public class AskableActorSelectionFactory {
 	@Dependent
 	@ActorOf
 	public AskableActorSelection create(final InjectionPoint injection) {
-		return new AskableActorSelection(factory.create(injection), timeout);
+		return new AskableActorSelection(factory.create(injection), durationOf(timeout));
 	}
 }

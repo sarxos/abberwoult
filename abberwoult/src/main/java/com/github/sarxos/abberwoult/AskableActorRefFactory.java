@@ -1,5 +1,7 @@
 package com.github.sarxos.abberwoult;
 
+import static com.github.sarxos.abberwoult.util.ActorUtils.durationOf;
+
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
@@ -49,6 +51,6 @@ public class AskableActorRefFactory {
 	@Dependent
 	@ActorOf
 	public AskableActorRef create(final InjectionPoint injection) {
-		return new AskableActorRef(factory.create(injection), timeout);
+		return new AskableActorRef(factory.create(injection), durationOf(timeout));
 	}
 }

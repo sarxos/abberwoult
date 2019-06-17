@@ -69,13 +69,6 @@ public class AbberwoultProcessor {
 		ActorInterceptorRegistry.class.getName(),
 	};
 
-	@BuildStep
-	@Record(STATIC_INIT)
-	public void doTest(final TestClassTemplate template) {
-		template.test("com.github.sarxos.abberwoult.TestClassDependency");
-		template.test("com.example.TestClassProject");
-	}
-
 	/**
 	 * Register a extension capability and feature.
 	 *

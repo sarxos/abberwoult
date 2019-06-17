@@ -10,17 +10,16 @@ import com.github.sarxos.abberwoult.annotation.Labeled;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
-import akka.actor.ActorSystem;
 import akka.cluster.pubsub.DistributedPubSubMediator.Publish;
 import akka.cluster.pubsub.DistributedPubSubMediator.Subscribe;
 import akka.cluster.pubsub.DistributedPubSubMediator.Unsubscribe;
 
 
 /**
- * A distributed pub-sub topic actors can subscribe to. This class is meant to be injectable.
- * It can be used inside of actors as well as in the application context. The topic must be
- * annotated with {@link Labeled} qualifier to be injected. It's a {@link Dependent} scope
- * and created by {@link TopicFactory}.
+ * A distributed pub-sub topic actors can subscribe to. This class is meant to be injectable. It can
+ * be used inside of actors as well as in the application context. The topic must be annotated with
+ * {@link Labeled} qualifier to be injected. It's a {@link Dependent} scope and created by
+ * {@link TopicFactory}.
  *
  * @author Bartosz Firyn (sarxos)
  */
