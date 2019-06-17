@@ -11,7 +11,8 @@ import org.jboss.jandex.DotName;
 import org.jboss.jandex.FieldInfo;
 import org.jboss.jandex.MethodInfo;
 
-import akka.cluster.sharding.ShardRegion.MessageExtractor;
+import com.github.sarxos.abberwoult.ShardMessageExtractor.FieldReader;
+
 import io.vavr.collection.Stream;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
@@ -23,12 +24,12 @@ import javassist.CtMethod;
 import javassist.CtNewMethod;
 
 
-public class MessageExtractorCodeGenerator {
+public class FieldReaderGenerator {
 
-	private static final Class<MessageExtractor> EXTRACTOR_CLASS = MessageExtractor.class;
-	private static final String EXTRACTOR_CLASS_NAME = MessageExtractor.class.getName();
+	private static final Class<FieldReader> FIELD_READER_CLASS = FieldReader.class;
+	private static final String FIELD_READER_CLASS_NAME = FieldReader.class.getName();
 	private static final ClassPool CLASS_POOL = getClassPool();
-	private static final CtClass MESSAGE_EXTRACTOR_CT_CLASS = getMessageExtractorCtClass();
+	private static final CtClass FIELD_READER_CT_CLASS = getFieldReaderCtClass();
 	private static final String PREFIX_GET = "get";
 	private static final String PREFIX_IS = "is";
 
@@ -50,7 +51,7 @@ public class MessageExtractorCodeGenerator {
 	}
 
 	/**
-	 * Generate class which implements {@link MessageExtractor} and consume specific
+	 * Generate class which implements {@link FieldReader}.
 	 *
 	 * @param info the {@link ClassInfo} linked to the message {@link Class}
 	 * @return New {@link CtClass}
@@ -74,12 +75,11 @@ public class MessageExtractorCodeGenerator {
 		final String shardIdGetterName = getAnnotatedMethodName(clazz, SHARD_ID_ANNOTATION);
 		final String shardEntityIdGetterName = getAnnotatedMethodName(clazz, SHARD_ENTITY_ID_ANNOTATION);
 
-		final CtClass cc = CLASS_POOL.makeClass(clazzName + "_MessageExtractor");
-		cc.setInterfaces(new CtClass[] { MESSAGE_EXTRACTOR_CT_CLASS });
-		cc.addMethod(method(cc, "public String shardId(Object m) { return String.valueOf(((%s) m).%s()); }", clazzName, shardIdGetterName));
-		cc.addMethod(method(cc, "public String entityId(Object m) { return String.valueOf(((%s) m).%s()); }", clazzName, shardEntityIdGetterName));
-		cc.addMethod(method(cc, "public Object entityMessage(Object m) { return m; }"));
-		cc.debugWriteFile("target/message-extractors");
+		final CtClass cc = CLASS_POOL.makeClass(clazzName + "_FieldReader");
+		cc.setInterfaces(new CtClass[] { FIELD_READER_CT_CLASS });
+		cc.addMethod(method(cc, "public Object readShardId(Object m) { return value(((%s) m).%s()); }", clazzName, shardIdGetterName));
+		cc.addMethod(method(cc, "public Object readShardEntityId(Object m) { return value(((%s) m).%s()); }", clazzName, shardEntityIdGetterName));
+		cc.debugWriteFile("target/abberwoult/extractor-field-readers");
 
 		return cc;
 	}
@@ -138,13 +138,13 @@ public class MessageExtractorCodeGenerator {
 
 	private static final ClassPool getClassPool() {
 		final ClassPool cp = ClassPool.getDefault();
-		cp.insertClassPath(new ClassClassPath(EXTRACTOR_CLASS));
+		cp.insertClassPath(new ClassClassPath(FIELD_READER_CLASS));
 		return cp;
 	}
 
-	private static final CtClass getMessageExtractorCtClass() {
+	private static final CtClass getFieldReaderCtClass() {
 		return Try
-			.of(() -> CLASS_POOL.get(EXTRACTOR_CLASS_NAME))
+			.of(() -> CLASS_POOL.get(FIELD_READER_CLASS_NAME))
 			.get();
 	}
 }

@@ -31,7 +31,7 @@ import com.github.sarxos.abberwoult.deployment.error.AutostartableActorNoArgCons
 import com.github.sarxos.abberwoult.deployment.error.AutostartableActorNotLabeledException;
 import com.github.sarxos.abberwoult.deployment.error.ImplementationMissingException;
 import com.github.sarxos.abberwoult.deployment.item.ActorBuildItem;
-import com.github.sarxos.abberwoult.deployment.item.MessageExtractorBuildItem;
+import com.github.sarxos.abberwoult.deployment.item.FieldReaderBuildItem;
 import com.github.sarxos.abberwoult.deployment.item.ShardMessageBuildItem;
 
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
@@ -214,19 +214,19 @@ public class AbberwoultProcessor {
 	}
 
 	@BuildStep
-	List<MessageExtractorBuildItem> doCreateSyntheticMessageExtractors(final List<ShardMessageBuildItem> classes) {
+	List<FieldReaderBuildItem> doCreateSyntheticMessageExtractors(final List<ShardMessageBuildItem> classes) {
 		return classes.stream()
 			.map(ShardMessageBuildItem::getMessageClass)
 			.peek(clazz -> LOG.debugf("Synthetizing message extractor for %s", clazz))
-			.map(MessageExtractorBuildItem::new)
+			.map(FieldReaderBuildItem::new)
 			.collect(toList());
 	}
 
 	@BuildStep
 	@Record(STATIC_INIT)
-	List<GeneratedClassBuildItem> doRecordMessageExtractors(final List<MessageExtractorBuildItem> extractors, final ShardMessageExtractor sre) {
+	List<GeneratedClassBuildItem> doRecordMessageExtractors(final List<FieldReaderBuildItem> extractors, final ShardMessageExtractor sre) {
 		return extractors.stream()
-			.peek(ext -> sre.register(ext.getMessageClassName(), ext.getSyntheticExtractorInstance()))
+			.peek(ext -> sre.register(ext.getMessageClassName(), ext.getSyntheticFieldReaderInstance()))
 			.map(ext -> new GeneratedClassBuildItem(true, ext.getSyntheticClassName(), ext.getBytecode()))
 			.collect(toList());
 	}
