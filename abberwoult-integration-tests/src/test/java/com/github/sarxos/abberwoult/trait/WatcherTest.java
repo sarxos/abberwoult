@@ -31,7 +31,7 @@ public class WatcherTest {
 
 	}
 
-	public static class WatchingActor extends SimpleActor implements Watcher, Comm {
+	public static class WatchingActor extends SimpleActor implements Watcher, Utils {
 
 		private final AtomicBoolean terminated;
 		private ActorRef watched;

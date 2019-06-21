@@ -1,6 +1,6 @@
 package com.github.sarxos.abberwoult;
 
-import static com.github.sarxos.abberwoult.util.ActorUtils.durationOf;
+import java.time.Duration;
 
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
@@ -8,12 +8,8 @@ import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
 import com.github.sarxos.abberwoult.annotation.ActorOf;
-import com.github.sarxos.abberwoult.util.ActorUtils;
-
-import akka.util.Timeout;
+import com.github.sarxos.abberwoult.config.AskTimeout;
 
 
 /**
@@ -30,14 +26,14 @@ public class AskableActorRefFactory {
 	private final ActorRefFactory factory;
 
 	/**
-	 * Timeout used for asking actors.
+	 * Ask timeout.
 	 */
-	@ConfigProperty(name = "akka.default-timeout", defaultValue = ActorUtils.DEFAULT_TIMEOUT_SECONDS)
-	Timeout timeout;
+	private final Duration timeout;
 
 	@Inject
-	public AskableActorRefFactory(final ActorRefFactory factory) {
+	public AskableActorRefFactory(final ActorRefFactory factory, @AskTimeout Duration timeout) {
 		this.factory = factory;
+		this.timeout = timeout;
 	}
 
 	/**
@@ -51,6 +47,6 @@ public class AskableActorRefFactory {
 	@Dependent
 	@ActorOf
 	public AskableActorRef create(final InjectionPoint injection) {
-		return new AskableActorRef(factory.create(injection), durationOf(timeout));
+		return new AskableActorRef(factory.create(injection), timeout);
 	}
 }

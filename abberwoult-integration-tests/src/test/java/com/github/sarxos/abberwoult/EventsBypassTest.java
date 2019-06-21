@@ -13,7 +13,7 @@ import com.github.sarxos.abberwoult.annotation.PreStart;
 import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.testkit.TestKit;
 import com.github.sarxos.abberwoult.testkit.TestKitProbe;
-import com.github.sarxos.abberwoult.trait.Comm;
+import com.github.sarxos.abberwoult.trait.Utils;
 import com.github.sarxos.abberwoult.trait.Events;
 
 import akka.actor.ActorRef;
@@ -38,7 +38,7 @@ public class EventsBypassTest {
 	@Inject
 	TestKit testkit;
 
-	public static final class TestActor extends SimpleActor implements Events, Comm {
+	public static final class TestActor extends SimpleActor implements Events, Utils {
 
 		private final ActorRef probe;
 

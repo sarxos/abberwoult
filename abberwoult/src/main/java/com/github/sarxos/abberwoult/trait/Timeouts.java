@@ -18,7 +18,7 @@ import scala.concurrent.duration.FiniteDuration;
  *
  * @author Bartosz Firyn (sarxos)
  */
-public interface Timeouts extends Disposing, ActorInternal {
+public interface Timeouts extends Disposers, ActorInternal {
 
 	/**
 	 * Value to be returned from overriden {@link #setReceiveTimeout(int)} method to completely

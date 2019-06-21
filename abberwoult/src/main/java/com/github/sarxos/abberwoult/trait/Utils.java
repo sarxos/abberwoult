@@ -9,7 +9,7 @@ import akka.actor.ActorSelection;
 import io.vavr.control.Option;
 
 
-public interface Comm extends ActorInternal {
+public interface Utils extends ActorInternal {
 
 	/**
 	 * Send message to a given actor reference.

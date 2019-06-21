@@ -8,7 +8,7 @@ import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
 
 
-public interface Selector {
+public interface Selectors {
 
 	/**
 	 * Select actor from the underlying actor system.

@@ -16,8 +16,8 @@ import com.github.sarxos.abberwoult.AskableActorRef;
 import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.ActorOf;
 import com.github.sarxos.abberwoult.annotation.Receives;
-import com.github.sarxos.abberwoult.trait.Comm;
-import com.github.sarxos.abberwoult.trait.Disposing;
+import com.github.sarxos.abberwoult.trait.Utils;
+import com.github.sarxos.abberwoult.trait.Disposers;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.vavr.concurrent.Future;
@@ -30,7 +30,7 @@ public class AskableActorRefTest {
 	@ActorOf(TestClass.class)
 	AskableActorRef ref;
 
-	public static class TestClass extends SimpleActor implements Comm, Disposing {
+	public static class TestClass extends SimpleActor implements Utils, Disposers {
 
 		public void handleInteger(@Receives final Integer i) {
 			replyAndDispose(i);

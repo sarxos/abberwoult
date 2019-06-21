@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import com.github.sarxos.abberwoult.AskableActorSelection;
 import com.github.sarxos.abberwoult.SimpleActor;
-import com.github.sarxos.abberwoult.trait.Comm;
+import com.github.sarxos.abberwoult.trait.Utils;
 
 import io.quarkus.test.junit.QuarkusTest;
 
@@ -23,7 +23,7 @@ public class AutostartTest {
 
 	@Labeled
 	@Autostart
-	public static class TestActorAutostart extends SimpleActor implements Comm {
+	public static class TestActorAutostart extends SimpleActor implements Utils {
 		public void onInteger(@Receives Integer i) {
 			reply(i);
 		}

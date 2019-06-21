@@ -29,16 +29,17 @@ import akka.japi.pf.ReceiveBuilder;
 
 
 /**
- * This is the father of all injectable and autowired actors. If you want to have actor with injectable
- * fields which cal also be injected into the application context, please extend this one.
+ * This is the father of all injectable and autowired actors. If you want to have actor with
+ * injectable fields which cal also be injected into the application context, please extend this
+ * one.
  *
  * @author Bartosz Firyn (sarxos)
  */
 public abstract class SimpleActor extends AbstractActor {
 
 	/**
-	 * The actor system universe used for a bunch of things. This one can be private because it's not
-	 * injected by CDI but with the specialized {@link ActorCreator}.
+	 * The actor system universe used for a bunch of things. This one can be private because it's
+	 * not injected by CDI but with the specialized {@link ActorCreator}.
 	 */
 	@Inject
 	private ActorSystemUniverse universe;
@@ -47,7 +48,7 @@ public abstract class SimpleActor extends AbstractActor {
 	 * Invoke all {@link PreStart} bindings. This methods is final because we do not want anyone to
 	 * override it. If someone override it then {@link PreStart} bindings will not work in such an
 	 * actor. It's important to note that {@link PreStart} bindings are invoked only after actor
-	 * instance is created and all injection points are wired. Is called when an Actor is started. 
+	 * instance is created and all injection points are wired. Is called when an Actor is started.
 	 * Actors are automatically started asynchronously after they are created. There is no need to
 	 * start it manually.
 	 *
@@ -215,5 +216,9 @@ public abstract class SimpleActor extends AbstractActor {
 		}
 
 		throw new MessageHandlerValidationException(violations);
+	}
+
+	public ActorSystemUniverse getUniverse() {
+		return universe;
 	}
 }

@@ -6,7 +6,7 @@ import javax.inject.Inject;
 
 import com.github.sarxos.abberwoult.ActorSystemUniverse;
 import com.github.sarxos.abberwoult.SimpleActor;
-import com.github.sarxos.abberwoult.trait.Comm;
+import com.github.sarxos.abberwoult.trait.Utils;
 
 import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
@@ -21,14 +21,14 @@ import scala.concurrent.duration.Duration;
 @QuarkusTest
 public class ReceivedTest {
 
-	public static class TestActor extends SimpleActor implements Comm {
+	public static class TestActor extends SimpleActor implements Utils {
 
 		public void handleInteger(@Receives Integer i) {
 			reply(i);
 		}
 	}
 
-	public static class TestActorSuperclass extends SimpleActor implements Comm {
+	public static class TestActorSuperclass extends SimpleActor implements Utils {
 
 		public void handleIntegerXXX(@Receives Integer i) {
 			reply(i);

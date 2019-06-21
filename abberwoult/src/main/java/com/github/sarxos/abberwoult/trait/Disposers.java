@@ -7,7 +7,7 @@ import akka.actor.PoisonPill;
 import io.vavr.control.Option;
 
 
-public interface Disposing extends ActorInternal {
+public interface Disposers extends ActorInternal {
 
 	/**
 	 * Dispose actor referenced by a given {@link ActorRef}.

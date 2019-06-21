@@ -10,7 +10,7 @@ import com.github.sarxos.abberwoult.ActorSystemUniverse;
 import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.testkit.TestKit;
 import com.github.sarxos.abberwoult.testkit.TestKitProbe;
-import com.github.sarxos.abberwoult.trait.Comm;
+import com.github.sarxos.abberwoult.trait.Utils;
 
 import akka.actor.ActorRef;
 import akka.event.EventStream;
@@ -26,7 +26,7 @@ public class ObservedTest {
 	public static class SomethingImpl implements Something {
 	}
 
-	public static class TestActor extends SimpleActor implements Comm {
+	public static class TestActor extends SimpleActor implements Utils {
 
 		private final ActorRef ref;
 

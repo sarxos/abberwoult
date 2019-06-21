@@ -19,7 +19,7 @@ import io.quarkus.test.junit.QuarkusTest;
 @QuarkusTest
 public class TimeoutsTest {
 
-	public static final class TimeoutingActor extends SimpleActor implements Timeouts, Comm {
+	public static final class TimeoutingActor extends SimpleActor implements Timeouts, Utils {
 
 		private final ActorRef ref;
 

@@ -20,8 +20,8 @@ import com.github.sarxos.abberwoult.annotation.Labeled;
 import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.testkit.TestKit;
 import com.github.sarxos.abberwoult.testkit.TestKitProbe;
-import com.github.sarxos.abberwoult.trait.Comm;
-import com.github.sarxos.abberwoult.trait.Disposing;
+import com.github.sarxos.abberwoult.trait.Utils;
+import com.github.sarxos.abberwoult.trait.Disposers;
 
 import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
@@ -46,7 +46,7 @@ public class AskableActorSelectionTest {
 	ActorRef ref;
 	
 	@Labeled("test")
-	public static class TestClass extends SimpleActor implements Comm, Disposing {
+	public static class TestClass extends SimpleActor implements Utils, Disposers {
 
 		public void handleInteger(@Receives final Integer i) {
 			replyAndDispose(i);

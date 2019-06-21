@@ -14,8 +14,8 @@ import com.github.sarxos.abberwoult.annotation.PreStart;
 import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.testkit.TestKit;
 import com.github.sarxos.abberwoult.testkit.TestKitProbe;
-import com.github.sarxos.abberwoult.trait.Comm;
-import com.github.sarxos.abberwoult.trait.PubSub;
+import com.github.sarxos.abberwoult.trait.Utils;
+import com.github.sarxos.abberwoult.trait.PubSubs;
 
 import akka.actor.ActorRef;
 import akka.cluster.pubsub.DistributedPubSubMediator.SubscribeAck;
@@ -35,7 +35,7 @@ public class TopicTest {
 	@Inject
 	TestKit testkit;
 
-	public static class TestActor extends SimpleActor implements Comm, PubSub {
+	public static class TestActor extends SimpleActor implements Utils, PubSubs {
 
 		private final ActorRef ref;
 		private final Topic topic;

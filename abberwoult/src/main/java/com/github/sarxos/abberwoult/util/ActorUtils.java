@@ -2,7 +2,6 @@ package com.github.sarxos.abberwoult.util;
 
 import static com.github.sarxos.abberwoult.util.ReflectionUtils.getAnnotationFromClass;
 
-import java.time.Duration;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
@@ -19,7 +18,6 @@ import akka.actor.ActorSelection;
 import akka.actor.PoisonPill;
 import akka.dispatch.Dispatchers;
 import akka.dispatch.Mailboxes;
-import akka.util.Timeout;
 import io.vavr.control.Option;
 
 
@@ -29,8 +27,6 @@ public class ActorUtils {
 
 	public static final String DEFAULT_MAILBOX_ID = Mailboxes.DefaultMailboxId();
 	public static final String DEFAULT_MESSAGE_DISPATCHER_ID = Dispatchers.DefaultDispatcherId();
-	public static final String DEFAULT_TIMEOUT_SECONDS = "10";
-	public static final String DEFAULT_TIMEOUT_PROP = "akka.default-timeout";
 
 	/**
 	 * Return actor name. Only the latest actor in inheritance tree is scanned for name.
@@ -112,9 +108,5 @@ public class ActorUtils {
 
 	public static void dispose(final AskableActorSelection sel) {
 		sel.tell(PoisonPill.getInstance(), ActorRef.noSender());
-	}
-
-	public static Duration durationOf(final Timeout timeout) {
-		return Duration.ofNanos(timeout.duration().toNanos());
 	}
 }

@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import com.github.sarxos.abberwoult.annotation.Labeled;
 import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.testkit.TestKit;
-import com.github.sarxos.abberwoult.trait.Comm;
+import com.github.sarxos.abberwoult.trait.Utils;
 
 import akka.actor.ActorRef;
 import akka.actor.InvalidActorNameException;
@@ -36,14 +36,14 @@ public class ActorUniverseTest {
 	@Inject
 	TestKit testkit;
 
-	public static class TestActor extends SimpleActor implements Comm {
+	public static class TestActor extends SimpleActor implements Utils {
 		public void onInteger(@Receives Integer i) {
 			reply(i);
 		}
 	}
 
 	@Labeled("foo")
-	public static class TestNamedFooActor extends SimpleActor implements Comm {
+	public static class TestNamedFooActor extends SimpleActor implements Utils {
 
 		public void onInteger(@Receives Integer i) {
 			reply(i);
@@ -55,7 +55,7 @@ public class ActorUniverseTest {
 	}
 
 	@Labeled
-	public static class TestNamedActor extends SimpleActor implements Comm {
+	public static class TestNamedActor extends SimpleActor implements Utils {
 		public void onInteger(@Receives Integer i) {
 			reply(i);
 		}

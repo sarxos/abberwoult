@@ -6,7 +6,7 @@ import com.github.sarxos.abberwoult.annotation.Receives;
 import akka.cluster.pubsub.DistributedPubSubMediator.SubscribeAck;
 
 
-public interface PubSub extends ActorInternal {
+public interface PubSubs extends ActorInternal {
 
 	/**
 	 * Subscribes this actor to the given distributed pub-sub topic.

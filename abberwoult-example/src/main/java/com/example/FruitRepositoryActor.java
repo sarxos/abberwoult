@@ -16,7 +16,7 @@ import com.github.sarxos.abberwoult.annotation.Labeled;
 import com.github.sarxos.abberwoult.annotation.PostStop;
 import com.github.sarxos.abberwoult.annotation.PreStart;
 import com.github.sarxos.abberwoult.annotation.Receives;
-import com.github.sarxos.abberwoult.trait.Comm;
+import com.github.sarxos.abberwoult.trait.Utils;
 
 import lombok.Data;
 import lombok.Getter;
@@ -24,7 +24,7 @@ import lombok.Getter;
 
 @Autostart
 @Labeled("fruits-repo")
-public class FruitRepositoryActor extends SimpleActor implements Comm {
+public class FruitRepositoryActor extends SimpleActor implements Utils {
 
 	private static final Logger LOG = Logger.getLogger(FruitRepositoryActor.class);
 

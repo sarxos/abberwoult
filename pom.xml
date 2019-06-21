@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.github.sarxos</groupId>
     <artifactId>oss-parent</artifactId>
-    <version>6</version>
+    <version>7-SNAPSHOT</version>
   </parent>
 
   <artifactId>abberwoult-parent</artifactId>
@@ -27,8 +27,8 @@
   <properties>
     <akka.version>2.5.23</akka.version>
     <junit.version>5.4.0</junit.version>
-    <quarkus.version>999-SNAPSHOT</quarkus.version>
-    <!--     <quarkus.version>0.14.0</quarkus.version> -->
+    <!--     <quarkus.version>999-SNAPSHOT</quarkus.version> -->
+    <quarkus.version>0.17.0</quarkus.version>
     <scala.version>2.12.8</scala.version>
   </properties>
 
@@ -152,6 +152,7 @@
             </lifecycleMappingMetadata>
           </configuration>
         </plugin>
+
         <plugin>
           <groupId>org.jboss.jandex</groupId>
           <artifactId>jandex-maven-plugin</artifactId>

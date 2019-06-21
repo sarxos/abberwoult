@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import com.github.sarxos.abberwoult.annotation.Labeled;
 import com.github.sarxos.abberwoult.annotation.Receives;
-import com.github.sarxos.abberwoult.trait.Comm;
+import com.github.sarxos.abberwoult.trait.Utils;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -26,14 +26,14 @@ import scala.concurrent.duration.Duration;
 @QuarkusTest
 public class ActorBuilderTest {
 
-	public static class OrdinaryActor extends SimpleActor implements Comm {
+	public static class OrdinaryActor extends SimpleActor implements Utils {
 
 		public void handleInteger(@Receives Integer i) {
 			reply(i);
 		}
 	}
 
-	public static class UnnamedActor extends SimpleActor implements Comm {
+	public static class UnnamedActor extends SimpleActor implements Utils {
 
 		public void handleInteger(@Receives Integer i) {
 			reply(self().path().name());
@@ -41,7 +41,7 @@ public class ActorBuilderTest {
 	}
 
 	@Labeled("bubu")
-	public static class NamedActor extends SimpleActor implements Comm {
+	public static class NamedActor extends SimpleActor implements Utils {
 
 		public void handleInteger(@Receives Integer i) {
 			reply(self().path().name());

@@ -22,6 +22,7 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.CtNewMethod;
+import javassist.Modifier;
 
 
 public class FieldReaderGenerator {
@@ -77,9 +78,10 @@ public class FieldReaderGenerator {
 
 		final CtClass cc = CLASS_POOL.makeClass(clazzName + "_FieldReader");
 		cc.setInterfaces(new CtClass[] { FIELD_READER_CT_CLASS });
+		cc.setModifiers(Modifier.FINAL | Modifier.PUBLIC);
 		cc.addMethod(method(cc, "public Object readShardId(Object m) { return value(((%s) m).%s()); }", clazzName, shardIdGetterName));
 		cc.addMethod(method(cc, "public Object readShardEntityId(Object m) { return value(((%s) m).%s()); }", clazzName, shardEntityIdGetterName));
-		cc.debugWriteFile("target/abberwoult/extractor-field-readers");
+		cc.debugWriteFile("target/abberwoult/generated-classes");
 
 		return cc;
 	}

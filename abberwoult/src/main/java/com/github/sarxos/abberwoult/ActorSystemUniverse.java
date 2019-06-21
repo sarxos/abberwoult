@@ -4,7 +4,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.Validator;
 
-import com.github.sarxos.abberwoult.trait.Selector;
+import com.github.sarxos.abberwoult.trait.Selectors;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -16,7 +16,7 @@ import akka.event.EventStream;
  * @author Bartosz Firyn (sarxos)
  */
 @Singleton
-public class ActorSystemUniverse implements Selector {
+public class ActorSystemUniverse implements Selectors {
 
 	private final ActorSystem system;
 	private final Propser propser;

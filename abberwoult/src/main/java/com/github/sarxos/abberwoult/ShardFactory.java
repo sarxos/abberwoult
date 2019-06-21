@@ -1,9 +1,8 @@
 package com.github.sarxos.abberwoult;
 
 import static com.github.sarxos.abberwoult.cdi.BeanUtils.getLabel;
-import static com.github.sarxos.abberwoult.util.ActorUtils.DEFAULT_TIMEOUT_PROP;
-import static com.github.sarxos.abberwoult.util.ActorUtils.DEFAULT_TIMEOUT_SECONDS;
-import static com.github.sarxos.abberwoult.util.ActorUtils.durationOf;
+
+import java.time.Duration;
 
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
@@ -11,14 +10,12 @@ import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
 import com.github.sarxos.abberwoult.annotation.Labeled;
+import com.github.sarxos.abberwoult.config.AskTimeout;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.cluster.sharding.ClusterSharding;
-import akka.util.Timeout;
 
 
 /**
@@ -36,12 +33,15 @@ public class ShardFactory {
 	 */
 	private final ClusterSharding sharding;
 
-	@ConfigProperty(name = DEFAULT_TIMEOUT_PROP, defaultValue = DEFAULT_TIMEOUT_SECONDS)
-	Timeout timeout;
+	/**
+	 * Ask timeout.
+	 */
+	private final Duration timeout;
 
 	@Inject
-	public ShardFactory(final ClusterSharding sharding) {
+	public ShardFactory(final ClusterSharding sharding, @AskTimeout Duration timeout) {
 		this.sharding = sharding;
+		this.timeout = timeout;
 	}
 
 	/**
@@ -57,7 +57,7 @@ public class ShardFactory {
 
 		final String name = getLabel(injection);
 		final ActorRef region = sharding.shardRegion(name);
-		final Shard shard = new Shard(region, durationOf(timeout));
+		final Shard shard = new Shard(region, timeout);
 
 		return shard;
 	}
