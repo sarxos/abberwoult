@@ -42,11 +42,11 @@ import com.github.sarxos.abberwoult.annotation.PreStart;
 import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.util.ReflectionUtils;
 
-import io.quarkus.runtime.annotations.Template;
+import io.quarkus.runtime.annotations.Recorder;
 import io.vavr.control.Option;
 
 
-@Template
+@Recorder
 public class ActorInterceptorRegistry {
 
 	private static final Logger LOG = Logger.getLogger(ActorInterceptorRegistry.class);

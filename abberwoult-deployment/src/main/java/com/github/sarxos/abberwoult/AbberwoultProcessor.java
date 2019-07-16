@@ -26,7 +26,7 @@ import org.jboss.logging.Logger;
 
 import com.github.sarxos.abberwoult.cdi.BeanLocator;
 import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry;
-import com.github.sarxos.abberwoult.deployment.ActorStarterTemplate;
+import com.github.sarxos.abberwoult.deployment.ActorAutostarter;
 import com.github.sarxos.abberwoult.deployment.error.AutostartableActorNoArgConstrutorMissingException;
 import com.github.sarxos.abberwoult.deployment.error.AutostartableActorNotLabeledException;
 import com.github.sarxos.abberwoult.deployment.error.ImplementationMissingException;
@@ -173,7 +173,7 @@ public class AbberwoultProcessor {
 
 	@BuildStep
 	@Record(RUNTIME_INIT)
-	void doAutostartActors(final List<ActorBuildItem> actors, final ActorStarterTemplate autostarter) {
+	void doAutostartActors(final List<ActorBuildItem> actors, final ActorAutostarter autostarter) {
 		actors.stream()
 			.filter(this::isAutostartPresent)
 			.peek(this::assertNoArgConstructorIsPresent)

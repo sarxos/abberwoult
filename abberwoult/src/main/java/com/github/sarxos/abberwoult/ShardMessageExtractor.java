@@ -17,7 +17,7 @@ import org.jboss.logging.Logger;
 import com.github.sarxos.abberwoult.ShardMessageExtractor.FieldReader;
 
 import akka.cluster.sharding.ShardRegion.MessageExtractor;
-import io.quarkus.runtime.annotations.Template;
+import io.quarkus.runtime.annotations.Recorder;
 
 
 /**
@@ -27,16 +27,16 @@ import io.quarkus.runtime.annotations.Template;
  * actor might accidentally be started in different shard regions at the same time.<br>
  * <br>
  *
- * It's annotated with both {@link Template} and {@link Singleton} but p[lease note that it's either
+ * It's annotated with both {@link Recorder} and {@link Singleton} but p[lease note that it's either
  * one or the other at the given time. It's never both. At the augmentation time this class acts as
- * a recorder {@link Template} and in runtime it's a {@link Singleton} bean. Please keep this in
- * mind and don't be fooled with the presence of these two annotations. It cannot be both in the
- * same time because CDI is not yet initialized in augmentation time and therefore there is no
- * concept of {@link Singleton} bean then.
+ * a {@link Recorder} and in runtime it's a {@link Singleton} bean. Please keep this in mind and
+ * don't be fooled with the presence of these two annotations. It cannot be both in the same time
+ * because CDI is not yet initialized in augmentation time and therefore there is no concept of
+ * {@link Singleton} bean then.
  *
  * @author Bartosz Firyn (sarxos)
  */
-@Template
+@Recorder
 @Singleton
 public class ShardMessageExtractor implements MessageExtractor {
 
@@ -103,7 +103,7 @@ public class ShardMessageExtractor implements MessageExtractor {
 	private final int cardinality;
 
 	/**
-	 * Default constructor to be used when this class is used as a recorder {@link Template}.
+	 * Default constructor to be used when this class is used as a recorder {@link Recorder}.
 	 */
 	public ShardMessageExtractor() {
 		this.cardinality = 0;
@@ -120,7 +120,7 @@ public class ShardMessageExtractor implements MessageExtractor {
 	}
 
 	/**
-	 * Recording method used when this is {@link Template} to register {@link MessageExtractor} for
+	 * Recording method used when this is {@link Recorder} to register {@link MessageExtractor} for
 	 * a given message class name.
 	 *
 	 * @param clazz the message class name

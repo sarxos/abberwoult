@@ -21,6 +21,7 @@ import com.github.sarxos.abberwoult.annotation.Autostart;
 import akka.actor.Actor;
 import akka.actor.ActorRef;
 import io.quarkus.runtime.StartupEvent;
+import io.quarkus.runtime.annotations.Recorder;
 
 
 /**
@@ -30,8 +31,9 @@ import io.quarkus.runtime.StartupEvent;
  *
  * @author Bartosz Firyn (sarxos)
  */
+@Recorder
 @Singleton
-public class ActorStarter {
+public class ActorAutostarter {
 
 	private static final Logger LOG = Logger.getLogger("abberwoult-autostarter");
 
@@ -52,11 +54,20 @@ public class ActorStarter {
 	private final ActorSystemUniverse universe;
 
 	/**
+	 * Constructor used when this class is instantiated as a {@link Singleton}.
+	 *
 	 * @param universe the actor universe later used to spawn actor instances
 	 */
 	@Inject
-	ActorStarter(final ActorSystemUniverse universe) {
+	ActorAutostarter(final ActorSystemUniverse universe) {
 		this.universe = universe;
+	}
+
+	/**
+	 * Constructor used when this class is instantiated as a {@link Recorder}.
+	 */
+	public ActorAutostarter() {
+		this.universe = null;
 	}
 
 	/**
