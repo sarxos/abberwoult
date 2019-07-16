@@ -49,7 +49,7 @@ public class TimeoutsTest {
 		final ActorRef ref = testkit.actor()
 			.of(TimeoutingActor.class)
 			.withArguments(probe)
-			.build();
+			.create();
 
 		probe.expectMsgClass(ReceiveTimeout.class);
 

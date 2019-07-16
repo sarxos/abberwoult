@@ -100,6 +100,6 @@ public class ActorStarter {
 	private Function<String, ActorRef> start(final Class<? extends Actor> clazz) {
 		return name -> universe.actor()
 			.of(clazz)
-			.build();
+			.create();
 	}
 }

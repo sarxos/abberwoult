@@ -75,7 +75,7 @@ public class EventsBypassTest {
 		final ActorRef ref = testkit.actor()
 			.of(TestActor.class)
 			.withArguments(probe.getRef())
-			.build();
+			.create();
 
 		ref.tell(new Ready(), noSender());
 

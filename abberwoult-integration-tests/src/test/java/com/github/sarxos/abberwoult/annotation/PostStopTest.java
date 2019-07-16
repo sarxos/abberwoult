@@ -129,7 +129,7 @@ public class PostStopTest {
 		final ActorRef ref = universe.actor()
 			.of(TestActorWithSinglePostStop.class)
 			.withArguments(teardowned)
-			.build();
+			.create();
 
 		ref.tell(PoisonPill.getInstance(), noSender());
 
@@ -145,7 +145,7 @@ public class PostStopTest {
 		final ActorRef ref = universe.actor()
 			.of(TestActorWithMultiplePostStops.class)
 			.withArguments(teardowned1, teardowned2)
-			.build();
+			.create();
 
 		ref.tell(PoisonPill.getInstance(), noSender());
 
@@ -161,7 +161,7 @@ public class PostStopTest {
 		final ActorRef ref = universe.actor()
 			.of(TestSubClassActorWithSinglePostStop.class)
 			.withArguments(teardowned)
-			.build();
+			.create();
 
 		ref.tell(PoisonPill.getInstance(), noSender());
 
@@ -177,7 +177,7 @@ public class PostStopTest {
 		final ActorRef ref = universe.actor()
 			.of(TestSubClassActorWithOverridenPostStop.class)
 			.withArguments(teardowned1, teardowned2)
-			.build();
+			.create();
 
 		ref.tell(PoisonPill.getInstance(), noSender());
 
@@ -193,7 +193,7 @@ public class PostStopTest {
 
 		final ActorRef ref = universe.actor()
 			.of(TestActorImplementingInterface.class)
-			.build();
+			.create();
 
 		ref.tell(PoisonPill.getInstance(), noSender());
 

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import com.github.sarxos.abberwoult.annotation.Labeled;
 import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.builder.ActorBuilder;
 import com.github.sarxos.abberwoult.trait.Utils;
 
 import akka.actor.ActorRef;
@@ -59,7 +60,7 @@ public class ActorBuilderTest {
 
 		final ActorRef ref = new ActorBuilder<>(propser, system)
 			.of(OrdinaryActor.class)
-			.build();
+			.create();
 
 		assertThat(askResult(ref, 1)).isEqualTo(1);
 
@@ -71,7 +72,7 @@ public class ActorBuilderTest {
 
 		final ActorRef ref = new ActorBuilder<>(propser, system)
 			.of(UnnamedActor.class)
-			.build();
+			.create();
 
 		assertThat(askResult(ref, 1).toString()).startsWith("$");
 
@@ -83,7 +84,7 @@ public class ActorBuilderTest {
 
 		final ActorRef ref = new ActorBuilder<>(propser, system)
 			.of(NamedActor.class)
-			.build();
+			.create();
 
 		assertThat(askResult(ref, 1)).isEqualTo("bubu");
 
@@ -95,11 +96,11 @@ public class ActorBuilderTest {
 
 		final ActorRef ref = new ActorBuilder<>(propser, system)
 			.of(NamedActor.class)
-			.build();
+			.create();
 
 		assertThatThrownBy(() -> new ActorBuilder<>(propser, system)
 			.of(NamedActor.class)
-			.build())
+			.create())
 				.isInstanceOf(InvalidActorNameException.class)
 				.hasMessage("actor name [bubu] is not unique!");
 

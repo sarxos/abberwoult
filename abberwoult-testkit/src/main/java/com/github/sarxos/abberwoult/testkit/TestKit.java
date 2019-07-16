@@ -9,9 +9,9 @@ import javax.inject.Singleton;
 
 import org.awaitility.Awaitility;
 
-import com.github.sarxos.abberwoult.AbstractActorBuilder.ActorBuilderRefCreator;
-import com.github.sarxos.abberwoult.ActorBuilder;
 import com.github.sarxos.abberwoult.ActorSystemUniverse;
+import com.github.sarxos.abberwoult.builder.ActorBuilder;
+import com.github.sarxos.abberwoult.builder.Builder.ActorBuilderRefCreator;
 
 import akka.actor.Actor;
 import akka.actor.ActorIdentity;

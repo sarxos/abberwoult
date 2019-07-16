@@ -66,7 +66,7 @@ public class ActorUniverseTest {
 
 		final ActorRef ref = universe.actor()
 			.of(TestActor.class)
-			.build();
+			.create();
 
 		assertThat(askResult(ref, 2)).isEqualTo(2);
 
@@ -78,7 +78,7 @@ public class ActorUniverseTest {
 
 		final ActorRef foo = universe.actor()
 			.of(TestNamedFooActor.class)
-			.build();
+			.create();
 
 		assertThat(askResult(foo, 2)).isEqualTo(2);
 
@@ -90,7 +90,7 @@ public class ActorUniverseTest {
 
 		final ActorRef foo = universe.actor()
 			.of(TestNamedFooActor.class)
-			.build();
+			.create();
 
 		assertThat(foo.path().toString()).endsWith("/user/foo");
 
@@ -102,7 +102,7 @@ public class ActorUniverseTest {
 
 		final ActorRef foo = universe.actor()
 			.of(TestNamedActor.class)
-			.build();
+			.create();
 
 		assertThat(foo.path().toString()).endsWith("/user/" + TestNamedActor.class.getName());
 
@@ -114,14 +114,14 @@ public class ActorUniverseTest {
 
 		final ActorRef foo = universe.actor()
 			.of(TestNamedFooActor.class)
-			.build();
+			.create();
 
 		assertThat(askResult(foo, 4)).isEqualTo(4);
 
 		Assertions
 			.assertThatThrownBy(() -> universe.actor()
 				.of(TestNamedFooActor.class)
-				.build())
+				.create())
 			.isInstanceOf(InvalidActorNameException.class);
 
 		kill(foo);

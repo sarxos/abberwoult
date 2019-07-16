@@ -72,7 +72,7 @@ public class AssistedTest {
 		final ActorRef ref = testkit.actor()
 			.of(TestActorAssistedLast.class)
 			.withArguments(assisted)
-			.build();
+			.create();
 
 		final TestActorAssistedLast actor = testkit.extract(ref);
 
@@ -90,7 +90,7 @@ public class AssistedTest {
 		final ActorRef ref = testkit.actor()
 			.of(TestActorAssistedFirst.class)
 			.withArguments(assisted)
-			.build();
+			.create();
 
 		final TestActorAssistedFirst actor = testkit.extract(ref);
 

@@ -13,7 +13,7 @@ public interface Creators extends ActorInternal {
 			.withParent(getContext())
 			.of(clazz)
 			.withArguments(args)
-			.build();
+			.create();
 	}
 
 	default ActorRef actorOf(final Props props) {
@@ -21,6 +21,6 @@ public interface Creators extends ActorInternal {
 			.actor()
 			.withParent(getContext())
 			.withProps(props)
-			.build();
+			.create();
 	}
 }

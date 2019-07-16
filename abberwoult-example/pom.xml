@@ -8,12 +8,16 @@
   <version>0.0.1-SNAPSHOT</version>
   <name>Abberwoult Example</name>
 
+  <properties>
+    <quarkus.version>0.19.1</quarkus.version>
+  </properties>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>io.quarkus</groupId>
         <artifactId>quarkus-bom</artifactId>
-        <version>999-SNAPSHOT</version>
+        <version>${quarkus.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -76,7 +80,7 @@
       <plugin>
         <groupId>io.quarkus</groupId>
         <artifactId>quarkus-maven-plugin</artifactId>
-        <version>999-SNAPSHOT</version>
+        <version>${quarkus.version}</version>
         <executions>
           <execution>
             <goals>

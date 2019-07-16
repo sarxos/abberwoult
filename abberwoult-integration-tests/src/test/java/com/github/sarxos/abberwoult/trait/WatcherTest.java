@@ -42,7 +42,7 @@ public class WatcherTest {
 
 		@PreStart
 		public void setup() {
-			this.watched = actor().of(WatchedActor.class).build();
+			this.watched = actor().of(WatchedActor.class).create();
 		}
 
 		@Override
@@ -71,7 +71,7 @@ public class WatcherTest {
 		final ActorRef watcher = testkit.actor()
 			.of(WatchingActor.class)
 			.withArguments(terminated)
-			.build();
+			.create();
 
 		final WatchingActor actor = testkit.extractReady(watcher);
 

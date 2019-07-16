@@ -68,7 +68,7 @@ public class ObservedTest {
 		ref = testkit.actor()
 			.of(TestActor.class)
 			.withArguments(probe)
-			.build();
+			.create();
 
 		testkit.awaitForActor(ref);
 	}

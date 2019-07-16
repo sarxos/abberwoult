@@ -1,8 +1,8 @@
-package com.github.sarxos.abberwoult;
+package com.github.sarxos.abberwoult.builder;
 
-import static org.apache.commons.lang3.Validate.notNull;
+import static java.util.Objects.requireNonNull;
 
-import org.apache.commons.lang3.builder.Builder;
+import com.github.sarxos.abberwoult.Propser;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorRefFactory;
@@ -17,7 +17,7 @@ import io.vavr.control.Option;
  *
  * @author Bartosz Firyn (sarxos)
  */
-public abstract class AbstractActorBuilder<T, S> implements Builder<T> {
+public abstract class Builder<T, S> {
 
 	/**
 	 * {@link ActorRef} creator used in {@link ActorBuilder} to create actor reference from provided
@@ -47,9 +47,9 @@ public abstract class AbstractActorBuilder<T, S> implements Builder<T> {
 	 * @param propser the {@link Propser}
 	 * @param system the {@link ActorSystem}
 	 */
-	public AbstractActorBuilder(final Propser propser, final ActorSystem system) {
-		this.propser = notNull(propser, "Props factory must not be null!");
-		this.system = notNull(system, "Actor system must not be null!");
+	public Builder(final Propser propser, final ActorSystem system) {
+		this.propser = requireNonNull(propser, "Props factory must not be null!");
+		this.system = requireNonNull(system, "Actor system must not be null!");
 	}
 
 	/**
@@ -65,4 +65,9 @@ public abstract class AbstractActorBuilder<T, S> implements Builder<T> {
 	protected ActorSystem system() {
 		return system;
 	}
+
+	/**
+	 * @return New {@link ActorRef}
+	 */
+	abstract T create();
 }

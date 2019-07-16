@@ -66,7 +66,7 @@ public class AskableActorSelectionTest {
 	public void setup() {
 		ref = testkit.actor()
 			.of(TestClass.class)
-			.build();
+			.create();
 	}
 
 	@AfterEach

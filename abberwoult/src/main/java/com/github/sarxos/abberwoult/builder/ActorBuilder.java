@@ -1,7 +1,9 @@
-package com.github.sarxos.abberwoult;
+package com.github.sarxos.abberwoult.builder;
 
 import static org.apache.commons.lang3.ArrayUtils.EMPTY_OBJECT_ARRAY;
 
+import com.github.sarxos.abberwoult.ActorSystemUniverse;
+import com.github.sarxos.abberwoult.Propser;
 import com.github.sarxos.abberwoult.util.ActorUtils;
 
 import akka.actor.Actor;
@@ -11,7 +13,6 @@ import akka.actor.ActorRefFactory;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import io.vavr.control.Option;
-import io.vavr.control.Try;
 
 
 /**
@@ -21,7 +22,7 @@ import io.vavr.control.Try;
  *
  * @author Bartosz Firyn (sarxos)
  */
-public class ActorBuilder<S extends ActorBuilder<?>> extends AbstractActorBuilder<ActorRef, S> {
+public class ActorBuilder<S extends ActorBuilder<?>> extends Builder<ActorRef, S> {
 
 	private Option<Class<? extends Actor>> clazz = Option.none();
 	private Option<String> name = Option.none();
@@ -40,27 +41,7 @@ public class ActorBuilder<S extends ActorBuilder<?>> extends AbstractActorBuilde
 	 * @param engine the {@link ActorSystemUniverse} instance
 	 */
 	public ActorBuilder(final Propser propser, final ActorSystem system) {
-		this(propser, system, null);
-	}
-
-	/**
-	 * Copying constructor. To be used internally. Please do not use this constructor ion your code
-	 * unless you know what you are doing!
-	 *
-	 * @param engine the entity which creates various actor-related stuff
-	 * @param builder the original builder.
-	 */
-	protected ActorBuilder(final Propser propser, final ActorSystem system, final ActorBuilder<?> builder) {
-
 		super(propser, system);
-
-		if (builder != null) {
-			this.clazz = builder.clazz;
-			this.name = builder.name;
-			this.props = builder.props;
-			this.args = builder.args;
-			this.dispatcher = builder.dispatcher;
-		}
 	}
 
 	// fluent methods
@@ -203,7 +184,7 @@ public class ActorBuilder<S extends ActorBuilder<?>> extends AbstractActorBuilde
 	 * @return Actor props
 	 */
 	public Props props() {
-		Props p = props.getOrElse(() -> propser().props(clazz(), arguments()));
+		final Props p = props.getOrElse(() -> propser().props(clazz(), arguments()));
 		if (dispatcher.isDefined() || clazz.isDefined()) {
 			return p.withDispatcher(dispatcher());
 		}
@@ -247,11 +228,7 @@ public class ActorBuilder<S extends ActorBuilder<?>> extends AbstractActorBuilde
 	}
 
 	@Override
-	public ActorRef build() {
+	public ActorRef create() {
 		return create(factory(), props(), name());
-	}
-
-	public Try<ActorRef> buildTry() {
-		return Try.of(this::build);
 	}
 }

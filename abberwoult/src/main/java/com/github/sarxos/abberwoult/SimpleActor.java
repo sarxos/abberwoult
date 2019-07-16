@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 
 import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.builder.ActorBuilder;
 import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.MessageReceiverMethod;
 import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.PostStopMethod;
 import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.PreStartMethod;

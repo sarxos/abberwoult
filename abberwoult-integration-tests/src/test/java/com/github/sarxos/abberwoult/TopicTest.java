@@ -69,7 +69,7 @@ public class TopicTest {
 		testkit.actor()
 			.of(TestActor.class)
 			.withArguments(probe)
-			.build();
+			.create();
 
 		final SubscribeAck ack = probe.expectMsgClass(SubscribeAck.class);
 
@@ -86,7 +86,7 @@ public class TopicTest {
 		testkit.actor()
 			.of(TestActor.class)
 			.withArguments(probe)
-			.build();
+			.create();
 
 		probe.expectMsgClass(SubscribeAck.class);
 

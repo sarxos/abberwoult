@@ -47,7 +47,7 @@ public class ReceivedTest {
 
 		final ActorRef ref = universe.actor()
 			.of(TestActor.class)
-			.build();
+			.create();
 
 		assertThat(askResult(ref, 1)).isEqualTo(1);
 
@@ -60,7 +60,7 @@ public class ReceivedTest {
 
 		final ActorRef ref = universe.actor()
 			.of(TestActorSubclass.class)
-			.build();
+			.create();
 
 		assertThat(askResult(ref, 1)).isEqualTo(1);
 

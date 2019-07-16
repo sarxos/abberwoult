@@ -129,7 +129,7 @@ public class PreStartTest {
 		final ActorRef ref = universe.actor()
 			.of(TestActorWithSinglePreStart.class)
 			.withArguments(started)
-			.build();
+			.create();
 
 		ref.tell(PoisonPill.getInstance(), noSender());
 
@@ -145,7 +145,7 @@ public class PreStartTest {
 		final ActorRef ref = universe.actor()
 			.of(TestActorWithMultiplePreStarts.class)
 			.withArguments(started1, started2)
-			.build();
+			.create();
 
 		ref.tell(PoisonPill.getInstance(), noSender());
 
@@ -161,7 +161,7 @@ public class PreStartTest {
 		final ActorRef ref = universe.actor()
 			.of(TestSubClassActorWithSinglePreStart.class)
 			.withArguments(started)
-			.build();
+			.create();
 
 		ref.tell(PoisonPill.getInstance(), noSender());
 
@@ -177,7 +177,7 @@ public class PreStartTest {
 		final ActorRef ref = universe.actor()
 			.of(TestSubClassActorWithOverridenPreStart.class)
 			.withArguments(started1, started2)
-			.build();
+			.create();
 
 		ref.tell(PoisonPill.getInstance(), noSender());
 
@@ -193,7 +193,7 @@ public class PreStartTest {
 
 		final ActorRef ref = universe.actor()
 			.of(TestActorImplementingInterface.class)
-			.build();
+			.create();
 
 		ref.tell(PoisonPill.getInstance(), noSender());
 
