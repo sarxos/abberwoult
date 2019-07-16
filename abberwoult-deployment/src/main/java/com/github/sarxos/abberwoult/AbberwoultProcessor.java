@@ -12,21 +12,26 @@ import static io.quarkus.deployment.annotations.ExecutionTime.RUNTIME_INIT;
 import static io.quarkus.deployment.annotations.ExecutionTime.STATIC_INIT;
 import static java.util.stream.Collectors.toList;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jboss.jandex.AnnotationInstance;
 import org.jboss.jandex.AnnotationTarget;
 import org.jboss.jandex.AnnotationTarget.Kind;
+import org.jboss.jandex.AnnotationValue;
 import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.Index;
 import org.jboss.logging.Logger;
 
 import com.github.sarxos.abberwoult.cdi.BeanLocator;
-import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry;
 import com.github.sarxos.abberwoult.deployment.ActorAutostarter;
+import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry;
+import com.github.sarxos.abberwoult.deployment.error.AutostartableActorLabelAlreadyUsedException;
+import com.github.sarxos.abberwoult.deployment.error.AutostartableActorLabelValueMissingException;
 import com.github.sarxos.abberwoult.deployment.error.AutostartableActorNoArgConstrutorMissingException;
 import com.github.sarxos.abberwoult.deployment.error.AutostartableActorNotLabeledException;
 import com.github.sarxos.abberwoult.deployment.error.ImplementationMissingException;
@@ -166,18 +171,43 @@ public class AbberwoultProcessor {
 	}
 
 	private void assertIsActorLabeled(final ActorBuildItem item) {
-		if (item.getActorClass().classAnnotation(LABELED_ANNOTATION) == null) {
+
+		final AnnotationInstance annotation = item.getActorClass().classAnnotation(LABELED_ANNOTATION);
+		if (annotation == null) {
 			throw new AutostartableActorNotLabeledException(item);
 		}
+
+		final AnnotationValue value = annotation.value();
+		if (value == null) {
+			throw new AutostartableActorLabelValueMissingException(item);
+		}
+	}
+
+	private String getActorLabel(final ActorBuildItem item) {
+		return item
+			.getActorClass()
+			.classAnnotation(LABELED_ANNOTATION)
+			.value()
+			.asString();
 	}
 
 	@BuildStep
 	@Record(RUNTIME_INIT)
 	void doAutostartActors(final List<ActorBuildItem> actors, final ActorAutostarter autostarter) {
+
+		final Map<String, ActorBuildItem> labels = new HashMap<>();
+
 		actors.stream()
 			.filter(this::isAutostartPresent)
 			.peek(this::assertNoArgConstructorIsPresent)
 			.peek(this::assertIsActorLabeled)
+			.peek(item -> {
+				final String label = getActorLabel(item);
+				final ActorBuildItem other = labels.put(label, item);
+				if (other != null) {
+					throw new AutostartableActorLabelAlreadyUsedException(item, other, label);
+				}
+			})
 			.map(ActorBuildItem::getActorClassName)
 			.peek(clazz -> LOG.debugf("Autostarting actor %s", clazz))
 			.forEach(clazz -> autostarter.register(clazz));

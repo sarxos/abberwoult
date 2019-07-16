@@ -26,7 +26,7 @@ public class ActorAutostarterTest {
 	private static final AtomicBoolean started = new AtomicBoolean(false);
 
 	@Autostart
-	@Labeled("test")
+	@Labeled("autostartedactor")
 	public static class TestActor extends SimpleActor {
 
 		@PreStart

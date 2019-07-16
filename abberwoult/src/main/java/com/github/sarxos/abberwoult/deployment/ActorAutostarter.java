@@ -86,11 +86,7 @@ public class ActorAutostarter {
 	 * @param className
 	 */
 	public void register(final String className) {
-
-		final Class<?> clazz = getClazz(className);
-		final Class<? extends Actor> actor = toActorClass(clazz);
-
-		register(actor);
+		register(toActorClass(getClazz(className)));
 	}
 
 	/**
@@ -109,7 +105,7 @@ public class ActorAutostarter {
 	}
 
 	private Function<String, ActorRef> start(final Class<? extends Actor> clazz) {
-		return name -> universe.actor()
+		return className -> universe.actor()
 			.of(clazz)
 			.create();
 	}

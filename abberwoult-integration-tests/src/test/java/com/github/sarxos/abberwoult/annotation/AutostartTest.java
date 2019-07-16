@@ -21,8 +21,8 @@ import io.quarkus.test.junit.QuarkusTest;
 @QuarkusTest
 public class AutostartTest {
 
-	@Labeled
 	@Autostart
+	@Labeled("testactorstart")
 	public static class TestActorAutostart extends SimpleActor implements Utils {
 		public void onInteger(@Receives Integer i) {
 			reply(i);

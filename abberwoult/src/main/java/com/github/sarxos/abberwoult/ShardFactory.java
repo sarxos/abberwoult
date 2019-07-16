@@ -39,7 +39,7 @@ public class ShardFactory {
 	private final Duration timeout;
 
 	@Inject
-	public ShardFactory(final ClusterSharding sharding, @AskTimeout Duration timeout) {
+	ShardFactory(final ClusterSharding sharding, @AskTimeout Duration timeout) {
 		this.sharding = sharding;
 		this.timeout = timeout;
 	}
