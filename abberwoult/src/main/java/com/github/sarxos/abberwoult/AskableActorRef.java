@@ -36,6 +36,10 @@ public class AskableActorRef implements Askable<Object> {
 	private final ActorRef ref;
 	private final Duration timeout;
 
+	public AskableActorRef(final ActorRef ref) {
+		this(ref, DEFAULT_TIMEOUT);
+	}
+
 	public AskableActorRef(final ActorRef ref, final Duration timeout) {
 		this.ref = ref;
 		this.timeout = timeout;

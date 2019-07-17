@@ -16,7 +16,7 @@ import com.github.sarxos.abberwoult.annotation.Labeled;
 import com.github.sarxos.abberwoult.annotation.PostStop;
 import com.github.sarxos.abberwoult.annotation.PreStart;
 import com.github.sarxos.abberwoult.annotation.Receives;
-import com.github.sarxos.abberwoult.trait.Utils;
+import com.github.sarxos.abberwoult.dsl.Utils;
 
 import lombok.Data;
 import lombok.Getter;

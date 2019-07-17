@@ -1,4 +1,4 @@
-package com.github.sarxos.abberwoult.trait;
+package com.github.sarxos.abberwoult.dsl;
 
 import java.util.function.Supplier;
 

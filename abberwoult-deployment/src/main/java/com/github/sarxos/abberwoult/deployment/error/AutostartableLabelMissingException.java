@@ -6,11 +6,12 @@ import com.github.sarxos.abberwoult.deployment.item.ActorBuildItem;
 
 
 @SuppressWarnings("serial")
-public class AutostartableActorLabelValueMissingException extends IllegalArgumentException {
+public class AutostartableLabelMissingException extends IllegalArgumentException {
 
-	public AutostartableActorLabelValueMissingException(final ActorBuildItem item) {
+	public AutostartableLabelMissingException(final ActorBuildItem item) {
 		super(""
 			+ "Actor class " + item.getActorClassName() + " is annotated with " + Autostart.class + " "
-			+ "and " + Labeled.class + " but label value is missing");
+			+ "and therefore require " + Labeled.class + " annotation to be present on type, but no such "
+			+ "annotation has been found");
 	}
 }

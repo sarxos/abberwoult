@@ -16,8 +16,8 @@ import com.github.sarxos.abberwoult.AskableActorRef;
 import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.ActorOf;
 import com.github.sarxos.abberwoult.annotation.Receives;
-import com.github.sarxos.abberwoult.trait.Utils;
-import com.github.sarxos.abberwoult.trait.Disposers;
+import com.github.sarxos.abberwoult.dsl.Disposers;
+import com.github.sarxos.abberwoult.dsl.Utils;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.vavr.concurrent.Future;

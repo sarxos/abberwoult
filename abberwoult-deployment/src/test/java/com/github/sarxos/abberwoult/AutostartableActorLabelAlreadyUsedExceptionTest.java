@@ -7,7 +7,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import com.github.sarxos.abberwoult.annotation.Autostart;
 import com.github.sarxos.abberwoult.annotation.Labeled;
-import com.github.sarxos.abberwoult.deployment.error.AutostartableActorLabelAlreadyUsedException;
+import com.github.sarxos.abberwoult.deployment.error.AutostartableLabelAlreadyUsedException;
 
 import io.quarkus.test.QuarkusUnitTest;
 
@@ -25,8 +25,8 @@ public class AutostartableActorLabelAlreadyUsedExceptionTest {
 	}
 
 	@RegisterExtension
-	static final QuarkusUnitTest config = new QuarkusUnitTest()
-		.setExpectedException(AutostartableActorLabelAlreadyUsedException.class)
+	static final QuarkusUnitTest test = new QuarkusUnitTest()
+		.setExpectedException(AutostartableLabelAlreadyUsedException.class)
 		.setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class));
 
 	@Test

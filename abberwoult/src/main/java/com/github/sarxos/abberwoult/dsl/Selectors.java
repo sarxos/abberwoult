@@ -1,4 +1,4 @@
-package com.github.sarxos.abberwoult.trait;
+package com.github.sarxos.abberwoult.dsl;
 
 import static com.github.sarxos.abberwoult.util.ActorUtils.getActorPath;
 

@@ -6,7 +6,7 @@ import javax.inject.Inject;
 
 import com.github.sarxos.abberwoult.ActorSystemUniverse;
 import com.github.sarxos.abberwoult.SimpleActor;
-import com.github.sarxos.abberwoult.trait.Utils;
+import com.github.sarxos.abberwoult.dsl.Utils;
 
 import akka.actor.ActorRef;
 import akka.actor.PoisonPill;

@@ -1,4 +1,4 @@
-package com.github.sarxos.abberwoult.trait;
+package com.github.sarxos.abberwoult.dsl;
 
 import akka.actor.Actor;
 import akka.actor.ActorRef;

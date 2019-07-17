@@ -30,10 +30,10 @@ import org.jboss.logging.Logger;
 import com.github.sarxos.abberwoult.cdi.BeanLocator;
 import com.github.sarxos.abberwoult.deployment.ActorAutostarter;
 import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry;
-import com.github.sarxos.abberwoult.deployment.error.AutostartableActorLabelAlreadyUsedException;
-import com.github.sarxos.abberwoult.deployment.error.AutostartableActorLabelValueMissingException;
-import com.github.sarxos.abberwoult.deployment.error.AutostartableActorNoArgConstrutorMissingException;
-import com.github.sarxos.abberwoult.deployment.error.AutostartableActorNotLabeledException;
+import com.github.sarxos.abberwoult.deployment.error.AutostartableLabelAlreadyUsedException;
+import com.github.sarxos.abberwoult.deployment.error.AutostartableLabelValueMissingException;
+import com.github.sarxos.abberwoult.deployment.error.AutostartableNoArgConstrutorMissingException;
+import com.github.sarxos.abberwoult.deployment.error.AutostartableLabelMissingException;
 import com.github.sarxos.abberwoult.deployment.error.ImplementationMissingException;
 import com.github.sarxos.abberwoult.deployment.item.ActorBuildItem;
 import com.github.sarxos.abberwoult.deployment.item.FieldReaderBuildItem;
@@ -166,7 +166,7 @@ public class AbberwoultProcessor {
 
 	private void assertNoArgConstructorIsPresent(final ActorBuildItem item) {
 		if (!item.getActorClass().hasNoArgsConstructor()) {
-			throw new AutostartableActorNoArgConstrutorMissingException(item);
+			throw new AutostartableNoArgConstrutorMissingException(item);
 		}
 	}
 
@@ -174,12 +174,12 @@ public class AbberwoultProcessor {
 
 		final AnnotationInstance annotation = item.getActorClass().classAnnotation(LABELED_ANNOTATION);
 		if (annotation == null) {
-			throw new AutostartableActorNotLabeledException(item);
+			throw new AutostartableLabelMissingException(item);
 		}
 
 		final AnnotationValue value = annotation.value();
 		if (value == null) {
-			throw new AutostartableActorLabelValueMissingException(item);
+			throw new AutostartableLabelValueMissingException(item);
 		}
 	}
 
@@ -205,7 +205,7 @@ public class AbberwoultProcessor {
 				final String label = getActorLabel(item);
 				final ActorBuildItem other = labels.put(label, item);
 				if (other != null) {
-					throw new AutostartableActorLabelAlreadyUsedException(item, other, label);
+					throw new AutostartableLabelAlreadyUsedException(item, other, label);
 				}
 			})
 			.map(ActorBuildItem::getActorClassName)

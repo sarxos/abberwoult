@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import com.github.sarxos.abberwoult.AskableActorSelection;
 import com.github.sarxos.abberwoult.SimpleActor;
-import com.github.sarxos.abberwoult.trait.Utils;
+import com.github.sarxos.abberwoult.dsl.Utils;
 
 import io.quarkus.test.junit.QuarkusTest;
 

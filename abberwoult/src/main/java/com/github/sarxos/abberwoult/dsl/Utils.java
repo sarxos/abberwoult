@@ -1,4 +1,4 @@
-package com.github.sarxos.abberwoult.trait;
+package com.github.sarxos.abberwoult.dsl;
 
 import static java.util.Objects.requireNonNull;
 
@@ -6,7 +6,9 @@ import java.util.function.Supplier;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
+import akka.actor.Scheduler;
 import io.vavr.control.Option;
+import scala.concurrent.ExecutionContextExecutor;
 
 
 public interface Utils extends ActorInternal {
@@ -89,5 +91,13 @@ public interface Utils extends ActorInternal {
 	 */
 	default void forward(final ActorSelection sel, final Object message) {
 		sel.forward(message, getContext());
+	}
+
+	default ExecutionContextExecutor dispatcher() {
+		return getContext().dispatcher();
+	}
+
+	default Scheduler scheduler() {
+		return getContext().system().getScheduler();
 	}
 }

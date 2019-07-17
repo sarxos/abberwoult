@@ -18,10 +18,10 @@ import org.junit.jupiter.api.Test;
 import com.github.sarxos.abberwoult.annotation.ActorOf;
 import com.github.sarxos.abberwoult.annotation.Labeled;
 import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.dsl.Disposers;
+import com.github.sarxos.abberwoult.dsl.Utils;
 import com.github.sarxos.abberwoult.testkit.TestKit;
 import com.github.sarxos.abberwoult.testkit.TestKitProbe;
-import com.github.sarxos.abberwoult.trait.Utils;
-import com.github.sarxos.abberwoult.trait.Disposers;
 
 import akka.actor.ActorRef;
 import akka.actor.PoisonPill;

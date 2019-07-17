@@ -11,10 +11,10 @@ import org.junit.jupiter.api.Test;
 import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.PreStart;
 import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.dsl.Events;
+import com.github.sarxos.abberwoult.dsl.Utils;
 import com.github.sarxos.abberwoult.testkit.TestKit;
 import com.github.sarxos.abberwoult.testkit.TestKitProbe;
-import com.github.sarxos.abberwoult.trait.Utils;
-import com.github.sarxos.abberwoult.trait.Events;
 
 import akka.actor.ActorRef;
 import io.quarkus.test.junit.QuarkusTest;

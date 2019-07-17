@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.ActorOf;
 import com.github.sarxos.abberwoult.annotation.Receives;
-import com.github.sarxos.abberwoult.trait.Utils;
+import com.github.sarxos.abberwoult.dsl.Utils;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;

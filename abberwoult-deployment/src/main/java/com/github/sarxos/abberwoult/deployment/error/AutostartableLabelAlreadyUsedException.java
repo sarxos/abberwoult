@@ -5,9 +5,9 @@ import com.github.sarxos.abberwoult.deployment.item.ActorBuildItem;
 
 
 @SuppressWarnings("serial")
-public class AutostartableActorLabelAlreadyUsedException extends IllegalArgumentException {
+public class AutostartableLabelAlreadyUsedException extends IllegalArgumentException {
 
-	public AutostartableActorLabelAlreadyUsedException(final ActorBuildItem item, final ActorBuildItem other, final String label) {
+	public AutostartableLabelAlreadyUsedException(final ActorBuildItem item, final ActorBuildItem other, final String label) {
 		super(""
 			+ "Actor class " + item.getActorClassName() + " annotated with " + Autostart.class + " "
 			+ "is labeled with '" + label + "', but actor class " + other.getActorClassName() + " "

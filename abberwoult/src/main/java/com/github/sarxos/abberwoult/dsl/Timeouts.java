@@ -1,4 +1,4 @@
-package com.github.sarxos.abberwoult.trait;
+package com.github.sarxos.abberwoult.dsl;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;

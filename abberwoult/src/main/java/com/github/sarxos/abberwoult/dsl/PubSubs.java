@@ -1,4 +1,4 @@
-package com.github.sarxos.abberwoult.trait;
+package com.github.sarxos.abberwoult.dsl;
 
 import com.github.sarxos.abberwoult.Topic;
 import com.github.sarxos.abberwoult.annotation.Receives;

@@ -5,7 +5,7 @@ import javax.inject.Singleton;
 import javax.validation.Validator;
 
 import com.github.sarxos.abberwoult.builder.ActorBuilder;
-import com.github.sarxos.abberwoult.trait.Selectors;
+import com.github.sarxos.abberwoult.dsl.Selectors;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;

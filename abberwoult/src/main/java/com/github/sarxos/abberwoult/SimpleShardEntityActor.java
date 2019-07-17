@@ -1,6 +1,6 @@
 package com.github.sarxos.abberwoult;
 
-import com.github.sarxos.abberwoult.trait.Timeouts;
+import com.github.sarxos.abberwoult.dsl.Timeouts;
 
 import akka.actor.ActorRef;
 import akka.actor.PoisonPill;

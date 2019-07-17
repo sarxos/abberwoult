@@ -12,10 +12,10 @@ import com.github.sarxos.abberwoult.annotation.Assisted;
 import com.github.sarxos.abberwoult.annotation.Labeled;
 import com.github.sarxos.abberwoult.annotation.PreStart;
 import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.dsl.PubSubs;
+import com.github.sarxos.abberwoult.dsl.Utils;
 import com.github.sarxos.abberwoult.testkit.TestKit;
 import com.github.sarxos.abberwoult.testkit.TestKitProbe;
-import com.github.sarxos.abberwoult.trait.Utils;
-import com.github.sarxos.abberwoult.trait.PubSubs;
 
 import akka.actor.ActorRef;
 import akka.cluster.pubsub.DistributedPubSubMediator.SubscribeAck;

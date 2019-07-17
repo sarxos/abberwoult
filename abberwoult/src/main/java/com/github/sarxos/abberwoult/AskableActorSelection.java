@@ -21,6 +21,10 @@ public class AskableActorSelection implements Askable<Object> {
 	private final ActorSelection selection;
 	private final Duration timeout;
 
+	public AskableActorSelection(final ActorSelection selection) {
+		this(selection, DEFAULT_TIMEOUT);
+	}
+
 	public AskableActorSelection(final ActorSelection selection, final Duration timeout) {
 		this.selection = selection;
 		this.timeout = timeout;

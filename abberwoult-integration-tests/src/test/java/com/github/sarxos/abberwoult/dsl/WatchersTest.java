@@ -1,4 +1,4 @@
-package com.github.sarxos.abberwoult.trait;
+package com.github.sarxos.abberwoult.dsl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.PreStart;
 import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.dsl.Utils;
+import com.github.sarxos.abberwoult.dsl.Watchers;
 import com.github.sarxos.abberwoult.testkit.TestKit;
 import com.github.sarxos.abberwoult.util.ActorUtils;
 
@@ -22,7 +24,7 @@ import io.quarkus.test.junit.QuarkusTest;
 
 
 @QuarkusTest
-public class WatcherTest {
+public class WatchersTest {
 
 	static class WatchMsg {
 	}
@@ -31,7 +33,7 @@ public class WatcherTest {
 
 	}
 
-	public static class WatchingActor extends SimpleActor implements Watcher, Utils {
+	public static class WatchingActor extends SimpleActor implements Watchers, Utils {
 
 		private final AtomicBoolean terminated;
 		private ActorRef watched;

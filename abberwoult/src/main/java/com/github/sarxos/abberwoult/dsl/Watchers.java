@@ -1,4 +1,4 @@
-package com.github.sarxos.abberwoult.trait;
+package com.github.sarxos.abberwoult.dsl;
 
 import com.github.sarxos.abberwoult.annotation.Receives;
 
@@ -6,7 +6,7 @@ import akka.actor.ActorRef;
 import akka.actor.Terminated;
 
 
-public interface Watcher extends ActorInternal {
+public interface Watchers extends ActorInternal {
 
 	/**
 	 * Watch given {@link ActorRef}.

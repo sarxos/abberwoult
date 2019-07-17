@@ -8,9 +8,9 @@ import org.junit.jupiter.api.Test;
 
 import com.github.sarxos.abberwoult.ActorSystemUniverse;
 import com.github.sarxos.abberwoult.SimpleActor;
+import com.github.sarxos.abberwoult.dsl.Utils;
 import com.github.sarxos.abberwoult.testkit.TestKit;
 import com.github.sarxos.abberwoult.testkit.TestKitProbe;
-import com.github.sarxos.abberwoult.trait.Utils;
 
 import akka.actor.ActorRef;
 import akka.event.EventStream;
