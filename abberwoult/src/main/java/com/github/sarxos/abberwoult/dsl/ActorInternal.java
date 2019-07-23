@@ -2,7 +2,7 @@ package com.github.sarxos.abberwoult.dsl;
 
 import com.github.sarxos.abberwoult.ActorSystemUniverse;
 
-import akka.actor.ActorContext;
+import akka.actor.AbstractActor.ActorContext;
 import akka.actor.ActorRef;
 
 

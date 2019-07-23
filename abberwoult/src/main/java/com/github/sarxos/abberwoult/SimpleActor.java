@@ -12,7 +12,10 @@ import java.util.function.Consumer;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
 
+import com.github.sarxos.abberwoult.annotation.PostStop;
+import com.github.sarxos.abberwoult.annotation.PreStart;
 import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.builder.ActorBuilder;
 import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.MessageReceiverMethod;
@@ -25,7 +28,6 @@ import com.github.sarxos.abberwoult.exception.PreStartInvocationException;
 
 import akka.actor.AbstractActor;
 import akka.actor.PoisonPill;
-import akka.actor.TypedActor.PreStart;
 import akka.japi.pf.ReceiveBuilder;
 
 
@@ -49,12 +51,13 @@ public abstract class SimpleActor extends AbstractActor {
 	 * Invoke all {@link PreStart} bindings. This methods is final because we do not want anyone to
 	 * override it. If someone override it then {@link PreStart} bindings will not work in such an
 	 * actor. It's important to note that {@link PreStart} bindings are invoked only after actor
-	 * instance is created and all injection points are wired. Is called when an Actor is started.
+	 * instance is created and all injection points are wired. Is called when an actor is started.
 	 * Actors are automatically started asynchronously after they are created. There is no need to
 	 * start it manually.
 	 *
 	 * @see akka.actor.AbstractActor#preStart()
 	 */
+	// final, we do not want anyone to override it (use annotation binding instead)
 	@Override
 	public final void preStart() throws Exception {
 		final Class<?> clazz = getClass();
@@ -62,7 +65,15 @@ public abstract class SimpleActor extends AbstractActor {
 		getObservedEventsFor(clazz).forEach(this::subscribeEvent);
 	}
 
-	// final, we do not want anyone to override it
+	/**
+	 * Invoke all {@link PostStop} bindings. This methods is final because we do not want anyone to
+	 * override it. If someone override it then {@link PostStop} bindings will not work in such
+	 * actor. Is called when an actor context is stopped, actor is killed with {@link PoisonPill} or
+	 * when it dies due to exception being thrown from the message processing.
+	 *
+	 * @see akka.actor.AbstractActor#postStop()
+	 */
+	// final, we do not want anyone to override it (use annotation binding instead)
 	@Override
 	public final void postStop() throws Exception {
 		getPostStopsFor(getClass()).forEach(this::invokePostStop);
@@ -210,7 +221,8 @@ public abstract class SimpleActor extends AbstractActor {
 	 */
 	private <T> T validate(final T message) {
 
-		final Set<ConstraintViolation<T>> violations = universe.validator().validate(message);
+		final Validator validator = universe.validator();
+		final Set<ConstraintViolation<T>> violations = validator.validate(message);
 
 		if (violations.isEmpty()) {
 			return message;
