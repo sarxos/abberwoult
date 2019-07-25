@@ -13,8 +13,8 @@ import scala.concurrent.duration.FiniteDuration;
 
 
 /**
- * This interface should be implemented by actor class whenever class should be able to deal with a
- * receive timeouts.
+ * This interface can be implemented by the actor whenever it should be able to deal with a receive
+ * timeouts.
  *
  * @author Bartosz Firyn (sarxos)
  */

@@ -6,10 +6,14 @@ import static java.util.stream.Collectors.toMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.function.Function;
@@ -26,6 +30,8 @@ import java.util.stream.StreamSupport;
  * @author Bartosz Firyn (sarxos)
  */
 public class CollectorUtils {
+
+	private static final Deque<Object> EMPTY_DEQUE = new EmptyDeque<>();
 
 	/**
 	 * Collect {@link Stream} elements into the {@link ArrayList} with the same size as the input
@@ -138,5 +144,191 @@ public class CollectorUtils {
 
 	public static <T> List<T> optimizedList(final Collection<T> list) {
 		return list.stream().collect(toListWithSameSizeAs(list));
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> Deque<T> emptyDeque() {
+		return (Deque<T>) EMPTY_DEQUE;
+	}
+}
+
+final class EmptyDeque<T> implements Deque<T> {
+
+	private static final Object[] EMPTY_ARRAY = new Object[0];
+
+	@Override
+	public boolean isEmpty() {
+		return true;
+	}
+
+	@Override
+	public Object[] toArray() {
+		return EMPTY_ARRAY;
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public <R> R[] toArray(R[] a) {
+		return (R[]) EMPTY_ARRAY;
+	}
+
+	@Override
+	public boolean containsAll(Collection<?> c) {
+		return false;
+	}
+
+	@Override
+	public boolean addAll(Collection<? extends T> c) {
+		throw new UnsupportedOperationException("Adding elements to this deque is forbidden");
+	}
+
+	@Override
+	public boolean removeAll(Collection<?> c) {
+		return false;
+	}
+
+	@Override
+	public boolean retainAll(Collection<?> c) {
+		return false;
+	}
+
+	@Override
+	public void clear() {
+		// do nothing
+	}
+
+	@Override
+	public void addFirst(T e) {
+		throw new UnsupportedOperationException("Adding element to this deque is forbidden");
+	}
+
+	@Override
+	public void addLast(T e) {
+		throw new UnsupportedOperationException("Adding element to this deque is forbidden");
+	}
+
+	@Override
+	public boolean offerFirst(T e) {
+		throw new UnsupportedOperationException("Adding element to this deque is forbidden");
+	}
+
+	@Override
+	public boolean offerLast(T e) {
+		throw new UnsupportedOperationException("Adding element to this deque is forbidden");
+	}
+
+	@Override
+	public T removeFirst() {
+		throw new NoSuchElementException("This deque is empty by default");
+	}
+
+	@Override
+	public T removeLast() {
+		throw new NoSuchElementException("This deque is empty by default");
+	}
+
+	@Override
+	public T pollFirst() {
+		return null;
+	}
+
+	@Override
+	public T pollLast() {
+		return null;
+	}
+
+	@Override
+	public T getFirst() {
+		throw new NoSuchElementException("This deque is empty by default");
+	}
+
+	@Override
+	public T getLast() {
+		throw new NoSuchElementException("This deque is empty by default");
+	}
+
+	@Override
+	public T peekFirst() {
+		return null;
+	}
+
+	@Override
+	public T peekLast() {
+		return null;
+	}
+
+	@Override
+	public boolean removeFirstOccurrence(Object o) {
+		return false;
+	}
+
+	@Override
+	public boolean removeLastOccurrence(Object o) {
+		return false;
+	}
+
+	@Override
+	public boolean add(T e) {
+		return false;
+	}
+
+	@Override
+	public boolean offer(T e) {
+		return offerLast(e);
+	}
+
+	@Override
+	public T remove() {
+		return removeFirst();
+	}
+
+	@Override
+	public T poll() {
+		return pollFirst();
+	}
+
+	@Override
+	public T element() {
+		return getFirst();
+	}
+
+	@Override
+	public T peek() {
+		return peekFirst();
+	}
+
+	@Override
+	public void push(T e) {
+		throw new UnsupportedOperationException("Adding element to this deque is forbidden");
+	}
+
+	@Override
+	public T pop() {
+		return removeFirst();
+	}
+
+	@Override
+	public boolean remove(Object o) {
+		return false;
+	}
+
+	@Override
+	public boolean contains(Object o) {
+		return false;
+	}
+
+	@Override
+	public int size() {
+		return 0;
+	}
+
+	@Override
+	public Iterator<T> iterator() {
+		return Collections.emptyIterator();
+	}
+
+	@Override
+	public Iterator<T> descendingIterator() {
+		return Collections.emptyIterator();
 	}
 }

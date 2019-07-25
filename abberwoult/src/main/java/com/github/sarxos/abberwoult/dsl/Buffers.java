@@ -1,10 +1,13 @@
 package com.github.sarxos.abberwoult.dsl;
 
+import static com.github.sarxos.abberwoult.util.CollectorUtils.emptyDeque;
+import static io.vavr.Predicates.instanceOf;
 import static io.vavr.Predicates.is;
 
 import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.LinkedList;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -22,16 +25,52 @@ import io.vavr.control.Option;
 import scala.concurrent.ExecutionContext;
 
 
+/**
+ * This interface can be implemented by the actor whenever it should be able to deal with a messages
+ * buffering logic.
+ *
+ * @author Bartosz Firyn (sarxos)
+ */
 public interface Buffers extends ActorInternal {
 
+	/**
+	 * The buffering abstraction.
+	 */
 	interface Buffer<T> {
 
+		/**
+		 * Get buffered messages.
+		 *
+		 * @return Buffered messages
+		 */
 		Deque<BufferMessage> getMessages();
 
+		/**
+		 * Given callback will be invoked when buffering timed out.
+		 *
+		 * @param duration the timeout duration
+		 * @param callback the callback to be invoked after {@link Buffer} timed out
+		 * @return This {@link Buffer}
+		 */
 		Buffer<T> onTimeout(final Duration duration, final Consumer<Deque<BufferMessage>> callback);
 
+		/**
+		 * This callback will be invoked when buffering is completed with success (underlying
+		 * decided decided to stop buffering).
+		 *
+		 * @param callback the callback to be invoked
+		 * @return This {@link Buffer}
+		 */
 		Buffer<T> onSuccess(final Consumer<T> callback);
 
+		/**
+		 * This callback will be invoked when buffering failed because {@link Buffer} received some
+		 * {@link Throwable} message. When failure behavior is not defined all {@link Throwable}
+		 * messages will be buffered.
+		 *
+		 * @param callback the callback to be invoked with {@link Throwable} as the argument
+		 * @return This {@link Buffer}
+		 */
 		Buffer<T> onFailure(final Consumer<Throwable> callback);
 	}
 
@@ -70,38 +109,101 @@ public interface Buffers extends ActorInternal {
 		}
 	}
 
+	/**
+	 * A class to abstract message stored in a {@link Buffer}.
+	 */
 	final class BufferMessage {
 
-		final Object value;
-		final ActorRef sender;
+		private final Object value;
+		private final ActorRef sender;
 
 		BufferMessage(final Object value, final ActorRef sender) {
 			this.value = value;
 			this.sender = sender;
 		}
+
+		/**
+		 * @return The message itself
+		 */
+		public Object getValue() {
+			return value;
+		}
+
+		/**
+		 * @return The message sender
+		 */
+		public ActorRef getSender() {
+			return sender;
+		}
 	}
 
+	/**
+	 * Create {@link Buffer} and start buffering all incoming messages until given message is
+	 * received by the actor. Previous {@link Receive} behavior is put on a stack from where it will
+	 * be popped automatically when this {@link Buffer} is completed (when succeeded, failed or
+	 * timed out).
+	 *
+	 * @param <T> the expected message type
+	 * @param message the expected message
+	 * @return New {@link Buffer} which will hold buffered messages
+	 */
 	default <T> Buffer<T> bufferUntilReceivedMessage(final T message) {
-		return new BufferImpl<>(getContext(), new BufferDecider<>(is(message)));
+		return bufferUntilDecidedBy(new BufferDecider<>(is(message)));
 	}
 
+	/**
+	 * Create {@link Buffer} and start buffering all incoming messages until message of a given
+	 * class is received by the actor. Previous {@link Receive} behavior is put on a stack from
+	 * where it will be popped automatically when this {@link Buffer} is completed (when succeeded,
+	 * failed or timed out).
+	 *
+	 * @param <T> the expected message type
+	 * @param clazz the expected message class
+	 * @return New {@link Buffer} which will hold buffered messages
+	 */
 	default <T> Buffer<T> bufferUntilReceivedMessageOf(final Class<T> clazz) {
-		return new BufferImpl<>(getContext(), new BufferDecider<>(clazz::isInstance));
+		return bufferUntilDecidedBy(new BufferDecider<>(instanceOf(clazz)));
 	}
 
-	default Buffer<Object> bufferUntil(final Predicate<Object> predicate) {
-		return new BufferImpl<>(getContext(), new BufferDecider<>(predicate));
+	/**
+	 * Create {@link Buffer} and start buffering all incoming messages until given predicate is
+	 * resolved by one of the received messages. Previous {@link Receive} behavior is put on a stack
+	 * from where it will be popped automatically when this {@link Buffer} is completed (when
+	 * succeeded, failed or timed out).
+	 *
+	 * @param <T> the expected message type
+	 * @param clazz the expected message class
+	 * @return New {@link Buffer} which will hold buffered messages
+	 */
+	default <T> Buffer<T> bufferUntil(final Predicate<Object> predicate) {
+		return bufferUntilDecidedBy(new BufferDecider<Object>(predicate));
 	}
 
-	default <T> Buffer<Object> bufferUntilDecidedBy(final Decider<Object> decider) {
+	/**
+	 * Create {@link Buffer} and start buffering all incoming messages until given {@link Decider}
+	 * decide to stop. Previous {@link Receive} behavior is put on a stack from where it will be
+	 * popped automatically when this {@link Buffer} is completed (when succeeded, failed or timed
+	 * out).
+	 *
+	 * @param <T> the expected message type
+	 * @param decider the buffering completion decision maker
+	 * @return New {@link Buffer} which will hold buffered messages
+	 */
+	default <T> Buffer<T> bufferUntilDecidedBy(final Decider<Object> decider) {
 		return new BufferImpl<>(getContext(), decider);
 	}
 }
 
+/**
+ * This is {@link Buffer} implementation.
+ *
+ * @author Bartosz Firyn (sarxos)
+ * @param <T> the generic type used for inference
+ */
 final class BufferImpl<T> implements Buffer<T> {
 
-	private final Object btt = new Object();
-	private final Deque<BufferMessage> messages = new ArrayDeque<>(1);
+	private final Object cancellation = new Object();
+	private final Deque<BufferMessage> messages = new LinkedList<>();
 	private final ActorContext context;
 	private final Decider<Object> decider;
 	private Option<BufferTimeout<T>> timeout = Option.none();
@@ -110,7 +212,7 @@ final class BufferImpl<T> implements Buffer<T> {
 
 	BufferImpl(final ActorContext context, final Decider<Object> decider) {
 		this.context = context;
-		this.context.become(processor());
+		this.context.become(processor(), false); // false = do not discard old behavior
 		this.decider = decider;
 	}
 
@@ -140,7 +242,7 @@ final class BufferImpl<T> implements Buffer<T> {
 	private Receive processor() {
 		return ReceiveBuilder.create()
 			.match(Throwable.class, this::failure)
-			.matchEquals(btt, this::timeout)
+			.matchEquals(cancellation, this::timeout)
 			.matchAny(this::process)
 			.build();
 	}
@@ -153,19 +255,32 @@ final class BufferImpl<T> implements Buffer<T> {
 		}
 	}
 
-	private void timeout(final Object trigger) {
+	private void timeout(final Object cancellation) {
+
+		final Deque<BufferMessage> data;
+
+		if (messages.isEmpty()) {
+			data = emptyDeque();
+		} else {
+			data = new ArrayDeque<>(messages);
+		}
+
 		try {
-			timeout.forEach(callback -> callback.invoke(messages));
+			timeout.forEach(callback -> callback.invoke(data));
 		} finally {
 			release();
 		}
 	}
 
 	private void failure(final Object message) {
-		try {
-			failure.forEach(handler -> handler.accept((Throwable) message));
-		} finally {
-			release();
+		if (failure.isDefined()) {
+			try {
+				failure.forEach(handler -> handler.accept((Throwable) message));
+			} finally {
+				release();
+			}
+		} else {
+			store(message);
 		}
 	}
 
@@ -189,8 +304,8 @@ final class BufferImpl<T> implements Buffer<T> {
 
 	private void resend(final BufferMessage message) {
 
-		final Object value = message.value;
-		final ActorRef sender = message.sender;
+		final Object value = message.getValue();
+		final ActorRef sender = message.getSender();
 
 		context
 			.self()
@@ -211,7 +326,7 @@ final class BufferImpl<T> implements Buffer<T> {
 	 * @return New {@link BufferTimeout} instance
 	 */
 	private BufferTimeout<T> createTimeout(final Duration duration, final Consumer<Deque<BufferMessage>> callback) {
-		return new BufferTimeout<>(schedule(duration, btt), callback);
+		return new BufferTimeout<>(schedule(duration, cancellation), callback);
 	}
 
 	/**
@@ -243,12 +358,12 @@ class BufferDecider<T> extends Decider<T> {
 
 	private final Predicate<Object> predicate;
 
-	public BufferDecider(final Predicate<Object> predicate) {
+	BufferDecider(final Predicate<Object> predicate) {
 		this.predicate = predicate;
 	}
 
 	@Override
-	public final boolean test(final Object object) {
+	public boolean test(final Object object) {
 		return predicate.test(object);
 	}
 }

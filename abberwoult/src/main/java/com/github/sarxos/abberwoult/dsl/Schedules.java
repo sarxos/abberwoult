@@ -20,6 +20,12 @@ import akka.actor.Scheduler;
 import scala.concurrent.ExecutionContext;
 
 
+/**
+ * This interface can be implemented by the actor whenever it should be able to deal with a
+ * scheduled tasks.
+ *
+ * @author Bartosz Firyn (sarxos)
+ */
 public interface Schedules extends ActorInternal {
 
 	/**
