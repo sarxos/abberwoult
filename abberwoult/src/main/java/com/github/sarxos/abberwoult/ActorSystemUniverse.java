@@ -53,7 +53,7 @@ public class ActorSystemUniverse implements Selectors {
 	 * @return New actor builder
 	 */
 	public ActorBuilder<?> actor() {
-		return new ActorBuilder<>(propser, system);
+		return new ActorBuilder<>(this);
 	}
 
 	public EventStream getEventStream() {

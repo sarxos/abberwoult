@@ -1,24 +1,26 @@
 package com.github.sarxos.abberwoult;
 
+import static com.github.sarxos.abberwoult.util.ActorUtils.getMailboxId;
+import static com.github.sarxos.abberwoult.util.ActorUtils.getMessageDispatcherId;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.github.sarxos.abberwoult.cdi.BeanLocator;
-import com.github.sarxos.abberwoult.util.ActorUtils;
 
 import akka.actor.Actor;
 import akka.actor.Props;
 
 
 /**
- * This is injectable factory service which creates {@link Props} instances used to build
- * actors. Every {@link Props} object created by this factory keeps reference to the special
- * {@link ActorCreator} responsible for creating and wiring actor instances. This factory can
- * be injected but does not have to.
+ * This is injectable factory service which creates {@link Props} instances used to build actors.
+ * Every {@link Props} object created by this factory keeps reference to the special
+ * {@link ActorCreator} responsible for creating and wiring actor instances. This factory can be
+ * injected but does not have to.
  *
  * @author Bartosz Firyn (sarxos)
  */
-@Singleton 
+@Singleton
 public class Propser {
 
 	/**
@@ -46,7 +48,7 @@ public class Propser {
 	public <T extends Actor> Props props(final Class<T> clazz, final Object... args) {
 		return Props
 			.create(clazz, new ActorCreator<T>(locator, clazz, args))
-			.withDispatcher(ActorUtils.getMessageDispatcherId(clazz))
-			.withMailbox(ActorUtils.getMailboxId(clazz));
+			.withDispatcher(getMessageDispatcherId(clazz))
+			.withMailbox(getMailboxId(clazz));
 	}
 }

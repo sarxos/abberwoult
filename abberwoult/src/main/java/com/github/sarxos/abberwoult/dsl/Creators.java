@@ -10,8 +10,8 @@ public interface Creators extends ActorInternal {
 	default ActorRef actorOf(final Class<? extends Actor> clazz, final Object... args) {
 		return getUniverse()
 			.actor()
-			.withParent(getContext())
 			.of(clazz)
+			.withParent(getContext())
 			.withArguments(args)
 			.create();
 	}
@@ -19,8 +19,8 @@ public interface Creators extends ActorInternal {
 	default ActorRef actorOf(final Props props) {
 		return getUniverse()
 			.actor()
+			.of(props)
 			.withParent(getContext())
-			.withProps(props)
 			.create();
 	}
 }

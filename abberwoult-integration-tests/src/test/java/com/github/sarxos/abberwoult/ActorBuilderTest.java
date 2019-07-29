@@ -55,10 +55,13 @@ public class ActorBuilderTest {
 	@Inject
 	ActorSystem system;
 
+	@Inject
+	ActorSystemUniverse universe;
+
 	@Test
 	void test_buildOridinaryActor() throws Exception {
 
-		final ActorRef ref = new ActorBuilder<>(propser, system)
+		final ActorRef ref = new ActorBuilder<>(universe)
 			.of(OrdinaryActor.class)
 			.create();
 
@@ -70,7 +73,7 @@ public class ActorBuilderTest {
 	@Test
 	void test_buildUnnamedActor() throws Exception {
 
-		final ActorRef ref = new ActorBuilder<>(propser, system)
+		final ActorRef ref = new ActorBuilder<>(universe)
 			.of(UnnamedActor.class)
 			.create();
 
@@ -82,7 +85,7 @@ public class ActorBuilderTest {
 	@Test
 	void test_buildNamedActor() throws Exception {
 
-		final ActorRef ref = new ActorBuilder<>(propser, system)
+		final ActorRef ref = new ActorBuilder<>(universe)
 			.of(NamedActor.class)
 			.create();
 
@@ -94,11 +97,11 @@ public class ActorBuilderTest {
 	@Test
 	void test_buildNamedActorTwice() throws Exception {
 
-		final ActorRef ref = new ActorBuilder<>(propser, system)
+		final ActorRef ref = new ActorBuilder<>(universe)
 			.of(NamedActor.class)
 			.create();
 
-		assertThatThrownBy(() -> new ActorBuilder<>(propser, system)
+		assertThatThrownBy(() -> new ActorBuilder<>(universe)
 			.of(NamedActor.class)
 			.create())
 				.isInstanceOf(InvalidActorNameException.class)

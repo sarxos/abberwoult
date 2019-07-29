@@ -11,7 +11,7 @@ import org.awaitility.Awaitility;
 
 import com.github.sarxos.abberwoult.ActorSystemUniverse;
 import com.github.sarxos.abberwoult.builder.ActorBuilder;
-import com.github.sarxos.abberwoult.builder.Builder.ActorBuilderRefCreator;
+import com.github.sarxos.abberwoult.builder.ActorBuilderRefCreator;
 
 import akka.actor.Actor;
 import akka.actor.ActorIdentity;

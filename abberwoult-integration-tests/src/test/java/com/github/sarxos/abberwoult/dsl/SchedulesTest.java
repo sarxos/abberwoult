@@ -337,12 +337,6 @@ public class SchedulesTest {
 			}
 
 			@Override
-			public void onScheduleRemoveMsg(@Receives ScheduleRemoveMsg msg) {
-				Schedules.super.onScheduleRemoveMsg(msg);
-				forward(probe, msg);
-			}
-
-			@Override
 			public Map<String, Schedule> getSchedules() {
 				return schedules;
 			}
@@ -364,12 +358,6 @@ public class SchedulesTest {
 		Assertions
 			.assertThat(cancelled)
 			.isTrue();
-
-		final ScheduleRemoveMsg msg = probe.expectMsgClass(ScheduleRemoveMsg.class);
-
-		Assertions
-			.assertThat(msg.getName())
-			.isEqualTo("bubu");
 
 		Assertions
 			.assertThat(actor.getSchedules())
