@@ -45,10 +45,11 @@ import io.quarkus.arc.deployment.UnremovableBeanBuildItem;
 import io.quarkus.arc.processor.BeanInfo;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.Record;
+import io.quarkus.deployment.builditem.CapabilityBuildItem;
 import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.GeneratedClassBuildItem;
-import io.quarkus.deployment.builditem.substrate.ReflectiveClassBuildItem;
+import io.quarkus.deployment.builditem.nativeimage.ReflectiveClassBuildItem;
 
 
 public class AbberwoultProcessor {
@@ -75,11 +76,21 @@ public class AbberwoultProcessor {
 	};
 
 	/**
-	 * Register a extension capability and feature.
+	 * Register extension capability.
+	 *
+	 * @return Abberwoult capability build item
+	 */
+	@BuildStep
+	CapabilityBuildItem doCreateCapabilitiesItem() {
+		return new CapabilityBuildItem("com.github.abberwoult");
+	}
+
+	/**
+	 * Register extension feature info.
 	 *
 	 * @return Abberwoult feature build item
 	 */
-	@BuildStep(providesCapabilities = "com.github.abberwoult")
+	@BuildStep
 	FeatureBuildItem doProvideFeatureName() {
 		return new FeatureBuildItem("abberwoult");
 	}
