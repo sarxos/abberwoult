@@ -3,6 +3,7 @@ package com.github.sarxos.abberwoult;
 import static com.github.sarxos.abberwoult.DotNames.ACTOR_SCOPED_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.APPLICATION_SCOPED_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.AUTOSTART_ANNOTATION;
+import static com.github.sarxos.abberwoult.DotNames.FIELD_READER_INTERFACE;
 import static com.github.sarxos.abberwoult.DotNames.LABELED_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.SHARD_ENTITY_ID_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.SHARD_ID_ANNOTATION;
@@ -36,8 +37,9 @@ import com.github.sarxos.abberwoult.deployment.error.AutostartableLabelValueMiss
 import com.github.sarxos.abberwoult.deployment.error.AutostartableNoArgConstrutorMissingException;
 import com.github.sarxos.abberwoult.deployment.error.ImplementationMissingException;
 import com.github.sarxos.abberwoult.deployment.item.ActorBuildItem;
-import com.github.sarxos.abberwoult.deployment.item.FieldReaderBuildItem;
 import com.github.sarxos.abberwoult.deployment.item.ShardMessageBuildItem;
+import com.github.sarxos.abberwoult.deployment.item.SyntheticActorCreatorBuildItem;
+import com.github.sarxos.abberwoult.deployment.item.SyntheticFieldReaderBuildItem;
 
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.arc.deployment.BeanDefiningAnnotationBuildItem;
@@ -148,6 +150,15 @@ public class AbberwoultProcessor {
 			.collect(toList());
 	}
 
+	@BuildStep
+	@Record(STATIC_INIT)
+	void doRegisterActors(final List<ActorBuildItem> actors, final ActorInterceptorRegistry registry) {
+		actors.stream()
+			.map(ActorBuildItem::getActorClassName)
+			.peek(clazz -> LOG.debugf("Record actor %s in registry", clazz))
+			.forEach(clazz -> registry.register(clazz));
+	}
+
 	/**
 	 * Take all {@link ActorBuildItem} and register wrapped actor class as a reflective class.
 	 *
@@ -163,12 +174,12 @@ public class AbberwoultProcessor {
 	}
 
 	@BuildStep
-	@Record(STATIC_INIT)
-	void doRegisterActors(final List<ActorBuildItem> actors, final ActorInterceptorRegistry registry) {
-		actors.stream()
-			.map(ActorBuildItem::getActorClassName)
-			.peek(clazz -> LOG.debugf("Record actor %s in registry", clazz))
-			.forEach(clazz -> registry.register(clazz));
+	List<SyntheticActorCreatorBuildItem> doCreateSyntneticActorCreators(final List<ActorBuildItem> actors) {
+		return actors.stream()
+			.map(ActorBuildItem::getActorClass)
+			.peek(clazz -> LOG.debugf("Synthetizing actor creator for %s", clazz))
+			.map(SyntheticActorCreatorBuildItem::new)
+			.collect(toList());
 	}
 
 	private boolean isAutostartPresent(final ActorBuildItem item) {
@@ -255,17 +266,17 @@ public class AbberwoultProcessor {
 	}
 
 	@BuildStep
-	List<FieldReaderBuildItem> doCreateSyntheticMessageExtractors(final List<ShardMessageBuildItem> classes) {
+	List<SyntheticFieldReaderBuildItem> doCreateSyntheticMessageExtractors(final List<ShardMessageBuildItem> classes) {
 		return classes.stream()
 			.map(ShardMessageBuildItem::getMessageClass)
-			.peek(clazz -> LOG.debugf("Synthetizing message extractor for %s", clazz))
-			.map(FieldReaderBuildItem::new)
+			.peek(clazz -> LOG.debugf("Synthetizing %s for %s", FIELD_READER_INTERFACE, clazz))
+			.map(SyntheticFieldReaderBuildItem::new)
 			.collect(toList());
 	}
 
 	@BuildStep
 	@Record(STATIC_INIT)
-	List<GeneratedClassBuildItem> doRecordMessageExtractors(final List<FieldReaderBuildItem> extractors, final ShardMessageExtractor sre) {
+	List<GeneratedClassBuildItem> doRecordSyntheticMessageExtractors(final List<SyntheticFieldReaderBuildItem> extractors, final ShardMessageExtractor sre) {
 		return extractors.stream()
 			.peek(ext -> sre.register(ext.getMessageClassName(), ext.getSyntheticFieldReaderInstance()))
 			.map(ext -> new GeneratedClassBuildItem(true, ext.getSyntheticClassName(), ext.getBytecode()))

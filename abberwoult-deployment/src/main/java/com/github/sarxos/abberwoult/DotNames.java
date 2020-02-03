@@ -6,6 +6,7 @@ import javax.validation.Valid;
 
 import org.jboss.jandex.DotName;
 
+import com.github.sarxos.abberwoult.ShardMessageExtractor.FieldReader;
 import com.github.sarxos.abberwoult.annotation.ActorScoped;
 import com.github.sarxos.abberwoult.annotation.Assisted;
 import com.github.sarxos.abberwoult.annotation.Autostart;
@@ -33,6 +34,7 @@ public class DotNames {
 	public static final DotName SHARD_ENTITY_ID_ANNOTATION = DotName.createSimple(ShardEntityId.class.getName());
 	public static final DotName SIMPLE_ACTOR_CLASS = DotName.createSimple(SimpleActor.class.getName());
 	public static final DotName SHARD_ROUTABLE_MESSAGE_INTERFACE = DotName.createSimple(ShardRoutableMessage.class.getName());
+	public static final DotName FIELD_READER_INTERFACE = DotName.createSimple(FieldReader.class.getName());
 
 	private DotNames() {
 		// class enum

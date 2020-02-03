@@ -42,7 +42,7 @@ public class FieldReaderGenerator {
 	 * @param args the printf arguments used in the code
 	 * @return New {@link CtMethod}
 	 */
-	private CtMethod method(CtClass cc, String code, Object... args) {
+	private CtMethod method(final CtClass cc, final String code, final Object... args) {
 		final String source = String.format(code, args);
 		try {
 			return CtNewMethod.make(source, cc);
