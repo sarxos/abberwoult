@@ -15,7 +15,7 @@ import javax.inject.Singleton;
 
 import org.jboss.logging.Logger;
 
-import com.github.sarxos.abberwoult.ActorSystemUniverse;
+import com.github.sarxos.abberwoult.ActorUniverse;
 import com.github.sarxos.abberwoult.annotation.Autostart;
 
 import akka.actor.Actor;
@@ -51,7 +51,7 @@ public class ActorAutostarter {
 	/**
 	 * Injected actor universe which is used to spawn actor instances.
 	 */
-	private final ActorSystemUniverse universe;
+	private final ActorUniverse universe;
 
 	/**
 	 * Constructor used when this class is instantiated as a {@link Singleton}.
@@ -59,7 +59,7 @@ public class ActorAutostarter {
 	 * @param universe the actor universe later used to spawn actor instances
 	 */
 	@Inject
-	ActorAutostarter(final ActorSystemUniverse universe) {
+	ActorAutostarter(final ActorUniverse universe) {
 		this.universe = universe;
 	}
 

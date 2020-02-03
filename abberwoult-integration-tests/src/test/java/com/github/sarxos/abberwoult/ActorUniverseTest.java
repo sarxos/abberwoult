@@ -31,7 +31,7 @@ public class ActorUniverseTest {
 	Topic topic;
 
 	@Inject
-	ActorSystemUniverse universe;
+	ActorUniverse universe;
 
 	@Inject
 	TestKit testkit;

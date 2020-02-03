@@ -6,7 +6,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.github.sarxos.abberwoult.ActorSystemUniverse;
+import com.github.sarxos.abberwoult.ActorUniverse;
 import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.dsl.Utils;
 import com.github.sarxos.abberwoult.testkit.TestKit;
@@ -54,7 +54,7 @@ public class ObservedTest {
 	EventStream events;
 
 	@Inject
-	ActorSystemUniverse universe;
+	ActorUniverse universe;
 
 	TestKitProbe probe;
 

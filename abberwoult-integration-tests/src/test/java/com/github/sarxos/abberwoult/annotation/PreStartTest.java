@@ -11,7 +11,7 @@ import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.sarxos.abberwoult.ActorSystemUniverse;
+import com.github.sarxos.abberwoult.ActorUniverse;
 import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.PreStart;
 
@@ -110,7 +110,7 @@ public class PreStartTest {
 	}
 
 	@Inject
-	ActorSystemUniverse universe;
+	ActorUniverse universe;
 
 	@Test
 	public void test_ifCorrectNumberOfPreStartsIsRegistered() {

@@ -31,9 +31,9 @@ import com.github.sarxos.abberwoult.cdi.BeanLocator;
 import com.github.sarxos.abberwoult.deployment.ActorAutostarter;
 import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry;
 import com.github.sarxos.abberwoult.deployment.error.AutostartableLabelAlreadyUsedException;
+import com.github.sarxos.abberwoult.deployment.error.AutostartableLabelMissingException;
 import com.github.sarxos.abberwoult.deployment.error.AutostartableLabelValueMissingException;
 import com.github.sarxos.abberwoult.deployment.error.AutostartableNoArgConstrutorMissingException;
-import com.github.sarxos.abberwoult.deployment.error.AutostartableLabelMissingException;
 import com.github.sarxos.abberwoult.deployment.error.ImplementationMissingException;
 import com.github.sarxos.abberwoult.deployment.item.ActorBuildItem;
 import com.github.sarxos.abberwoult.deployment.item.FieldReaderBuildItem;
@@ -61,7 +61,7 @@ public class AbberwoultProcessor {
 		ActorRefFactory.class.getName(),
 		ActorSelectionFactory.class.getName(),
 		ActorSystemFactory.class.getName(),
-		ActorSystemUniverse.class.getName(),
+		ActorUniverse.class.getName(),
 		ActorSystemFactory.class.getName(),
 		AskableActorRefFactory.class.getName(),
 		AskableActorSelectionFactory.class.getName(),

@@ -20,12 +20,12 @@ import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.quarkus.arc.CurrentInjectionPointProvider.InjectionPointImpl;
+import io.quarkus.arc.impl.CurrentInjectionPointProvider.InjectionPointImpl;
 
 
 /**
- * This class is used to find beans which matches injection point signature. The injection point here
- * is the {@link Constructor} or a {@link Field} reference. 
+ * This class is used to find beans which matches injection point signature. The injection point
+ * here is the {@link Constructor} or a {@link Field} reference.
  *
  * @author Bartosz Firyn (sarxos)
  */
@@ -40,8 +40,8 @@ public class BeanLocator {
 	private final BeanManager bm;
 
 	/**
-	 * The {@link Instance} object from CDI SPI which is used to dynamically obtain instances of a beans
-	 * with a specified combination of required type and qualifiers. 
+	 * The {@link Instance} object from CDI SPI which is used to dynamically obtain instances of a
+	 * beans with a specified combination of required type and qualifiers.
 	 */
 	private final Instance<Object> instance;
 
@@ -55,8 +55,8 @@ public class BeanLocator {
 	}
 
 	/**
-	 * Find bean to be injected into the given constructor, which is referenced by a given parameter present
-	 * at given position.
+	 * Find bean to be injected into the given constructor, which is referenced by a given parameter
+	 * present at given position.
 	 *
 	 * @param constructor the {@link Constructor} to inject bean into
 	 * @param parameter the {@link Parameter} which references a bean

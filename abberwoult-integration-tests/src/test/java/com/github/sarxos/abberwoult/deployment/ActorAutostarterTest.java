@@ -10,7 +10,7 @@ import javax.inject.Inject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import com.github.sarxos.abberwoult.ActorSystemUniverse;
+import com.github.sarxos.abberwoult.ActorUniverse;
 import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.Autostart;
 import com.github.sarxos.abberwoult.annotation.Labeled;
@@ -36,7 +36,7 @@ public class ActorAutostarterTest {
 	}
 
 	@Inject
-	ActorSystemUniverse universe;
+	ActorUniverse universe;
 
 	@Test
 	public void test_autostart() {

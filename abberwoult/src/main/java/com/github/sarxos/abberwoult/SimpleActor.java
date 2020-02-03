@@ -45,7 +45,7 @@ public abstract class SimpleActor extends AbstractActor {
 	 * not injected by CDI but with the specialized {@link ActorCreator}.
 	 */
 	@Inject
-	private ActorSystemUniverse universe;
+	private ActorUniverse universe;
 
 	/**
 	 * Invoke all {@link PreStart} bindings. This methods is final because we do not want anyone to
@@ -231,7 +231,7 @@ public abstract class SimpleActor extends AbstractActor {
 		throw new MessageHandlerValidationException(violations);
 	}
 
-	public ActorSystemUniverse getUniverse() {
+	public ActorUniverse getUniverse() {
 		return universe;
 	}
 }

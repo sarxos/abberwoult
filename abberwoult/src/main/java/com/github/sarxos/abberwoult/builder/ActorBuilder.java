@@ -6,7 +6,7 @@ import static org.apache.commons.lang3.ArrayUtils.EMPTY_OBJECT_ARRAY;
 
 import java.util.Objects;
 
-import com.github.sarxos.abberwoult.ActorSystemUniverse;
+import com.github.sarxos.abberwoult.ActorUniverse;
 
 import akka.actor.Actor;
 import akka.actor.ActorRef;
@@ -24,7 +24,7 @@ import io.vavr.control.Option;
  */
 public class ActorBuilder<S extends ActorBuilder<S>> {
 
-	private final ActorSystemUniverse universe;
+	private final ActorUniverse universe;
 
 	private ActorBuilderRefCreator creator = (factory, props, name) -> name
 		.map(n -> factory.actorOf(props, n))
@@ -35,7 +35,7 @@ public class ActorBuilder<S extends ActorBuilder<S>> {
 	private Option<String> mailbox = Option.none();
 	private Option<ActorRefFactory> parent = Option.none();
 
-	public ActorBuilder(final ActorSystemUniverse universe) {
+	public ActorBuilder(final ActorUniverse universe) {
 		this.universe = universe;
 	}
 

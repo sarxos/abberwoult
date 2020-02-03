@@ -56,7 +56,7 @@ public class ActorBuilderTest {
 	ActorSystem system;
 
 	@Inject
-	ActorSystemUniverse universe;
+	ActorUniverse universe;
 
 	@Test
 	void test_buildOridinaryActor() throws Exception {

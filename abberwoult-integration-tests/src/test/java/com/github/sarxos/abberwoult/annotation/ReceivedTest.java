@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.inject.Inject;
 
-import com.github.sarxos.abberwoult.ActorSystemUniverse;
+import com.github.sarxos.abberwoult.ActorUniverse;
 import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.dsl.Utils;
 
@@ -40,7 +40,7 @@ public class ReceivedTest {
 	}
 
 	@Inject
-	ActorSystemUniverse universe;
+	ActorUniverse universe;
 
 	// @Test
 	void test_messageHandlerInClass() throws Exception {

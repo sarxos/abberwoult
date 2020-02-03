@@ -5,8 +5,10 @@ import javax.inject.Singleton;
 import javax.validation.Validator;
 
 import com.github.sarxos.abberwoult.builder.ActorBuilder;
+import com.github.sarxos.abberwoult.builder.SingletonBuilder;
 import com.github.sarxos.abberwoult.dsl.Selectors;
 
+import akka.actor.Actor;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
@@ -17,14 +19,14 @@ import akka.event.EventStream;
  * @author Bartosz Firyn (sarxos)
  */
 @Singleton
-public class ActorSystemUniverse implements Selectors {
+public class ActorUniverse implements Selectors {
 
 	private final ActorSystem system;
 	private final Propser propser;
 	private final Validator validator;
 
 	@Inject
-	public ActorSystemUniverse(final ActorSystem system, final Propser propser, final Validator validator) {
+	public ActorUniverse(final ActorSystem system, final Propser propser, final Validator validator) {
 		this.system = system;
 		this.propser = propser;
 		this.validator = validator;
@@ -35,6 +37,10 @@ public class ActorSystemUniverse implements Selectors {
 	 */
 	public Propser propser() {
 		return propser;
+	}
+
+	public Props props(final Class<? extends Actor> clazz, final Object... args) {
+		return propser().props(clazz, args);
 	}
 
 	/**
@@ -54,6 +60,10 @@ public class ActorSystemUniverse implements Selectors {
 	 */
 	public ActorBuilder<?> actor() {
 		return new ActorBuilder<>(this);
+	}
+
+	public SingletonBuilder<?> singleton() {
+		return new SingletonBuilder<>(this);
 	}
 
 	public EventStream getEventStream() {

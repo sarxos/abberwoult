@@ -9,7 +9,7 @@ import javax.inject.Singleton;
 
 import org.awaitility.Awaitility;
 
-import com.github.sarxos.abberwoult.ActorSystemUniverse;
+import com.github.sarxos.abberwoult.ActorUniverse;
 import com.github.sarxos.abberwoult.builder.ActorBuilder;
 import com.github.sarxos.abberwoult.builder.ActorBuilderRefCreator;
 
@@ -45,10 +45,10 @@ public class TestKit {
 		}
 	};
 
-	private final ActorSystemUniverse universe;
+	private final ActorUniverse universe;
 
 	@Inject
-	public TestKit(final ActorSystemUniverse universe) {
+	public TestKit(final ActorUniverse universe) {
 		this.universe = universe;
 	}
 

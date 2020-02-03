@@ -1,6 +1,6 @@
 package com.github.sarxos.abberwoult.dsl;
 
-import com.github.sarxos.abberwoult.ActorSystemUniverse;
+import com.github.sarxos.abberwoult.ActorUniverse;
 
 import akka.actor.AbstractActor.ActorContext;
 import akka.actor.ActorRef;
@@ -20,5 +20,5 @@ interface ActorInternal {
 
 	ActorContext getContext();
 
-	ActorSystemUniverse getUniverse();
+	ActorUniverse getUniverse();
 }

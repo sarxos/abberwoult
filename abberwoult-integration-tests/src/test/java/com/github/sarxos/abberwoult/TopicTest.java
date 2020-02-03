@@ -5,7 +5,7 @@ import javax.inject.Inject;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.github.sarxos.abberwoult.ActorSystemUniverse;
+import com.github.sarxos.abberwoult.ActorUniverse;
 import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.Topic;
 import com.github.sarxos.abberwoult.annotation.Assisted;
@@ -30,7 +30,7 @@ public class TopicTest {
 	Topic topic;
 
 	@Inject
-	ActorSystemUniverse universe;
+	ActorUniverse universe;
 
 	@Inject
 	TestKit testkit;

@@ -34,7 +34,7 @@ import io.vavr.concurrent.Future;
 public class AskableActorSelectionTest {
 
 	@Inject
-	ActorSystemUniverse universe;
+	ActorUniverse universe;
 
 	@Inject
 	@ActorOf(TestClass.class)
