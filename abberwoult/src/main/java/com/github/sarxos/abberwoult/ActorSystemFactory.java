@@ -1,9 +1,9 @@
 package com.github.sarxos.abberwoult;
 
-import java.util.UUID;
-
 import javax.enterprise.inject.Produces;
 import javax.inject.Singleton;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import com.github.sarxos.abberwoult.config.ApplicationConfLoader;
 
@@ -13,6 +13,9 @@ import akka.actor.ActorSystem;
 @Singleton
 public class ActorSystemFactory {
 
+	@ConfigProperty(name = "akka.actor.system.name", defaultValue = "abberwoult")
+	String systemName;
+
 	@Produces
 	@Singleton
 	public ActorSystem create() {
@@ -20,6 +23,6 @@ public class ActorSystemFactory {
 	}
 
 	private String getName() {
-		return UUID.randomUUID().toString();
+		return systemName;
 	}
 }

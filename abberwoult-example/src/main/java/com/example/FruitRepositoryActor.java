@@ -38,6 +38,7 @@ public class FruitRepositoryActor extends SimpleActor implements Utils {
 
 	public static final @Data class FruitListMsg {
 		private static final @Getter FruitListMsg instance = new FruitListMsg();
+
 		private FruitListMsg() {
 		}
 	}

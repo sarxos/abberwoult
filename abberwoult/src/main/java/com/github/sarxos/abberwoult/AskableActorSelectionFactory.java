@@ -34,7 +34,7 @@ public class AskableActorSelectionFactory {
 	private final Duration timeout;
 
 	@Inject
-	public AskableActorSelectionFactory(final ActorSelectionFactory factory, @AskTimeout Duration timeout) {
+	public AskableActorSelectionFactory(final ActorSelectionFactory factory, final @AskTimeout Duration timeout) {
 		this.factory = factory;
 		this.timeout = timeout;
 	}

@@ -1,0 +1,24 @@
+<html lang="en-us">
+<head>
+<title>Sample Video</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#157878">
+<link rel="stylesheet" type="text/css" href="css/mkhplayer.default.css" />
+<link rel="stylesheet" type="text/css" href="css/main.css" />
+</head>
+<body>
+	<section class="main-content">
+		<video id='video' preload="metadata" width="100%">
+			<source src="http://localhost:8080/fruits/stream">
+		</video>
+		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="js/jquery.mkhplayer.js"></script>
+		<script type="text/javascript">
+			$(document).ready(function(){
+				$('video').mkhPlayer();
+			});
+		</script>
+	</section>
+</body>
+</html>

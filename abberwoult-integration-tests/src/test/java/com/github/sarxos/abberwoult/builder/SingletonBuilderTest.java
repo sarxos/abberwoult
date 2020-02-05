@@ -7,10 +7,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.github.sarxos.abberwoult.ActorUniverse;
+import com.github.sarxos.abberwoult.ClusterCoordinator;
 import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.PreStart;
 import com.github.sarxos.abberwoult.dsl.Utils;
@@ -44,9 +44,13 @@ public class SingletonBuilderTest {
 	@Inject
 	ActorUniverse universe;
 
+	@Inject
+	ClusterCoordinator coordinator;
+
 	@Test
-	@Disabled("Not ready yet, cluster singleton need to be implemented")
 	void test_() throws Exception {
+
+		coordinator.bootstrap();
 
 		final AtomicBoolean started = new AtomicBoolean(false);
 

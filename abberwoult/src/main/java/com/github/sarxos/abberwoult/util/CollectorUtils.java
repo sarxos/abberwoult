@@ -11,6 +11,7 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -97,6 +98,18 @@ public class CollectorUtils {
 	 */
 	public static <T> Collector<T, ?, Set<T>> toSetWithSizeOf(final int size) {
 		return Collectors.toCollection(() -> new HashSet<>(size, 1.0f));
+	}
+
+	public static <T> Set<T> toSet(final Iterable<T> iterable) {
+		return StreamSupport
+			.stream(iterable.spliterator(), false)
+			.collect(Collectors.toCollection(HashSet::new));
+	}
+
+	public static <T> Set<T> toLinkedSet(final Iterable<T> iterable) {
+		return StreamSupport
+			.stream(iterable.spliterator(), false)
+			.collect(Collectors.toCollection(LinkedHashSet::new));
 	}
 
 	/**

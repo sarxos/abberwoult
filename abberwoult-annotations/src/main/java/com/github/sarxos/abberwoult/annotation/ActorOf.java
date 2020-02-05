@@ -17,9 +17,9 @@ import akka.actor.Actor;
 
 
 /**
- * This annotation is used to inject actor reference by a class. This will cause new actor to be
- * created. Actors created with this method can only have no-arg default constructor or a wired one
- * (the one annotated with {@link Inject}.
+ * This annotation is used to inject actor reference by the actor class. This will cause new actor
+ * to be created. Actors created with this method can only have no-arg default constructor or a
+ * wired one (the one annotated with {@link Inject}.
  *
  * @author Bartosz Firyn (sarxos)
  */
@@ -34,6 +34,7 @@ public @interface ActorOf {
 	 * default value below.
 	 */
 	public static abstract class NoActor implements Actor {
+		// nothing interesting in here
 	};
 
 	/**
