@@ -10,16 +10,16 @@ import com.typesafe.config.ConfigSyntax;
 
 public class ApplicationConfLoader {
 
-	public static final String APPLICATION_CONF_FILE_NAME = "application.properties";
+	public static final String APPLICATION_PROP_FILE_NAME = "application.properties";
 
 	private static final ConfigParseOptions OPTS = ConfigParseOptions
 		.defaults()
-		.setSyntax(ConfigSyntax.CONF);
+		.setSyntax(ConfigSyntax.PROPERTIES);
 
 	public static final Config load() {
 		return ConfigFactory.empty()
-			.withFallback(ConfigFactory.parseFile(new File(APPLICATION_CONF_FILE_NAME), OPTS))
-			.withFallback(ConfigFactory.parseResources(APPLICATION_CONF_FILE_NAME, OPTS))
+			.withFallback(ConfigFactory.parseFile(new File(APPLICATION_PROP_FILE_NAME), OPTS))
+			.withFallback(ConfigFactory.parseResources(APPLICATION_PROP_FILE_NAME, OPTS))
 			.resolve();
 	}
 }

@@ -23,6 +23,7 @@ import akka.cluster.Cluster;
 import akka.cluster.ClusterEvent;
 import akka.cluster.ClusterEvent.CurrentClusterState;
 import akka.cluster.Member;
+import akka.event.EventStream;
 import akka.management.cluster.bootstrap.ClusterBootstrap;
 import akka.management.javadsl.AkkaManagement;
 
@@ -124,6 +125,7 @@ final class ClusterCoordinatorActor extends AbstractActor {
 	private final AkkaManagement management;
 	private final ClusterBootstrap bootstrap;
 	private final ClusterCoordinator coordinator;
+	private final EventStream events;
 
 	private boolean starting = false;
 	private boolean joined = false;
@@ -132,6 +134,9 @@ final class ClusterCoordinatorActor extends AbstractActor {
 		this.management = AkkaManagement.get(getContext().getSystem());
 		this.bootstrap = ClusterBootstrap.get(getContext().getSystem());
 		this.coordinator = coordinator;
+		this.events = getContext()
+			.getSystem()
+			.getEventStream();
 	}
 
 	@Override
@@ -141,18 +146,11 @@ final class ClusterCoordinatorActor extends AbstractActor {
 	}
 
 	private void subscribe(final Class<?> clazz) {
-
-		getContext()
-			.getSystem()
-			.getEventStream()
-			.subscribe(self(), clazz);
+		events.subscribe(self(), clazz);
 	}
 
 	private void publish(final Object event) {
-		getContext()
-			.getSystem()
-			.getEventStream()
-			.publish(event);
+		events.publish(event);
 	}
 
 	@Override

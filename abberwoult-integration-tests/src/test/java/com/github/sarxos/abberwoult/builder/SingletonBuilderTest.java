@@ -5,19 +5,24 @@ import static org.awaitility.Awaitility.await;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.github.sarxos.abberwoult.ActorUniverse;
 import com.github.sarxos.abberwoult.ClusterCoordinator;
 import com.github.sarxos.abberwoult.SimpleActor;
+import com.github.sarxos.abberwoult.annotation.PostStop;
 import com.github.sarxos.abberwoult.annotation.PreStart;
 import com.github.sarxos.abberwoult.dsl.Utils;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
+import io.quarkus.runtime.StartupEvent;
+import io.quarkus.runtime.configuration.ProfileManager;
 import io.quarkus.test.junit.QuarkusTest;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
@@ -30,14 +35,21 @@ public class SingletonBuilderTest {
 	public static class SingletonActor extends SimpleActor implements Utils {
 
 		final AtomicBoolean started;
+		final AtomicBoolean disposed;
 
-		public SingletonActor(final AtomicBoolean started) {
+		public SingletonActor(final AtomicBoolean started, final AtomicBoolean disposes) {
 			this.started = started;
+			this.disposed = disposes;
 		}
 
 		@PreStart
 		public void setup() {
 			started.set(true);
+		}
+
+		@PostStop
+		public void teardown() {
+			disposed.set(true);
 		}
 	}
 
@@ -47,21 +59,31 @@ public class SingletonBuilderTest {
 	@Inject
 	ClusterCoordinator coordinator;
 
-	@Test
-	void test_() throws Exception {
-
+	@BeforeEach
+	void bootstrap() {
 		coordinator.bootstrap();
+	}
+
+	void onStart(@Observes StartupEvent ev) {
+		System.out.println("The application is starting with profile " + ProfileManager.getActiveProfile());
+	}
+
+	@Test
+	void test_lifecycle() throws Exception {
 
 		final AtomicBoolean started = new AtomicBoolean(false);
+		final AtomicBoolean disposed = new AtomicBoolean(false);
 
 		final ActorRef ref = universe.singleton()
 			.of(SingletonActor.class)
-			.withArguments(started)
+			.withArguments(started, disposed)
 			.create();
 
 		await().untilTrue(started);
 
 		dispose(ref);
+
+		await().untilTrue(disposed);
 	}
 
 	private Object askResult(final ActorRef ref, final Object message) throws Exception {
