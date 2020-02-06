@@ -6,7 +6,7 @@ import java.io.Serializable;
 
 import javax.enterprise.context.Dependent;
 
-import com.github.sarxos.abberwoult.annotation.Labeled;
+import com.github.sarxos.abberwoult.annotation.Named;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -16,10 +16,10 @@ import akka.cluster.pubsub.DistributedPubSubMediator.Unsubscribe;
 
 
 /**
- * A distributed pub-sub topic actors can subscribe to. This class is meant to be injectable. It can
- * be used inside of actors as well as in the application context. The topic must be annotated with
- * {@link Labeled} qualifier to be injected. It's a {@link Dependent} scope and created by
- * {@link TopicFactory}.
+ * A distributed pub-sub topic to which actors can subscribe to. This class is meant to be
+ * injectable. It can be used inside of actors as well as in the application context. The topic must
+ * be annotated with {@link Named} qualifier to be injected. Its bean is a {@link Dependent} scope
+ * produced by {@link TopicFactory}.
  *
  * @author Bartosz Firyn (sarxos)
  */

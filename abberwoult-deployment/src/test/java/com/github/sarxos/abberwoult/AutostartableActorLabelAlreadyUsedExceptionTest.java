@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import com.github.sarxos.abberwoult.annotation.Autostart;
-import com.github.sarxos.abberwoult.annotation.Labeled;
+import com.github.sarxos.abberwoult.annotation.Named;
 import com.github.sarxos.abberwoult.deployment.error.AutostartableLabelAlreadyUsedException;
 
 import io.quarkus.test.QuarkusUnitTest;
@@ -15,12 +15,12 @@ import io.quarkus.test.QuarkusUnitTest;
 public class AutostartableActorLabelAlreadyUsedExceptionTest {
 
 	@Autostart
-	@Labeled("aaaa")
+	@Named("aaaa")
 	public static class LabeledActorOne extends SimpleActor {
 	}
 
 	@Autostart
-	@Labeled("aaaa")
+	@Named("aaaa")
 	public static class LabeledActorTwo extends SimpleActor {
 	}
 

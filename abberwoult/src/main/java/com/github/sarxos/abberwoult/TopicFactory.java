@@ -7,7 +7,7 @@ import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import com.github.sarxos.abberwoult.annotation.Labeled;
+import com.github.sarxos.abberwoult.annotation.Named;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -32,7 +32,7 @@ public class TopicFactory {
 	}
 
 	@Produces
-	@Labeled
+	@Named
 	public Topic create(final InjectionPoint injection) {
 
 		final String name = getLabel(injection);

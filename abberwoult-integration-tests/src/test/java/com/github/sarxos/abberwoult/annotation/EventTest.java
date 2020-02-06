@@ -1,6 +1,10 @@
 package com.github.sarxos.abberwoult.annotation;
 
+import java.time.Duration;
+
 import javax.inject.Inject;
+import javax.validation.Valid;
+import javax.validation.constraints.Size;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,12 +22,26 @@ import io.quarkus.test.junit.QuarkusTest;
 
 
 @QuarkusTest
-public class ObservedTest {
+public class EventTest {
 
 	public static interface Something {
 	}
 
 	public static class SomethingImpl implements Something {
+	}
+
+	public static class Book {
+
+		@Size(min = 5)
+		private final String title;
+
+		public Book(final String title) {
+			this.title = title;
+		}
+
+		public String getTitle() {
+			return title;
+		}
 	}
 
 	public static class TestActor extends SimpleActor implements Utils {
@@ -34,16 +52,20 @@ public class ObservedTest {
 			this.ref = probe.getRef();
 		}
 
-		public void handleInteger(@Observes Integer i) {
+		public void onInteger(@Event Integer i) {
 			forward(ref, i);
 		}
 
-		public void handleLong(@Receives @Observes Long l) {
+		public void onLong(@Receives @Event Long l) {
 			forward(ref, l);
 		}
 
-		public void handleSomething(@Receives @Observes Something s) {
+		public void onSomething(@Receives @Event Something s) {
 			forward(ref, s);
+		}
+
+		public void onBook(@Receives @Valid @Event Book b) {
+			forward(ref, b);
 		}
 	}
 
@@ -79,7 +101,7 @@ public class ObservedTest {
 	}
 
 	@Test
-	public void test_observedOneReceiver() {
+	public void test_eventOneReceiver() {
 
 		events.publish(1);
 		events.publish(2);
@@ -91,7 +113,27 @@ public class ObservedTest {
 	}
 
 	@Test
-	public void test_observedManyReceiver() {
+	public void test_eventValid() {
+
+		final Book b = new Book("abbabba");
+
+		events.publish(b);
+
+		probe.expectMsg(b);
+	}
+
+	@Test
+	public void test_eventInvalid() {
+
+		final Book b = new Book("a");
+
+		events.publish(b);
+
+		probe.expectNoMessage(Duration.ofSeconds(1));
+	}
+
+	@Test
+	public void test_eventManyReceiver() {
 
 		events.publish(1);
 		events.publish(2);
@@ -111,7 +153,7 @@ public class ObservedTest {
 	}
 
 	@Test
-	public void test_observedInterfaceClass() {
+	public void test_eventInterfaceClass() {
 
 		events.publish(new SomethingImpl());
 

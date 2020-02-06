@@ -9,7 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.github.sarxos.abberwoult.AskableActorRef;
 import com.github.sarxos.abberwoult.AskableActorSelection;
 import com.github.sarxos.abberwoult.annotation.Dispatcher;
-import com.github.sarxos.abberwoult.annotation.Labeled;
+import com.github.sarxos.abberwoult.annotation.Named;
 import com.github.sarxos.abberwoult.annotation.Mailbox;
 
 import akka.actor.Actor;
@@ -36,10 +36,10 @@ public class ActorUtils {
 	 */
 	public static Option<String> getActorName(final Class<? extends Actor> clazz) {
 		return Option
-			.of(clazz.getAnnotation(Labeled.class))
-			.map(Labeled::value)
+			.of(clazz.getAnnotation(Named.class))
+			.map(Named::value)
 			.map(label -> {
-				if (StringUtils.equals(label, Labeled.UNKNOWN)) {
+				if (StringUtils.equals(label, Named.UNKNOWN)) {
 					return clazz.getName();
 				} else {
 					return label;

@@ -16,7 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.github.sarxos.abberwoult.annotation.ActorOf;
-import com.github.sarxos.abberwoult.annotation.Labeled;
+import com.github.sarxos.abberwoult.annotation.Named;
 import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.dsl.Disposers;
 import com.github.sarxos.abberwoult.dsl.Utils;
@@ -45,7 +45,7 @@ public class AskableActorSelectionTest {
 
 	ActorRef ref;
 	
-	@Labeled("test")
+	@Named("test")
 	public static class TestClass extends SimpleActor implements Utils, Disposers {
 
 		public void handleInteger(@Receives final Integer i) {

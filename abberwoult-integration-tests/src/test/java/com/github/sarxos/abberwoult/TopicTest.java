@@ -5,11 +5,8 @@ import javax.inject.Inject;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.github.sarxos.abberwoult.ActorUniverse;
-import com.github.sarxos.abberwoult.SimpleActor;
-import com.github.sarxos.abberwoult.Topic;
 import com.github.sarxos.abberwoult.annotation.Assisted;
-import com.github.sarxos.abberwoult.annotation.Labeled;
+import com.github.sarxos.abberwoult.annotation.Named;
 import com.github.sarxos.abberwoult.annotation.PreStart;
 import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.dsl.PubSubs;
@@ -26,7 +23,7 @@ import io.quarkus.test.junit.QuarkusTest;
 public class TopicTest {
 
 	@Inject
-	@Labeled("test")
+	@Named("test")
 	Topic topic;
 
 	@Inject
@@ -41,7 +38,7 @@ public class TopicTest {
 		private final Topic topic;
 
 		@Inject
-		public TestActor(@Assisted TestKitProbe probe, @Labeled("test") Topic topic) {
+		public TestActor(@Assisted TestKitProbe probe, @Named("test") Topic topic) {
 			this.ref = probe.getRef();
 			this.topic = topic;
 		}

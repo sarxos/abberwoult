@@ -1,7 +1,7 @@
 package com.github.sarxos.abberwoult.annotation;
 
 import static akka.actor.ActorRef.noSender;
-import static com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.getPostStopsFor;
+import static com.github.sarxos.abberwoult.deployment.ActorLifecycleRegistry.getPostStopsFor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 
 import com.github.sarxos.abberwoult.ActorUniverse;
 import com.github.sarxos.abberwoult.SimpleActor;
-import com.github.sarxos.abberwoult.annotation.PostStop;
 
 import akka.actor.ActorRef;
 import akka.actor.PoisonPill;

@@ -10,7 +10,7 @@ import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import com.github.sarxos.abberwoult.annotation.Labeled;
+import com.github.sarxos.abberwoult.annotation.Named;
 import com.github.sarxos.abberwoult.config.AskTimeout;
 
 import akka.actor.ActorRef;
@@ -20,7 +20,7 @@ import akka.cluster.sharding.ClusterSharding;
 
 /**
  * This is factory bean which create {@link Shard} instances which were annotated with
- * {@link Labeled} annotation. A {@link Labeled} annotation acts as a name of shard to be injected.
+ * {@link Named} annotation. A {@link Named} annotation acts as a name of shard to be injected.
  * The resultant {@link Shard} is {@link Askable}.
  *
  * @author Bartosz Firyn (sarxos)
@@ -52,7 +52,7 @@ public class ShardFactory {
 	 * @return New {@link Shard} instance
 	 */
 	@Produces
-	@Labeled
+	@Named
 	public Shard create(final InjectionPoint injection) {
 
 		final String name = getLabel(injection);

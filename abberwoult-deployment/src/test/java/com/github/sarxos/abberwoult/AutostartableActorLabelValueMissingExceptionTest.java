@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import com.github.sarxos.abberwoult.annotation.Autostart;
-import com.github.sarxos.abberwoult.annotation.Labeled;
+import com.github.sarxos.abberwoult.annotation.Named;
 import com.github.sarxos.abberwoult.deployment.error.AutostartableLabelValueMissingException;
 
 import io.quarkus.test.QuarkusUnitTest;
@@ -14,7 +14,7 @@ import io.quarkus.test.QuarkusUnitTest;
 
 public class AutostartableActorLabelValueMissingExceptionTest {
 
-	@Labeled
+	@Named
 	@Autostart
 	public static class LabelValueMissingActor extends SimpleActor {
 	}

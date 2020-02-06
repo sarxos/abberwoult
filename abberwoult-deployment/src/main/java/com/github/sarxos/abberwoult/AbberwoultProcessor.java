@@ -4,7 +4,7 @@ import static com.github.sarxos.abberwoult.DotNames.ACTOR_SCOPED_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.APPLICATION_SCOPED_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.AUTOSTART_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.FIELD_READER_INTERFACE;
-import static com.github.sarxos.abberwoult.DotNames.LABELED_ANNOTATION;
+import static com.github.sarxos.abberwoult.DotNames.NAMED_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.SHARD_ENTITY_ID_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.SHARD_ID_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.SHARD_ROUTABLE_MESSAGE_INTERFACE;
@@ -31,6 +31,7 @@ import org.jboss.logging.Logger;
 import com.github.sarxos.abberwoult.cdi.BeanLocator;
 import com.github.sarxos.abberwoult.deployment.ActorAutostarter;
 import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry;
+import com.github.sarxos.abberwoult.deployment.ActorLifecycleRegistry;
 import com.github.sarxos.abberwoult.deployment.error.AutostartableLabelAlreadyUsedException;
 import com.github.sarxos.abberwoult.deployment.error.AutostartableLabelMissingException;
 import com.github.sarxos.abberwoult.deployment.error.AutostartableLabelValueMissingException;
@@ -152,11 +153,12 @@ public class AbberwoultProcessor {
 
 	@BuildStep
 	@Record(STATIC_INIT)
-	void doRegisterActors(final List<ActorBuildItem> actors, final ActorInterceptorRegistry registry) {
+	void doRegisterActors(final List<ActorBuildItem> actors, final ActorInterceptorRegistry interceptors, final ActorLifecycleRegistry lifecycles) {
 		actors.stream()
 			.map(ActorBuildItem::getActorClassName)
-			.peek(clazz -> LOG.debugf("Record actor %s in registry", clazz))
-			.forEach(clazz -> registry.register(clazz));
+			.peek(clazz -> interceptors.register(clazz))
+			.peek(clazz -> lifecycles.register(clazz))
+			.forEach(clazz -> LOG.tracef("Actor %s is registered", clazz));
 	}
 
 	/**
@@ -192,9 +194,9 @@ public class AbberwoultProcessor {
 		}
 	}
 
-	private void assertIsActorLabeled(final ActorBuildItem item) {
+	private void assertIsActorNamed(final ActorBuildItem item) {
 
-		final AnnotationInstance annotation = item.getActorClass().classAnnotation(LABELED_ANNOTATION);
+		final AnnotationInstance annotation = item.getActorClass().classAnnotation(NAMED_ANNOTATION);
 		if (annotation == null) {
 			throw new AutostartableLabelMissingException(item);
 		}
@@ -205,10 +207,10 @@ public class AbberwoultProcessor {
 		}
 	}
 
-	private String getActorLabel(final ActorBuildItem item) {
+	private String getActorName(final ActorBuildItem item) {
 		return item
 			.getActorClass()
-			.classAnnotation(LABELED_ANNOTATION)
+			.classAnnotation(NAMED_ANNOTATION)
 			.value()
 			.asString();
 	}
@@ -222,9 +224,9 @@ public class AbberwoultProcessor {
 		actors.stream()
 			.filter(this::isAutostartPresent)
 			.peek(this::assertNoArgConstructorIsPresent)
-			.peek(this::assertIsActorLabeled)
+			.peek(this::assertIsActorNamed)
 			.peek(item -> {
-				final String label = getActorLabel(item);
+				final String label = getActorName(item);
 				final ActorBuildItem other = labels.put(label, item);
 				if (other != null) {
 					throw new AutostartableLabelAlreadyUsedException(item, other, label);

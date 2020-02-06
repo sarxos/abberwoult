@@ -35,7 +35,7 @@ import io.quarkus.runtime.annotations.Recorder;
 @Singleton
 public class ActorAutostarter {
 
-	private static final Logger LOG = Logger.getLogger("abberwoult-autostarter");
+	private static final Logger LOG = Logger.getLogger(ActorAutostarter.class);
 
 	/**
 	 * The list of {@link Actor} classes annotated with {@link Autostart} annotation detected in

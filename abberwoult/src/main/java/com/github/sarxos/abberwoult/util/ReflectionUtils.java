@@ -25,7 +25,7 @@ import javax.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.github.sarxos.abberwoult.annotation.Observes;
+import com.github.sarxos.abberwoult.annotation.Event;
 import com.github.sarxos.abberwoult.exception.PreStartInvocationException;
 
 import io.vavr.control.Option;
@@ -57,7 +57,7 @@ public class ReflectionUtils {
 	};
 
 	private static final Predicate<Parameter> HAS_VALID_ANNOTATION = p -> p.isAnnotationPresent(Valid.class);
-	private static final Predicate<Parameter> HAS_OBSERVED_ANNOTATION = p -> p.isAnnotationPresent(Observes.class);
+	private static final Predicate<Parameter> HAS_OBSERVED_ANNOTATION = p -> p.isAnnotationPresent(Event.class);
 
 	/**
 	 * Make sure {@link Field} is accessible.

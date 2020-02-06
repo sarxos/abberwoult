@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import com.github.sarxos.abberwoult.ActorUniverse;
 import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.Autostart;
-import com.github.sarxos.abberwoult.annotation.Labeled;
+import com.github.sarxos.abberwoult.annotation.Named;
 import com.github.sarxos.abberwoult.annotation.PreStart;
 
 import akka.actor.PoisonPill;
@@ -26,7 +26,7 @@ public class ActorAutostarterTest {
 	private static final AtomicBoolean started = new AtomicBoolean(false);
 
 	@Autostart
-	@Labeled("autostartedactor")
+	@Named("autostartedactor")
 	public static class TestActor extends SimpleActor {
 
 		@PreStart

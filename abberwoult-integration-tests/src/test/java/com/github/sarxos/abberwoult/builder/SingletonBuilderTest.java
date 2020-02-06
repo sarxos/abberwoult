@@ -5,7 +5,6 @@ import static org.awaitility.Awaitility.await;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -21,8 +20,6 @@ import com.github.sarxos.abberwoult.dsl.Utils;
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
-import io.quarkus.runtime.StartupEvent;
-import io.quarkus.runtime.configuration.ProfileManager;
 import io.quarkus.test.junit.QuarkusTest;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
@@ -62,10 +59,6 @@ public class SingletonBuilderTest {
 	@BeforeEach
 	void bootstrap() {
 		coordinator.bootstrap();
-	}
-
-	void onStart(@Observes StartupEvent ev) {
-		System.out.println("The application is starting with profile " + ProfileManager.getActiveProfile());
 	}
 
 	@Test

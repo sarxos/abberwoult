@@ -7,7 +7,7 @@ import javax.inject.Inject;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.github.sarxos.abberwoult.annotation.Labeled;
+import com.github.sarxos.abberwoult.annotation.Named;
 import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.dsl.Utils;
 import com.github.sarxos.abberwoult.testkit.TestKit;
@@ -27,7 +27,7 @@ import scala.concurrent.duration.Duration;
 public class ActorUniverseTest {
 
 	@Inject
-	@Labeled("test")
+	@Named("test")
 	Topic topic;
 
 	@Inject
@@ -42,7 +42,7 @@ public class ActorUniverseTest {
 		}
 	}
 
-	@Labeled("foo")
+	@Named("foo")
 	public static class TestNamedFooActor extends SimpleActor implements Utils {
 
 		public void onInteger(@Receives Integer i) {
@@ -54,7 +54,7 @@ public class ActorUniverseTest {
 		}
 	}
 
-	@Labeled
+	@Named
 	public static class TestNamedActor extends SimpleActor implements Utils {
 		public void onInteger(@Receives Integer i) {
 			reply(i);

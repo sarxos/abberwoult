@@ -2,7 +2,7 @@ package com.github.sarxos.abberwoult.deployment.util;
 
 import static com.github.sarxos.abberwoult.DotNames.ASSISTED_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.INJECT_ANNOTATION;
-import static com.github.sarxos.abberwoult.DotNames.OBSERVED_ANNOTATION;
+import static com.github.sarxos.abberwoult.DotNames.EVENT_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.RECEIVES_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.SIMPLE_ACTOR_CLASS;
 import static com.github.sarxos.abberwoult.DotNames.VALID_ANNOTATION;
@@ -172,7 +172,7 @@ public class DeploymentUtils {
 		// check if method is annotated with the proper annotation
 
 		final MethodInfo info = tc.getTarget().asMethod();
-		final AnnotationInstance annotation = info.annotation(OBSERVED_ANNOTATION);
+		final AnnotationInstance annotation = info.annotation(EVENT_ANNOTATION);
 
 		// null annotation means that given annotation was not present on the element
 

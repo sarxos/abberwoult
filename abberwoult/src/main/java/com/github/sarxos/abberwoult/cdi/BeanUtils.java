@@ -11,7 +11,7 @@ import java.util.Optional;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Qualifier;
 
-import com.github.sarxos.abberwoult.annotation.Labeled;
+import com.github.sarxos.abberwoult.annotation.Named;
 import com.github.sarxos.abberwoult.exception.BeanInjectionException;
 
 import io.vavr.control.Option;
@@ -93,7 +93,7 @@ public class BeanUtils {
 	}
 
 	/**
-	 * Get topic name from {@link Labeled} annotation.
+	 * Get topic name from {@link Named} annotation.
 	 *
 	 * @param injection the {@link InjectionPoint}
 	 * @return Topic name
@@ -104,15 +104,15 @@ public class BeanUtils {
 			throw new NullPointerException("Injection point is null");
 		}
 
-		return getQualifier(injection, Labeled.class)
-			.map(Labeled::value)
+		return getQualifier(injection, Named.class)
+			.map(Named::value)
 			.getOrElseThrow(() -> new NoLabelException(injection));
 	}
 
 	@SuppressWarnings("serial")
 	public static class NoLabelException extends BeanInjectionException {
 		public NoLabelException(final InjectionPoint injection) {
-			super("No " + Labeled.class + " annotation found on " + injection.getMember());
+			super("No " + Named.class + " annotation found on " + injection.getMember());
 		}
 	}
 }

@@ -1,9 +1,9 @@
 package com.github.sarxos.abberwoult;
 
 import static com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.getObservedEventsFor;
-import static com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.getPostStopsFor;
-import static com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.getPreStartsFor;
 import static com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.getReceiversFor;
+import static com.github.sarxos.abberwoult.deployment.ActorLifecycleRegistry.getPostStopsFor;
+import static com.github.sarxos.abberwoult.deployment.ActorLifecycleRegistry.getPreStartsFor;
 
 import java.lang.invoke.MethodHandle;
 import java.util.Map;
@@ -18,6 +18,7 @@ import com.github.sarxos.abberwoult.annotation.PostStop;
 import com.github.sarxos.abberwoult.annotation.PreStart;
 import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.builder.ActorBuilder;
+import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry;
 import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.MessageReceiverMethod;
 import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.PostStopMethod;
 import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.PreStartMethod;
@@ -130,7 +131,10 @@ public abstract class SimpleActor extends AbstractActor {
 	}
 
 	/**
-	 * @return Automated {@link Receive} constructed form {@link Receives} methods
+	 * Create {@link Receive} instance constructed form {@link Receives}-annotated methods recorded
+	 * in the {@link ActorInterceptorRegistry}.
+	 *
+	 * @return Automated {@link Receive} instance
 	 */
 	private Receive createReceiveAutomation() {
 		final ReceiveBuilder builder = ReceiveBuilder.create();

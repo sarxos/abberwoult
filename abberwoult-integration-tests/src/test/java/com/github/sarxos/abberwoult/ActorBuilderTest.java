@@ -7,7 +7,7 @@ import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.sarxos.abberwoult.annotation.Labeled;
+import com.github.sarxos.abberwoult.annotation.Named;
 import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.builder.ActorBuilder;
 import com.github.sarxos.abberwoult.dsl.Utils;
@@ -41,7 +41,7 @@ public class ActorBuilderTest {
 		}
 	}
 
-	@Labeled("bubu")
+	@Named("bubu")
 	public static class NamedActor extends SimpleActor implements Utils {
 
 		public void handleInteger(@Receives Integer i) {

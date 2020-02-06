@@ -18,6 +18,6 @@ import java.lang.annotation.Target;
 @Documented
 @Target(PARAMETER)
 @Retention(RUNTIME)
-public @interface Observes {
+public @interface Event {
 
 }
