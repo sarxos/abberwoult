@@ -153,7 +153,7 @@ public class PostStopTest {
 	}
 
 	@Test
-	public void test_ifSinglePreStartIsInvokedInSuperclass() {
+	public void test_ifSinglePostStopIsInvokedInSuperclass() {
 
 		final AtomicBoolean teardowned = new AtomicBoolean(false);
 

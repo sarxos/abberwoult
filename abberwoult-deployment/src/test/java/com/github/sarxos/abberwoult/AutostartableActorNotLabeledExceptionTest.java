@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import com.github.sarxos.abberwoult.annotation.Autostart;
-import com.github.sarxos.abberwoult.deployment.error.AutostartableLabelMissingException;
+import com.github.sarxos.abberwoult.deployment.error.AutostartableNameMissingException;
 
 import io.quarkus.test.QuarkusUnitTest;
 
@@ -19,7 +19,7 @@ public class AutostartableActorNotLabeledExceptionTest {
 
 	@RegisterExtension
 	static final QuarkusUnitTest test = new QuarkusUnitTest()
-		.setExpectedException(AutostartableLabelMissingException.class)
+		.setExpectedException(AutostartableNameMissingException.class)
 		.setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class));
 
 	@Test

@@ -26,9 +26,9 @@
 
   <properties>
     <akka.version>2.5.23</akka.version>
-    <junit.version>5.4.0</junit.version>
+    <junit.version>5.6.0</junit.version>
     <!--     <quarkus.version>999-SNAPSHOT</quarkus.version> -->
-    <quarkus.version>1.2.0.Final</quarkus.version>
+    <quarkus.version>1.2.1.Final</quarkus.version>
     <scala.version>2.12.8</scala.version>
   </properties>
 
@@ -89,16 +89,11 @@
         <artifactId>javassist</artifactId>
         <version>3.20.0-GA</version>
       </dependency>
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-api</artifactId>
-        <version>${junit.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-engine</artifactId>
-        <version>${junit.version}</version>
-      </dependency>
+      <!--       <dependency> -->
+      <!--         <groupId>org.junit.jupiter</groupId> -->
+      <!--         <artifactId>junit-jupiter</artifactId> -->
+      <!--         <version>${junit.version}</version> -->
+      <!--       </dependency> -->
       <dependency>
         <groupId>org.scala-lang</groupId>
         <artifactId>scala-library</artifactId>
@@ -191,6 +186,8 @@
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
+          <!--           <reuseForks>false</reuseForks> -->
+          <useSystemClassLoader>false</useSystemClassLoader>
           <systemProperties>
             <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
           </systemProperties>

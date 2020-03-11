@@ -7,11 +7,12 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import akka.event.EventStream;
+
 
 /**
- * Automatically subscribes actor to the annotated event. By doing this all events of a given type
- * will be automatically received by this actor. Using this annotation cause additionally the same
- * effects as using {@link Receives}.
+ * Automatically subscribes actor to the annotated event dispatched from {@link EventStream}. All
+ * annotated events type will be automatically received by this actor.
  *
  * @author Bartosz Firyn (sarxos)
  */

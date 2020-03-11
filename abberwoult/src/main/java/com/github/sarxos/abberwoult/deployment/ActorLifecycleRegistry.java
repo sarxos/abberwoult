@@ -20,9 +20,7 @@ import org.jboss.logging.Logger;
 
 import com.github.sarxos.abberwoult.ActorCreator;
 import com.github.sarxos.abberwoult.annotation.PostStop;
-import com.github.sarxos.abberwoult.annotation.PreStart;
 import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.PostStopMethod;
-import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.PreStartMethod;
 import com.github.sarxos.abberwoult.util.ReflectionUtils;
 
 import io.quarkus.runtime.annotations.Recorder;
@@ -36,12 +34,6 @@ import io.vavr.control.Option;
 public class ActorLifecycleRegistry {
 
 	private static final Logger LOG = Logger.getLogger(ActorLifecycleRegistry.class);
-
-	/**
-	 * A static map where all {@link PreStart} annotation points are stored per class. This map is
-	 * populated by a {@link ActorInterceptorRegistryTemplate} recorded in the compile time.
-	 */
-	private static final Map<String, List<PreStartMethod>> PRESTARTS = new HashMap<>();
 
 	/**
 	 * A static map where all {@link PostStop} annotation points are stored per class. This map is
@@ -58,23 +50,6 @@ public class ActorLifecycleRegistry {
 	 * Predicate to indicate if {@link Method} return type is void.
 	 */
 	private static final Predicate<Method> IS_VOID = m -> m.getReturnType() == void.class;
-
-	/**
-	 * Scan class methods and register all which were annotated with a {@link PreStart} annotation.
-	 *
-	 * @param clazz the class to scan
-	 */
-	static void registerPreStartsFrom(final Class<?> clazz) {
-
-		final List<Method> methods = getNoArgVoidMethodsAnnotatedWith(clazz, PreStart.class);
-		if (methods.isEmpty()) {
-			return;
-		}
-
-		LOG.debugf("Register %s pre-start bindings for actor %s", methods.size(), clazz);
-
-		PRESTARTS.computeIfAbsent(clazz.getName(), $ -> preparePreStartMethodEntry(methods));
-	}
 
 	/**
 	 * Scan class methods and register all which were annotated with a {@link PostStop} annotation.
@@ -135,15 +110,7 @@ public class ActorLifecycleRegistry {
 
 		final Class<?> clazz = ReflectionUtils.getClazz(className);
 
-		registerPreStartsFrom(clazz);
 		registerPostStopsFrom(clazz);
-	}
-
-	private static List<PreStartMethod> preparePreStartMethodEntry(final List<Method> methods) {
-		return unmodifiableList(methods
-			.stream()
-			.map(PreStartMethod::new)
-			.collect(toListWithSameSizeAs(methods)));
 	}
 
 	private static List<PostStopMethod> preparePostStopMethodEntry(final List<Method> methods) {
@@ -151,18 +118,6 @@ public class ActorLifecycleRegistry {
 			.stream()
 			.map(PostStopMethod::new)
 			.collect(toListWithSameSizeAs(methods)));
-	}
-
-	/**
-	 * Get {@link PreStart} annotated methods from a registry cache.
-	 *
-	 * @param clazz the class, may be concrete actor class or interface
-	 * @return Return {@link PreStartMethod} list for a given class.
-	 */
-	public static List<PreStartMethod> getPreStartsFor(final Class<?> clazz) {
-		return Option
-			.of(PRESTARTS.get(clazz.getName()))
-			.getOrElse(Collections::emptyList);
 	}
 
 	/**

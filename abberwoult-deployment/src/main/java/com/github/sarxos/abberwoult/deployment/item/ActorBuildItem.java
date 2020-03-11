@@ -1,6 +1,8 @@
 package com.github.sarxos.abberwoult.deployment.item;
 
-import org.jboss.jandex.ClassInfo;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import com.github.sarxos.abberwoult.jandex.Reflector.ClassRef;
 
 import io.quarkus.builder.item.MultiBuildItem;
 
@@ -10,19 +12,24 @@ import io.quarkus.builder.item.MultiBuildItem;
  *
  * @author Bartosz Firyn (sarxos)
  */
-final public class ActorBuildItem extends MultiBuildItem {
+public final class ActorBuildItem extends MultiBuildItem {
 
-	private final ClassInfo actorClass;
+	private final ClassRef actorClass;
 
-	public ActorBuildItem(final ClassInfo actorClass) {
+	public ActorBuildItem(final ClassRef actorClass) {
 		this.actorClass = actorClass;
 	}
 
-	public ClassInfo getActorClass() {
+	public ClassRef getActorClass() {
 		return actorClass;
 	}
 
 	public String getActorClassName() {
-		return actorClass.name().toString();
+		return getActorClass().getName();
+	}
+
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
 	}
 }

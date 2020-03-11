@@ -3,7 +3,6 @@ package com.github.sarxos.abberwoult;
 import static com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.getObservedEventsFor;
 import static com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.getReceiversFor;
 import static com.github.sarxos.abberwoult.deployment.ActorLifecycleRegistry.getPostStopsFor;
-import static com.github.sarxos.abberwoult.deployment.ActorLifecycleRegistry.getPreStartsFor;
 
 import java.lang.invoke.MethodHandle;
 import java.util.Map;
@@ -58,11 +57,10 @@ public abstract class SimpleActor extends AbstractActor {
 	 *
 	 * @see akka.actor.AbstractActor#preStart()
 	 */
-	// final, we do not want anyone to override it (use annotation binding instead)
+	// must not be final
 	@Override
-	public final void preStart() throws Exception {
+	public void preStart() throws Exception {
 		final Class<?> clazz = getClass();
-		getPreStartsFor(clazz).forEach(this::invokePreStart);
 		getObservedEventsFor(clazz).forEach(this::subscribeEvent);
 	}
 

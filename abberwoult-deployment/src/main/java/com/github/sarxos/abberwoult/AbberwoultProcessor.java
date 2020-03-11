@@ -1,14 +1,12 @@
 package com.github.sarxos.abberwoult;
 
+import static com.github.sarxos.abberwoult.DotNames.ABSTRACT_ACTOR_CLASS;
 import static com.github.sarxos.abberwoult.DotNames.ACTOR_SCOPED_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.APPLICATION_SCOPED_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.AUTOSTART_ANNOTATION;
-import static com.github.sarxos.abberwoult.DotNames.FIELD_READER_INTERFACE;
-import static com.github.sarxos.abberwoult.DotNames.NAMED_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.SHARD_ENTITY_ID_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.SHARD_ID_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.SHARD_ROUTABLE_MESSAGE_INTERFACE;
-import static com.github.sarxos.abberwoult.DotNames.SIMPLE_ACTOR_CLASS;
 import static io.quarkus.deployment.annotations.ExecutionTime.RUNTIME_INIT;
 import static io.quarkus.deployment.annotations.ExecutionTime.STATIC_INIT;
 import static java.util.stream.Collectors.toList;
@@ -18,12 +16,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jboss.jandex.AnnotationInstance;
 import org.jboss.jandex.AnnotationTarget;
 import org.jboss.jandex.AnnotationTarget.Kind;
-import org.jboss.jandex.AnnotationValue;
 import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.Index;
 import org.jboss.logging.Logger;
@@ -33,19 +32,20 @@ import com.github.sarxos.abberwoult.deployment.ActorAutostarter;
 import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry;
 import com.github.sarxos.abberwoult.deployment.ActorLifecycleRegistry;
 import com.github.sarxos.abberwoult.deployment.error.AutostartableLabelAlreadyUsedException;
-import com.github.sarxos.abberwoult.deployment.error.AutostartableLabelMissingException;
-import com.github.sarxos.abberwoult.deployment.error.AutostartableLabelValueMissingException;
+import com.github.sarxos.abberwoult.deployment.error.AutostartableNameMissingException;
 import com.github.sarxos.abberwoult.deployment.error.AutostartableNoArgConstrutorMissingException;
 import com.github.sarxos.abberwoult.deployment.error.ImplementationMissingException;
 import com.github.sarxos.abberwoult.deployment.item.ActorBuildItem;
+import com.github.sarxos.abberwoult.deployment.item.InstrumentedActorBuildItem;
 import com.github.sarxos.abberwoult.deployment.item.ShardMessageBuildItem;
-import com.github.sarxos.abberwoult.deployment.item.SyntheticActorCreatorBuildItem;
 import com.github.sarxos.abberwoult.deployment.item.SyntheticFieldReaderBuildItem;
+import com.github.sarxos.abberwoult.jandex.Reflector;
 
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.arc.deployment.BeanDefiningAnnotationBuildItem;
 import io.quarkus.arc.deployment.UnremovableBeanBuildItem;
 import io.quarkus.arc.processor.BeanInfo;
+import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.CapabilityBuildItem;
@@ -98,6 +98,11 @@ public class AbberwoultProcessor {
 		return new FeatureBuildItem("abberwoult");
 	}
 
+	@BuildStep
+	Reflector doCreateReflector(final CombinedIndexBuildItem index) {
+		return new Reflector(index);
+	}
+
 	/**
 	 * Register a custom bean defining annotation
 	 *
@@ -143,19 +148,32 @@ public class AbberwoultProcessor {
 	 * @return The {@link List} of {@link ActorBuildItem}
 	 */
 	@BuildStep
-	List<ActorBuildItem> doFindActorClasses(final CombinedIndexBuildItem combined) {
-		return combined.getIndex()
-			.getAllKnownSubclasses(SIMPLE_ACTOR_CLASS)
-			.stream()
+	List<ActorBuildItem> doFindActorClasses(final Reflector reflector) {
+		return reflector
+			.findSubclassesOf(ABSTRACT_ACTOR_CLASS)
 			.map(ActorBuildItem::new)
 			.collect(toList());
 	}
 
 	@BuildStep
+	List<InstrumentedActorBuildItem> doInstrumentActorClasses(
+		final List<ActorBuildItem> actors,
+		final BuildProducer<GeneratedClassBuildItem> generated) {
+
+		return actors.stream()
+			.map(ActorBuildItem::getActorClass)
+			.distinct()
+			.peek(clazz -> LOG.infof("Instrumenting actor class %s", clazz.getName()))
+			.map(clazz -> new InstrumentedActorBuildItem(clazz))
+			.peek(actor -> generated.produce(new GeneratedClassBuildItem(true, actor.getActorClassName(), actor.getBytecode())))
+			.collect(toList());
+	}
+
+	@BuildStep
 	@Record(STATIC_INIT)
-	void doRegisterActors(final List<ActorBuildItem> actors, final ActorInterceptorRegistry interceptors, final ActorLifecycleRegistry lifecycles) {
+	void doRegisterActors(final List<InstrumentedActorBuildItem> actors, final ActorInterceptorRegistry interceptors, final ActorLifecycleRegistry lifecycles) {
 		actors.stream()
-			.map(ActorBuildItem::getActorClassName)
+			.map(InstrumentedActorBuildItem::getActorClassName)
 			.peek(clazz -> interceptors.register(clazz))
 			.peek(clazz -> lifecycles.register(clazz))
 			.forEach(clazz -> LOG.tracef("Actor %s is registered", clazz));
@@ -168,72 +186,57 @@ public class AbberwoultProcessor {
 	 * @return The {@link List} of {@link ReflectiveClassBuildItem}
 	 */
 	@BuildStep
-	List<ReflectiveClassBuildItem> doRegisterReflectiveClasses(final List<ActorBuildItem> actors) {
+	List<ReflectiveClassBuildItem> doRegisterReflectiveClasses(final List<InstrumentedActorBuildItem> actors) {
 		return actors.stream()
-			.map(ActorBuildItem::getActorClassName)
-			.map(clazz -> new ReflectiveClassBuildItem(true, false, clazz))
+			.map(InstrumentedActorBuildItem::toReflectiveClassBuildItem)
 			.collect(toList());
 	}
 
-	@BuildStep
-	List<SyntheticActorCreatorBuildItem> doCreateSyntneticActorCreators(final List<ActorBuildItem> actors) {
-		return actors.stream()
-			.map(ActorBuildItem::getActorClass)
-			.peek(clazz -> LOG.debugf("Synthetizing actor creator for %s", clazz))
-			.map(SyntheticActorCreatorBuildItem::new)
-			.collect(toList());
+	private boolean isAutostartPresent(final InstrumentedActorBuildItem actor) {
+		return actor.hasAnnotation(AUTOSTART_ANNOTATION);
 	}
 
-	private boolean isAutostartPresent(final ActorBuildItem item) {
-		return item.getActorClass().asClass().classAnnotation(AUTOSTART_ANNOTATION) != null;
-	}
-
-	private void assertNoArgConstructorIsPresent(final ActorBuildItem item) {
-		if (!item.getActorClass().hasNoArgsConstructor()) {
-			throw new AutostartableNoArgConstrutorMissingException(item);
+	private void assertNoArgConstructorIsPresent(final InstrumentedActorBuildItem actor) {
+		if (!actor.hasNoArgsConstructor()) {
+			throw new AutostartableNoArgConstrutorMissingException(actor);
 		}
 	}
 
-	private void assertIsActorNamed(final ActorBuildItem item) {
-
-		final AnnotationInstance annotation = item.getActorClass().classAnnotation(NAMED_ANNOTATION);
-		if (annotation == null) {
-			throw new AutostartableLabelMissingException(item);
+	private void assertIsActorNamed(final InstrumentedActorBuildItem actor) {
+		if (!actor.isNamed()) {
+			throw new AutostartableNameMissingException(actor);
 		}
-
-		final AnnotationValue value = annotation.value();
-		if (value == null) {
-			throw new AutostartableLabelValueMissingException(item);
-		}
-	}
-
-	private String getActorName(final ActorBuildItem item) {
-		return item
-			.getActorClass()
-			.classAnnotation(NAMED_ANNOTATION)
-			.value()
-			.asString();
 	}
 
 	@BuildStep
 	@Record(RUNTIME_INIT)
-	void doAutostartActors(final List<ActorBuildItem> actors, final ActorAutostarter autostarter) {
+	void doRegisterAutostartableActors(final List<InstrumentedActorBuildItem> actors, final ActorAutostarter autostarter) {
 
-		final Map<String, ActorBuildItem> labels = new HashMap<>();
+		final Map<String, InstrumentedActorBuildItem> labels = new HashMap<>();
+		final Consumer<InstrumentedActorBuildItem> assertNotDuplicated = actor -> {
+
+			final String name = actor.getActorName().get();
+			final InstrumentedActorBuildItem other = labels.put(name, actor);
+
+			if (other != null) {
+
+				final String otherClass = other.getActorClassName();
+				final String actorClass = actor.getActorClassName();
+
+				if (ObjectUtils.notEqual(otherClass, actorClass)) {
+					throw new AutostartableLabelAlreadyUsedException(actor, other, name);
+				}
+			}
+		};
 
 		actors.stream()
 			.filter(this::isAutostartPresent)
 			.peek(this::assertNoArgConstructorIsPresent)
 			.peek(this::assertIsActorNamed)
-			.peek(item -> {
-				final String label = getActorName(item);
-				final ActorBuildItem other = labels.put(label, item);
-				if (other != null) {
-					throw new AutostartableLabelAlreadyUsedException(item, other, label);
-				}
-			})
-			.map(ActorBuildItem::getActorClassName)
-			.peek(clazz -> LOG.debugf("Autostarting actor %s", clazz))
+			.peek(assertNotDuplicated)
+			.map(InstrumentedActorBuildItem::getActorClassName)
+			.distinct()
+			.peek(clazz -> LOG.infof("Registering autostartable actor class %s", clazz))
 			.forEach(clazz -> autostarter.register(clazz));
 	}
 
@@ -271,17 +274,17 @@ public class AbberwoultProcessor {
 	List<SyntheticFieldReaderBuildItem> doCreateSyntheticMessageExtractors(final List<ShardMessageBuildItem> classes) {
 		return classes.stream()
 			.map(ShardMessageBuildItem::getMessageClass)
-			.peek(clazz -> LOG.debugf("Synthetizing %s for %s", FIELD_READER_INTERFACE, clazz))
+			.peek(clazz -> LOG.infof("Synthetizing field reader for class %s", clazz))
 			.map(SyntheticFieldReaderBuildItem::new)
 			.collect(toList());
 	}
 
 	@BuildStep
 	@Record(STATIC_INIT)
-	List<GeneratedClassBuildItem> doRecordSyntheticMessageExtractors(final List<SyntheticFieldReaderBuildItem> extractors, final ShardMessageExtractor sre) {
-		return extractors.stream()
-			.peek(ext -> sre.register(ext.getMessageClassName(), ext.getSyntheticFieldReaderInstance()))
-			.map(ext -> new GeneratedClassBuildItem(true, ext.getSyntheticClassName(), ext.getBytecode()))
+	List<GeneratedClassBuildItem> doRecordSyntheticFieldReaders(final List<SyntheticFieldReaderBuildItem> readers, final ShardMessageExtractor sre) {
+		return readers.stream()
+			.peek(r -> sre.register(r.getMessageClassName(), r.getSyntheticFieldReaderInstance()))
+			.map(reader -> new GeneratedClassBuildItem(true, reader.getSyntheticClassName(), reader.getBytecode()))
 			.collect(toList());
 	}
 }

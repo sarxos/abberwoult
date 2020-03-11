@@ -4,9 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.inject.Inject;
 
+import org.junit.jupiter.api.Test;
+
 import com.github.sarxos.abberwoult.ActorUniverse;
-import com.github.sarxos.abberwoult.SimpleActor;
-import com.github.sarxos.abberwoult.dsl.Utils;
 
 import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
@@ -19,50 +19,32 @@ import scala.concurrent.duration.Duration;
 
 
 @QuarkusTest
-public class ReceivedTest {
-
-	public static class TestActor extends SimpleActor implements Utils {
-
-		public void handleInteger(@Receives Integer i) {
-			reply(i);
-		}
-	}
-
-	public static class TestActorSuperclass extends SimpleActor implements Utils {
-
-		public void handleIntegerXXX(@Receives Integer i) {
-			reply(i);
-		}
-	}
-
-	public static class TestActorSubclass extends TestActorSuperclass {
-
-	}
+public class ReceivesIT {
 
 	@Inject
 	ActorUniverse universe;
 
-	// @Test
+	@Test
 	void test_messageHandlerInClass() throws Exception {
 
 		final ActorRef ref = universe.actor()
-			.of(TestActor.class)
+			.of(ReceivesActor.class)
 			.create();
 
-		assertThat(askResult(ref, 1)).isEqualTo(1);
+		assertThat(askResult(ref, 1)).isEqualTo(11);
 
 		kill(ref);
 
 	}
 
-	// @Test
+	@Test
 	void test_messageHandlerInSuperclass() throws Exception {
 
 		final ActorRef ref = universe.actor()
-			.of(TestActorSubclass.class)
+			.of(ReceivesActorSubclass.class)
 			.create();
 
-		assertThat(askResult(ref, 1)).isEqualTo(1);
+		assertThat(askResult(ref, 1)).isEqualTo(22);
 
 		kill(ref);
 	}
@@ -76,5 +58,4 @@ public class ReceivedTest {
 	private void kill(final ActorRef ref) {
 		ref.tell(PoisonPill.getInstance(), ActorRef.noSender());
 	}
-
 }

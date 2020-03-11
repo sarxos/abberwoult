@@ -12,6 +12,18 @@
   <artifactId>abberwoult-deployment</artifactId>
   <name>Abberwoult Deployment Processor</name>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.quarkus</groupId>
+        <artifactId>quarkus-bom-deployment</artifactId>
+        <version>1.2.1.Final</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -26,17 +38,14 @@
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-arc-deployment</artifactId>
-      <version>${quarkus.version}</version>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-core-deployment</artifactId>
-      <version>${quarkus.version}</version>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-hibernate-validator-deployment</artifactId>
-      <version>${quarkus.version}</version>
     </dependency>
     <dependency>
       <groupId>org.javassist</groupId>
@@ -45,7 +54,6 @@
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-junit5-internal</artifactId>
-      <version>${quarkus.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>

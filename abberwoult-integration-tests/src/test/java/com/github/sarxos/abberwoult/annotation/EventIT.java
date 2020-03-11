@@ -3,16 +3,12 @@ package com.github.sarxos.abberwoult.annotation;
 import java.time.Duration;
 
 import javax.inject.Inject;
-import javax.validation.Valid;
-import javax.validation.constraints.Size;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.github.sarxos.abberwoult.ActorUniverse;
-import com.github.sarxos.abberwoult.SimpleActor;
-import com.github.sarxos.abberwoult.dsl.Utils;
 import com.github.sarxos.abberwoult.testkit.TestKit;
 import com.github.sarxos.abberwoult.testkit.TestKitProbe;
 
@@ -22,52 +18,7 @@ import io.quarkus.test.junit.QuarkusTest;
 
 
 @QuarkusTest
-public class EventTest {
-
-	public static interface Something {
-	}
-
-	public static class SomethingImpl implements Something {
-	}
-
-	public static class Book {
-
-		@Size(min = 5)
-		private final String title;
-
-		public Book(final String title) {
-			this.title = title;
-		}
-
-		public String getTitle() {
-			return title;
-		}
-	}
-
-	public static class TestActor extends SimpleActor implements Utils {
-
-		private final ActorRef ref;
-
-		public TestActor(final TestKitProbe probe) {
-			this.ref = probe.getRef();
-		}
-
-		public void onInteger(@Event Integer i) {
-			forward(ref, i);
-		}
-
-		public void onLong(@Receives @Event Long l) {
-			forward(ref, l);
-		}
-
-		public void onSomething(@Receives @Event Something s) {
-			forward(ref, s);
-		}
-
-		public void onBook(@Receives @Valid @Event Book b) {
-			forward(ref, b);
-		}
-	}
+public class EventIT {
 
 	@Inject
 	TestKit testkit;
@@ -88,7 +39,7 @@ public class EventTest {
 		probe = testkit.probe();
 
 		ref = testkit.actor()
-			.of(TestActor.class)
+			.of(EventActor.class)
 			.withArguments(probe)
 			.create();
 
@@ -115,7 +66,7 @@ public class EventTest {
 	@Test
 	public void test_eventValid() {
 
-		final Book b = new Book("abbabba");
+		final EventActor.Book b = new EventActor.Book("abbabba");
 
 		events.publish(b);
 
@@ -125,7 +76,7 @@ public class EventTest {
 	@Test
 	public void test_eventInvalid() {
 
-		final Book b = new Book("a");
+		final EventActor.Book b = new EventActor.Book("a");
 
 		events.publish(b);
 
@@ -155,8 +106,8 @@ public class EventTest {
 	@Test
 	public void test_eventInterfaceClass() {
 
-		events.publish(new SomethingImpl());
+		events.publish(new EventActor.SomeImpl());
 
-		probe.expectMsgClass(Something.class);
+		probe.expectMsgClass(EventActor.Some.class);
 	}
 }

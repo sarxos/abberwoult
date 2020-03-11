@@ -109,4 +109,8 @@ public class ActorAutostarter {
 			.of(clazz)
 			.create();
 	}
+
+	public ActorRef getRef(final Class<? extends Actor> clazz) {
+		return references.get(clazz.getName());
+	}
 }

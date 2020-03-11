@@ -11,7 +11,7 @@ import io.quarkus.test.junit.QuarkusTest;
 
 
 @QuarkusTest
-public class ActorSystemFactoryTest {
+public class InjectActorSystemFactoryIT {
 
 	@Inject
 	ActorSystem system;

@@ -13,17 +13,23 @@ import io.quarkus.test.junit.QuarkusTest;
 
 
 @QuarkusTest
-public class ActorRefFactoryTest {
-
-	static final class TestActor extends SimpleActor {
-	}
+public class ActorRefFactoryIT {
 
 	@Inject
-	@ActorOf(TestActor.class)
-	ActorRef ref;
+	@ActorOf(EmptySimpleActor.class)
+	ActorRef refS;
+
+	@Inject
+	@ActorOf(EmptyAbstractActor.class)
+	ActorRef refA;
 
 	@Test
-	void test_injectActorRefByClass() {
-		assertThat(ref).isNotNull();
+	void test_injectSimpleActorRefByClass() {
+		assertThat(refS).isNotNull();
+	}
+
+	@Test
+	void test_injectAbstractActorRefByClass() {
+		assertThat(refA).isNotNull();
 	}
 }
