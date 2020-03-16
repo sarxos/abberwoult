@@ -7,6 +7,8 @@ import javax.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 import com.github.sarxos.abberwoult.ActorUniverse;
+import com.github.sarxos.abberwoult.annotation.ReceivesTesting.ReceivesActor;
+import com.github.sarxos.abberwoult.annotation.ReceivesTesting.ReceivesActorSubclass;
 
 import akka.actor.ActorRef;
 import akka.actor.PoisonPill;

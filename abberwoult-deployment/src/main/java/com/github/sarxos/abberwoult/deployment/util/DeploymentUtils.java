@@ -1,8 +1,8 @@
 package com.github.sarxos.abberwoult.deployment.util;
 
 import static com.github.sarxos.abberwoult.DotNames.ASSISTED_ANNOTATION;
-import static com.github.sarxos.abberwoult.DotNames.INJECT_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.EVENT_ANNOTATION;
+import static com.github.sarxos.abberwoult.DotNames.INJECT_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.RECEIVES_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.SIMPLE_ACTOR_CLASS;
 import static com.github.sarxos.abberwoult.DotNames.VALID_ANNOTATION;
@@ -15,6 +15,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jboss.jandex.AnnotationInstance;
@@ -24,6 +26,9 @@ import org.jboss.jandex.DotName;
 import org.jboss.jandex.IndexView;
 import org.jboss.jandex.MethodInfo;
 import org.jboss.jandex.Type;
+
+import com.github.sarxos.abberwoult.DotNames;
+import com.github.sarxos.abberwoult.jandex.Reflector.ClassRef;
 
 import io.quarkus.arc.processor.AnnotationsTransformer.TransformationContext;
 
@@ -226,5 +231,40 @@ public class DeploymentUtils {
 		collect.accept(clazz.superName());
 
 		return handlers;
+	}
+
+	public static Stream<String> getInjecteesTypesWithScopes(final ClassRef clazz, final Set<DotName> scopes) {
+
+		final Set<String> annotations = scopes.stream()
+			.map(DotName::toString)
+			.collect(Collectors.toSet());
+
+		final Stream<String> injecteeTypesFromFields = clazz
+			.getFieldsAnnotatedWith(INJECT_ANNOTATION)
+			.stream()
+			.map(field -> {
+				if (field.isTypeOf(DotNames.PROVIDER_INTERFACE)) {
+					return field.getParameterTypeName(0);
+				} else {
+					return field.getTypeName();
+				}
+			});
+
+		final Stream<String> injecteeTypesFromConstructors = clazz.getConstructorsAnnotatedWith(INJECT_ANNOTATION)
+			.stream()
+			.flatMap(m -> m.getParameters().stream())
+			.map(p -> p.getTypeClass())
+			.filter(c -> c.isDefined())
+			.map(c -> c.get())
+			.filter(c -> c.getAnnotations()
+				.stream()
+				.filter(a -> annotations.contains(a.getAnnotationClassName()))
+				.findAny()
+				.isPresent())
+			.map(ClassRef::getName);
+
+		return Stream
+			.concat(injecteeTypesFromFields, injecteeTypesFromConstructors)
+			.distinct();
 	}
 }

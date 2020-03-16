@@ -8,10 +8,11 @@ import static org.apache.commons.lang3.StringUtils.capitalize;
 import org.apache.commons.lang3.StringUtils;
 import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.DotName;
-import org.jboss.jandex.FieldInfo;
-import org.jboss.jandex.MethodInfo;
 
 import com.github.sarxos.abberwoult.ShardMessageExtractor.FieldReader;
+import com.github.sarxos.abberwoult.jandex.Reflector.ClassRef;
+import com.github.sarxos.abberwoult.jandex.Reflector.FieldRef;
+import com.github.sarxos.abberwoult.jandex.Reflector.MethodRef;
 
 import io.vavr.collection.Stream;
 import io.vavr.control.Option;
@@ -23,13 +24,14 @@ import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.CtNewMethod;
 import javassist.Modifier;
+import javassist.NotFoundException;
 
 
 public class FieldReaderGenerator {
 
 	private static final Class<FieldReader> FIELD_READER_CLASS = FieldReader.class;
 	private static final String FIELD_READER_CLASS_NAME = FieldReader.class.getName();
-	private static final ClassPool CLASS_POOL = getClassPool();
+	private static final ClassPool POOL = getClassPool();
 	private static final CtClass FIELD_READER_CT_CLASS = getFieldReaderCtClass();
 	private static final String PREFIX_GET = "get";
 	private static final String PREFIX_IS = "is";
@@ -57,7 +59,7 @@ public class FieldReaderGenerator {
 	 * @param info the {@link ClassInfo} linked to the message {@link Class}
 	 * @return New {@link CtClass}
 	 */
-	public CtClass generate(final ClassInfo info) {
+	public CtClass generate(final ClassRef info) {
 		try {
 			return generate0(info);
 		} catch (CannotCompileException e) {
@@ -70,35 +72,41 @@ public class FieldReaderGenerator {
 	 * @return New {@link CtClass}
 	 * @throws CannotCompileException
 	 */
-	private CtClass generate0(final ClassInfo clazz) throws CannotCompileException {
+	private CtClass generate0(final ClassRef clazz) throws CannotCompileException {
 
-		final String clazzName = clazz.name().toString();
+		final String clazzName = clazz.getName();
 		final String shardIdGetterName = getAnnotatedMethodName(clazz, SHARD_ID_ANNOTATION);
 		final String shardEntityIdGetterName = getAnnotatedMethodName(clazz, SHARD_ENTITY_ID_ANNOTATION);
+		final String syntheticClassName = clazzName + "_FieldReader";
 
-		final CtClass cc = CLASS_POOL.makeClass(clazzName + "_FieldReader");
-		cc.setInterfaces(new CtClass[] { FIELD_READER_CT_CLASS });
-		cc.setModifiers(Modifier.FINAL | Modifier.PUBLIC);
-		cc.addMethod(method(cc, "public Object readShardId(Object m) { return value(((%s) m).%s()); }", clazzName, shardIdGetterName));
-		cc.addMethod(method(cc, "public Object readShardEntityId(Object m) { return value(((%s) m).%s()); }", clazzName, shardEntityIdGetterName));
-		cc.debugWriteFile("target/abberwoult/generated-classes");
+		try {
+			return POOL.get(syntheticClassName);
+		} catch (NotFoundException e) {
 
-		return cc;
+			final CtClass cc = POOL.makeClass(syntheticClassName);
+			cc.setInterfaces(new CtClass[] { FIELD_READER_CT_CLASS });
+			cc.setModifiers(Modifier.FINAL | Modifier.PUBLIC);
+			cc.addMethod(method(cc, "public Object readShardId(Object m) { return value(((%s) m).%s()); }", clazzName, shardIdGetterName));
+			cc.addMethod(method(cc, "public Object readShardEntityId(Object m) { return value(((%s) m).%s()); }", clazzName, shardEntityIdGetterName));
+			cc.debugWriteFile("target/abberwoult/generated-classes");
+
+			return cc;
+		}
 	}
 
-	private String getAnnotatedMethodName(final ClassInfo clazz, final DotName annotation) {
+	private String getAnnotatedMethodName(final ClassRef clazz, final DotName annotation) {
 
 		final Option<String> method = Stream
-			.ofAll(clazz.methods())
+			.ofAll(clazz.getMethods())
 			.find(m -> m.hasAnnotation(annotation))
-			.map(MethodInfo::name);
+			.map(MethodRef::getName);
 
 		if (method.isDefined()) {
 			return method.get();
 		}
 
-		final FieldInfo field = Stream
-			.ofAll(clazz.fields())
+		final FieldRef field = Stream
+			.ofAll(clazz.getFields())
 			.find(f -> f.hasAnnotation(annotation))
 			.getOrElseThrow(() -> new NoAnnotationFoundException(annotation, clazz));
 
@@ -114,25 +122,25 @@ public class FieldReaderGenerator {
 		}
 	}
 
-	private String getReadMethod(final ClassInfo clazz, FieldInfo field) {
+	private String getReadMethod(final ClassRef clazz, FieldRef field) {
 
-		final String fieldTypeName = field.type().name().toString();
+		final String fieldTypeName = field.getTypeName();
 		final boolean isBoolean = StringUtils.equals(fieldTypeName, "boolean");
-		final String getter = getGetterName(field.name(), isBoolean);
-		final MethodInfo method = clazz.method(getter);
+		final String getter = getGetterName(field.getName(), isBoolean);
+		final MethodRef method = clazz.getMethodByName(getter);
 
 		if (method == null) {
 			throw new IllegalStateException("No getter " + getter + " found for " + field + " in " + clazz);
 		}
 
-		final String methodReturnType = method.returnType().name().toString();
+		final String methodReturnType = method.getReturnTypeName();
 		final boolean isVoid = StringUtils.equals(methodReturnType, "void");
 
 		if (isVoid) {
 			throw new IllegalStateException("Void method " + method + " cannot be a getter for " + field + " in " + clazz);
 		}
-		if (method.parameters().isEmpty()) {
-			return method.name();
+		if (method.getParametersCount() == 0) {
+			return method.getName();
 		}
 
 		throw new IllegalStateException("Method " + method + " must have no arguments to be a getter for " + field + " in " + clazz);
@@ -146,14 +154,14 @@ public class FieldReaderGenerator {
 
 	private static final CtClass getFieldReaderCtClass() {
 		return Try
-			.of(() -> CLASS_POOL.get(FIELD_READER_CLASS_NAME))
+			.of(() -> POOL.get(FIELD_READER_CLASS_NAME))
 			.get();
 	}
 }
 
 @SuppressWarnings("serial")
 class NoAnnotationFoundException extends IllegalStateException {
-	public NoAnnotationFoundException(DotName annotation, ClassInfo clazz) {
+	public NoAnnotationFoundException(DotName annotation, ClassRef clazz) {
 		super("Neither method nor field is annotated with " + annotation + " in " + clazz);
 	}
 }

@@ -6,6 +6,8 @@ import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
+import com.github.sarxos.abberwoult.annotation.AssistedTesting.AssistedActorWithFirstArgumentAnnotated;
+import com.github.sarxos.abberwoult.annotation.AssistedTesting.AssistedActorWithLastArgumentAnnotated;
 import com.github.sarxos.abberwoult.testkit.TestKit;
 
 import akka.actor.ActorRef;

@@ -4,12 +4,14 @@ import static com.github.sarxos.abberwoult.DotNames.ABSTRACT_ACTOR_CLASS;
 import static com.github.sarxos.abberwoult.DotNames.ACTOR_SCOPED_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.APPLICATION_SCOPED_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.AUTOSTART_ANNOTATION;
+import static com.github.sarxos.abberwoult.DotNames.INJECT_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.SHARD_ENTITY_ID_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.SHARD_ID_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.SHARD_ROUTABLE_MESSAGE_INTERFACE;
 import static io.quarkus.deployment.annotations.ExecutionTime.RUNTIME_INIT;
 import static io.quarkus.deployment.annotations.ExecutionTime.STATIC_INIT;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,10 +22,7 @@ import java.util.function.Consumer;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.jboss.jandex.AnnotationInstance;
-import org.jboss.jandex.AnnotationTarget;
-import org.jboss.jandex.AnnotationTarget.Kind;
-import org.jboss.jandex.ClassInfo;
+import org.jboss.jandex.DotName;
 import org.jboss.jandex.Index;
 import org.jboss.logging.Logger;
 
@@ -39,7 +38,9 @@ import com.github.sarxos.abberwoult.deployment.item.ActorBuildItem;
 import com.github.sarxos.abberwoult.deployment.item.InstrumentedActorBuildItem;
 import com.github.sarxos.abberwoult.deployment.item.ShardMessageBuildItem;
 import com.github.sarxos.abberwoult.deployment.item.SyntheticFieldReaderBuildItem;
+import com.github.sarxos.abberwoult.deployment.util.DeploymentUtils;
 import com.github.sarxos.abberwoult.jandex.Reflector;
+import com.github.sarxos.abberwoult.jandex.Reflector.ClassRef;
 
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.arc.deployment.BeanDefiningAnnotationBuildItem;
@@ -240,30 +241,16 @@ public class AbberwoultProcessor {
 			.forEach(clazz -> autostarter.register(clazz));
 	}
 
-	private ClassInfo getClassInfo(AnnotationTarget target) {
-		if (target.kind() == Kind.METHOD) {
-			return target.asMethod().declaringClass();
-		} else {
-			return target.asField().declaringClass();
-		}
-	}
-
-	private void assertShardRoutableMessageIsImplemented(final ClassInfo clazz) {
-		if (!clazz.interfaceNames().contains(SHARD_ROUTABLE_MESSAGE_INTERFACE)) {
+	private void assertShardRoutableMessageIsImplemented(final ClassRef clazz) {
+		if (!clazz.hasInterface(SHARD_ROUTABLE_MESSAGE_INTERFACE)) {
 			throw new ImplementationMissingException(clazz, SHARD_ROUTABLE_MESSAGE_INTERFACE);
 		}
 	}
 
 	@BuildStep
-	List<ShardMessageBuildItem> doFindShardMessages(final CombinedIndexBuildItem combined) {
-
-		final Set<AnnotationInstance> annotations = new HashSet<>();
-		annotations.addAll(combined.getIndex().getAnnotations(SHARD_ID_ANNOTATION));
-		annotations.addAll(combined.getIndex().getAnnotations(SHARD_ENTITY_ID_ANNOTATION));
-
-		return annotations.stream()
-			.map(AnnotationInstance::target)
-			.map(this::getClassInfo)
+	List<ShardMessageBuildItem> doFindShardMessages(final Reflector reflector) {
+		return reflector
+			.findClassesWithAnnotationInScope(SHARD_ID_ANNOTATION, SHARD_ENTITY_ID_ANNOTATION)
 			.peek(this::assertShardRoutableMessageIsImplemented)
 			.distinct()
 			.map(ShardMessageBuildItem::new)
@@ -286,5 +273,26 @@ public class AbberwoultProcessor {
 			.peek(r -> sre.register(r.getMessageClassName(), r.getSyntheticFieldReaderInstance()))
 			.map(reader -> new GeneratedClassBuildItem(true, reader.getSyntheticClassName(), reader.getBytecode()))
 			.collect(toList());
+	}
+
+	@BuildStep
+	UnremovableBeanBuildItem doActorInjecteesUnremovable(final Reflector reflector, final CombinedIndexBuildItem combined, List<BeanDefiningAnnotationBuildItem> definers) {
+
+		final Set<DotName> scopes = new HashSet<>();
+		scopes.add(DotNames.SINGLETON_ANNOTATION);
+		scopes.add(DotNames.APPLICATION_SCOPED_ANNOTATION);
+		scopes.add(DotNames.DEPENDENT_ANNOTATION);
+		scopes.addAll(definers.stream()
+			.map(BeanDefiningAnnotationBuildItem::getName)
+			.collect(toList()));
+
+		final Set<String> unremovables = reflector
+			.findClassesWithAnnotationInScope(INJECT_ANNOTATION)
+			.distinct()
+			.flatMap(clazz -> DeploymentUtils.getInjecteesTypesWithScopes(clazz, scopes))
+			.peek(type -> LOG.debugf("Registering %s as unremovable bean", type))
+			.collect(toSet());
+
+		return new UnremovableBeanBuildItem(new UnremovableBeanBuildItem.BeanClassNamesExclusion(unremovables));
 	}
 }

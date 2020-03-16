@@ -12,39 +12,19 @@ import javax.inject.Inject;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.Test;
 
-import com.github.sarxos.abberwoult.AskableActorRef;
-import com.github.sarxos.abberwoult.SimpleActor;
+import com.github.sarxos.abberwoult.AskableActorRefTesting.AskableActorRefTestActor;
 import com.github.sarxos.abberwoult.annotation.ActorOf;
-import com.github.sarxos.abberwoult.annotation.Receives;
-import com.github.sarxos.abberwoult.dsl.Disposers;
-import com.github.sarxos.abberwoult.dsl.Utils;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.vavr.concurrent.Future;
 
 
 @QuarkusTest
-public class AskableActorRefTest {
+public class AskableActorRefIT {
 
 	@Inject
-	@ActorOf(TestClass.class)
+	@ActorOf(AskableActorRefTestActor.class)
 	AskableActorRef ref;
-
-	public static class TestClass extends SimpleActor implements Utils, Disposers {
-
-		public void handleInteger(@Receives final Integer i) {
-			replyAndDispose(i);
-		}
-
-		public void handleThrowable(@Receives final Throwable t) {
-			replyAndDispose(t);
-		}
-
-		private void replyAndDispose(final Object value) {
-			reply(value);
-			dispose();
-		}
-	}
 
 	@Test
 	public void test_ask() throws Exception {

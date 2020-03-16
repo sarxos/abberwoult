@@ -7,9 +7,10 @@ import javax.inject.Inject;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import com.github.sarxos.abberwoult.ActorUniverseTesting.ActorUniverseTestActor;
+import com.github.sarxos.abberwoult.ActorUniverseTesting.ActorUniverseNamedActor;
+import com.github.sarxos.abberwoult.ActorUniverseTesting.ActorUniverseNamedFooActor;
 import com.github.sarxos.abberwoult.annotation.Named;
-import com.github.sarxos.abberwoult.annotation.Receives;
-import com.github.sarxos.abberwoult.dsl.Utils;
 import com.github.sarxos.abberwoult.testkit.TestKit;
 
 import akka.actor.ActorRef;
@@ -24,7 +25,7 @@ import scala.concurrent.duration.Duration;
 
 
 @QuarkusTest
-public class ActorUniverseTest {
+public class ActorUniverseIT {
 
 	@Inject
 	@Named("test")
@@ -36,36 +37,11 @@ public class ActorUniverseTest {
 	@Inject
 	TestKit testkit;
 
-	public static class TestActor extends SimpleActor implements Utils {
-		public void onInteger(@Receives Integer i) {
-			reply(i);
-		}
-	}
-
-	@Named("foo")
-	public static class TestNamedFooActor extends SimpleActor implements Utils {
-
-		public void onInteger(@Receives Integer i) {
-			reply(i);
-		}
-
-		public void onString(@Receives String s) {
-			reply(self().path().toString());
-		}
-	}
-
-	@Named
-	public static class TestNamedActor extends SimpleActor implements Utils {
-		public void onInteger(@Receives Integer i) {
-			reply(i);
-		}
-	}
-
 	@Test
 	public void test_createActor() throws Exception {
 
 		final ActorRef ref = universe.actor()
-			.of(TestActor.class)
+			.of(ActorUniverseTestActor.class)
 			.create();
 
 		assertThat(askResult(ref, 2)).isEqualTo(2);
@@ -77,7 +53,7 @@ public class ActorUniverseTest {
 	public void test_createNamedActorOnceIsPossible() throws Exception {
 
 		final ActorRef foo = universe.actor()
-			.of(TestNamedFooActor.class)
+			.of(ActorUniverseNamedFooActor.class)
 			.create();
 
 		assertThat(askResult(foo, 2)).isEqualTo(2);
@@ -89,7 +65,7 @@ public class ActorUniverseTest {
 	public void test_namedActorPathIsCorrect() throws Exception {
 
 		final ActorRef foo = universe.actor()
-			.of(TestNamedFooActor.class)
+			.of(ActorUniverseNamedFooActor.class)
 			.create();
 
 		assertThat(foo.path().toString()).endsWith("/user/foo");
@@ -101,10 +77,10 @@ public class ActorUniverseTest {
 	public void test_namedActorWithNoValuePathIsCorrect() throws Exception {
 
 		final ActorRef foo = universe.actor()
-			.of(TestNamedActor.class)
+			.of(ActorUniverseNamedActor.class)
 			.create();
 
-		assertThat(foo.path().toString()).endsWith("/user/" + TestNamedActor.class.getName());
+		assertThat(foo.path().toString()).endsWith("/user/" + ActorUniverseNamedActor.class.getName());
 
 		kill(foo);
 	}
@@ -113,14 +89,14 @@ public class ActorUniverseTest {
 	public void test_createNamedActorTwiceRaiseException() throws Exception {
 
 		final ActorRef foo = universe.actor()
-			.of(TestNamedFooActor.class)
+			.of(ActorUniverseNamedFooActor.class)
 			.create();
 
 		assertThat(askResult(foo, 4)).isEqualTo(4);
 
 		Assertions
 			.assertThatThrownBy(() -> universe.actor()
-				.of(TestNamedFooActor.class)
+				.of(ActorUniverseNamedFooActor.class)
 				.create())
 			.isInstanceOf(InvalidActorNameException.class);
 

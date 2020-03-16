@@ -7,6 +7,12 @@ import javax.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 import com.github.sarxos.abberwoult.ShardMessageExtractor;
+import com.github.sarxos.abberwoult.annotation.ShardEntityIdTesting.ShardEntityIdBooleanMsg;
+import com.github.sarxos.abberwoult.annotation.ShardEntityIdTesting.ShardEntityIdByteMsg;
+import com.github.sarxos.abberwoult.annotation.ShardEntityIdTesting.ShardEntityIdIntMsg;
+import com.github.sarxos.abberwoult.annotation.ShardEntityIdTesting.ShardEntityIdLongMsg;
+import com.github.sarxos.abberwoult.annotation.ShardEntityIdTesting.ShardEntityIdShortMsg;
+import com.github.sarxos.abberwoult.annotation.ShardEntityIdTesting.ShardEntityIdStringMsg;
 
 import io.quarkus.test.junit.QuarkusTest;
 
@@ -34,16 +40,16 @@ public class ShardEntityIdIT {
 
 	@Test
 	public void test_longShardEntityId() {
-		assertThat(extractor.entityId(new ShardEntityIdLongMsg(6L))).isEqualTo(6L);
+		assertThat(extractor.entityId(new ShardEntityIdLongMsg(6L))).isEqualTo("6");
 	}
 
 	@Test
 	public void test_shortShardEntityId() {
-		assertThat(extractor.entityId(new ShardEntityIdShortMsg((short) 7))).isEqualTo((short) 7);
+		assertThat(extractor.entityId(new ShardEntityIdShortMsg((short) 7))).isEqualTo("7");
 	}
 
 	@Test
 	public void test_byteShardEntityId() {
-		assertThat(extractor.entityId(new ShardEntityIdByteMsg((byte) 8))).isEqualTo((byte) 8);
+		assertThat(extractor.entityId(new ShardEntityIdByteMsg((byte) 8))).isEqualTo("8");
 	}
 }

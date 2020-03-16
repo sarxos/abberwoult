@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 import com.github.sarxos.abberwoult.AskableActorSelection;
+import com.github.sarxos.abberwoult.annotation.AutostartTesting.AutostartActor;
 import com.github.sarxos.abberwoult.deployment.ActorAutostarter;
 
 import io.quarkus.test.junit.QuarkusTest;

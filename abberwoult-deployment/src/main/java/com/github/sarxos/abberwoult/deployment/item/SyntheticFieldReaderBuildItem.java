@@ -2,10 +2,9 @@ package com.github.sarxos.abberwoult.deployment.item;
 
 import java.io.IOException;
 
-import org.jboss.jandex.ClassInfo;
-
 import com.github.sarxos.abberwoult.ShardMessageExtractor.FieldReader;
 import com.github.sarxos.abberwoult.deployment.util.FieldReaderGenerator;
+import com.github.sarxos.abberwoult.jandex.Reflector.ClassRef;
 
 import io.quarkus.builder.item.MultiBuildItem;
 import io.vavr.control.Option;
@@ -28,11 +27,11 @@ public final class SyntheticFieldReaderBuildItem extends MultiBuildItem {
 	private final FieldReader reader;
 	private final byte[] bytecode;
 
-	public SyntheticFieldReaderBuildItem(final ClassInfo messageClass) {
+	public SyntheticFieldReaderBuildItem(final ClassRef messageClass) {
 
 		final CtClass cc = GENERATOR.generate(messageClass);
 
-		this.messageClassName = messageClass.name().toString();
+		this.messageClassName = messageClass.getName();
 		this.syntheticClassName = cc.getName();
 		this.reader = instantiate(cc);
 		this.bytecode = toBytecode(cc);

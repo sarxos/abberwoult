@@ -1,6 +1,6 @@
 package com.github.sarxos.abberwoult.deployment.item;
 
-import org.jboss.jandex.ClassInfo;
+import com.github.sarxos.abberwoult.jandex.Reflector.ClassRef;
 
 import io.quarkus.builder.item.MultiBuildItem;
 
@@ -12,13 +12,13 @@ import io.quarkus.builder.item.MultiBuildItem;
  */
 final public class ShardMessageBuildItem extends MultiBuildItem {
 
-	private final ClassInfo messageClass;
+	private final ClassRef messageClass;
 
-	public ShardMessageBuildItem(final ClassInfo messageClass) {
+	public ShardMessageBuildItem(final ClassRef messageClass) {
 		this.messageClass = messageClass;
 	}
 
-	public ClassInfo getMessageClass() {
+	public ClassRef getMessageClass() {
 		return messageClass;
 	}
 }

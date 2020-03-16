@@ -7,16 +7,20 @@ import static java.util.stream.Collectors.toList;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.AnnotationUtils;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.jboss.jandex.AnnotationInstance;
+import org.jboss.jandex.AnnotationTarget;
 import org.jboss.jandex.AnnotationTarget.Kind;
 import org.jboss.jandex.AnnotationValue;
 import org.jboss.jandex.ClassInfo;
@@ -24,6 +28,7 @@ import org.jboss.jandex.DotName;
 import org.jboss.jandex.FieldInfo;
 import org.jboss.jandex.IndexView;
 import org.jboss.jandex.MethodInfo;
+import org.jboss.jandex.Type;
 
 import io.quarkus.builder.item.SimpleBuildItem;
 import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
@@ -57,6 +62,41 @@ public final class Reflector extends SimpleBuildItem {
 			.getAllKnownSubclasses(dn)
 			.stream()
 			.map(ClassRef::new);
+	}
+
+	public Stream<ClassRef> findClassesWithAnnotationInScope(final DotName... dns) {
+		return Arrays
+			.stream(dns)
+			.flatMap(dn -> index.getAnnotations(dn).stream())
+			.map(AnnotationInstance::target)
+			.map(this::getClassInfo)
+			.map(ClassRef::new);
+	}
+
+	private ClassInfo getClassInfo(final AnnotationTarget target) {
+
+		switch (target.kind()) {
+			case METHOD:
+				return target
+					.asMethod()
+					.declaringClass();
+			case METHOD_PARAMETER:
+				return target
+					.asMethodParameter()
+					.method()
+					.declaringClass();
+			case FIELD:
+				return target
+					.asField()
+					.declaringClass();
+			case CLASS:
+				return target
+					.asClass();
+			case TYPE:
+				throw new NotImplementedException("TYPE kind is not supported yet");
+		}
+
+		throw new IllegalStateException("Not supported " + target.kind());
 	}
 
 	public abstract class Reflection {
@@ -106,8 +146,16 @@ public final class Reflector extends SimpleBuildItem {
 			return findClass(ci.superName()).getOrNull();
 		}
 
+		public MethodRef getMethodByName(final String name) {
+			return new MethodRef(ci.method(name), this);
+		}
+
 		public boolean hasAnnotation(DotName dn) {
 			return ci.classAnnotation(dn) != null;
+		}
+
+		public boolean hasInterface(DotName dn) {
+			return ci.interfaceNames().contains(dn);
 		}
 
 		public boolean hasAnnotationInClassScope(DotName... dns) {
@@ -143,12 +191,19 @@ public final class Reflector extends SimpleBuildItem {
 		}
 
 		/**
-		 * @return Fields declared on this class and its superclasses
+		 * @return Fields declared on this class and all superclasses
 		 */
 		public List<FieldRef> getFields() {
 			return getFieldsRecursive(ci)
 				.stream()
 				.map(fi -> new FieldRef(fi, this))
+				.collect(toList());
+		}
+
+		public List<FieldRef> getFieldsAnnotatedWith(final DotName... dns) {
+			return getFields()
+				.stream()
+				.filter(field -> field.hasAnnotation(dns))
 				.collect(toList());
 		}
 
@@ -165,14 +220,22 @@ public final class Reflector extends SimpleBuildItem {
 			return fields;
 		}
 
+		/**
+		 * @return Methods from this class only, not from its superclasses
+		 */
 		public List<MethodRef> getDeclaredMethods() {
 			return ci
 				.methods()
 				.stream()
+				.filter(this::notInit)
+				.filter(this::notClassInit)
 				.map(mi -> new MethodRef(mi, this))
 				.collect(toList());
 		}
 
+		/**
+		 * @return Methods from this class and all superclasses
+		 */
 		public List<MethodRef> getMethods() {
 			return getMethodsRecursive(ci)
 				.stream()
@@ -183,17 +246,48 @@ public final class Reflector extends SimpleBuildItem {
 		}
 
 		private boolean notInit(MethodInfo mi) {
-			return !"<init>".equals(mi.name());
+			return !isInit(mi);
+		}
+
+		private boolean isInit(MethodInfo mi) {
+			return "<init>".equals(mi.name());
 		}
 
 		private boolean notClassInit(MethodInfo mi) {
-			return !"<clinit>".equals(mi.name());
+			return !isClassInit(mi);
 		}
 
-		public List<MethodRef> getMethodsAnnotatedWith(DotName dn) {
+		private boolean isClassInit(MethodInfo mi) {
+			return "<clinit>".equals(mi.name());
+		}
+
+		public List<MethodRef> getMethodsAnnotatedWith(final DotName... dns) {
 			return getMethods()
 				.stream()
-				.filter(m -> m.hasAnnotation(dn))
+				.filter(m -> m.hasAnnotation(dns))
+				.collect(toList());
+		}
+
+		public List<ConstructorRef> getConstructors() {
+			return ci
+				.methods()
+				.stream()
+				.filter(this::isInit)
+				.map(mi -> new ConstructorRef(mi, this))
+				.collect(toList());
+		}
+
+		public List<ConstructorRef> getConstructorsAnnotatedWith(final DotName... dns) {
+			return getConstructors()
+				.stream()
+				.filter(c -> c.hasAnnotation(dns))
+				.collect(toList());
+		}
+
+		public List<AnnotationRef> getAnnotations() {
+			return ci.classAnnotations()
+				.stream()
+				.map(AnnotationRef::new)
 				.collect(toList());
 		}
 
@@ -223,25 +317,78 @@ public final class Reflector extends SimpleBuildItem {
 		}
 	}
 
-	public class MethodRef extends Reflection {
+	public class InvocationRef extends Reflection {
 
 		final MethodInfo mi;
 		final ClassRef cr;
 
-		public MethodRef(final MethodInfo mi, ClassRef cr) {
+		public InvocationRef(final MethodInfo mi, ClassRef cr) {
 			this.mi = mi;
 			this.cr = cr;
 		}
 
-		public boolean hasAnnotation(DotName dn) {
+		public boolean hasAnnotation(final DotName... dns) {
+
+			final Predicate<AnnotationInstance> isOneOfAnnotatyionsPresent = ai -> {
+				final DotName name = ai.name();
+				for (final DotName dn : dns) {
+					if (name.equals(dn)) {
+						return true;
+					}
+				}
+				return false;
+			};
+
 			return mi
 				.annotations()
 				.stream()
-				.filter(ai -> ai.name().equals(dn))
+				.filter(isOneOfAnnotatyionsPresent)
 				.filter(ai -> ai.target().kind() == Kind.METHOD)
 				.filter(ai -> ai.target().equals(mi))
 				.findAny()
 				.isPresent();
+		}
+
+		public boolean hasAnnotationInMethodScope(final DotName... dns) {
+			for (DotName dn : dns) {
+				if (mi.hasAnnotation(dn)) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public ClassRef getDeclaringClass() {
+			return cr;
+		}
+
+		public String getDeclaringClassName() {
+			return getDeclaringClass().getName();
+		}
+
+		public int getParametersCount() {
+			return mi.parameters().size();
+		}
+
+		public List<ParameterRef> getParameters() {
+			return mi.parameters()
+				.stream()
+				.map(t -> new ParameterRef(t))
+				.collect(toList());
+		}
+	}
+
+	public class ConstructorRef extends InvocationRef {
+
+		public ConstructorRef(final MethodInfo mi, ClassRef cr) {
+			super(mi, cr);
+		}
+	}
+
+	public class MethodRef extends InvocationRef {
+
+		public MethodRef(final MethodInfo mi, ClassRef cr) {
+			super(mi, cr);
 		}
 
 		public String getName() {
@@ -252,12 +399,21 @@ public final class Reflector extends SimpleBuildItem {
 			return mi.toString();
 		}
 
-		public ClassRef getDeclaringClass() {
-			return cr;
+		public String getReturnTypeName() {
+			return mi.returnType().name().toString();
+		}
+	}
+
+	public class ParameterRef extends Reflection {
+
+		private final Type t;
+
+		public ParameterRef(Type t) {
+			this.t = t;
 		}
 
-		public String getDeclaringClassName() {
-			return getDeclaringClass().getName();
+		public Option<ClassRef> getTypeClass() {
+			return findClass(t.name());
 		}
 	}
 
@@ -279,8 +435,42 @@ public final class Reflector extends SimpleBuildItem {
 				.collect(toList());
 		}
 
-		public boolean hasAnnotation(DotName dn) {
-			return fi.hasAnnotation(dn);
+		public boolean hasAnnotation(DotName... dns) {
+			for (final DotName dn : dns) {
+				if (fi.hasAnnotation(dn)) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public String getName() {
+			return fi.name();
+		}
+
+		public DotName getType() {
+			return fi.type().name();
+		}
+
+		public String getParameterTypeName(final int index) {
+			return fi.type()
+				.asParameterizedType()
+				.arguments()
+				.get(index)
+				.name()
+				.toString();
+		}
+
+		public boolean isTypeOf(DotName dn) {
+			return getType().equals(dn);
+		}
+
+		public String getTypeName() {
+			return getType().toString();
+		}
+
+		public boolean isParametrized() {
+			return fi.type().kind() == Type.Kind.PARAMETERIZED_TYPE;
 		}
 	}
 
@@ -292,8 +482,12 @@ public final class Reflector extends SimpleBuildItem {
 			this.ai = ai;
 		}
 
-		public ClassRef getAnnotationClass() {
-			return findClass(ai.name()).get();
+		public Option<ClassRef> getAnnotationClass() {
+			return findClass(ai.name());
+		}
+
+		public String getAnnotationClassName() {
+			return ai.name().toString();
 		}
 
 		public List<AnnotationRef> getAnnotations() {
@@ -317,7 +511,9 @@ public final class Reflector extends SimpleBuildItem {
 		 * @return True if class is annotated with given annotation or false otherwise
 		 */
 		public boolean hasAnnotation(DotName dn) {
-			return getAnnotationClass().hasAnnotation(dn);
+			return getAnnotationClass()
+				.filter(c -> c.hasAnnotation(dn))
+				.isDefined();
 		}
 
 		public <A extends Annotation> A toInstance(final Class<A> clazz) {

@@ -14,6 +14,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.github.sarxos.abberwoult.ActorUniverse;
+import com.github.sarxos.abberwoult.annotation.PreStartTesting.PreStartActorAbstractClassWithSingleBinding;
+import com.github.sarxos.abberwoult.annotation.PreStartTesting.PreStartActorImplementingInterface;
+import com.github.sarxos.abberwoult.annotation.PreStartTesting.PreStartActorSubClassWithOverridenBinding;
+import com.github.sarxos.abberwoult.annotation.PreStartTesting.PreStartActorSubClassWithSingleBinding;
+import com.github.sarxos.abberwoult.annotation.PreStartTesting.PreStartActorWithMultipleBindings;
+import com.github.sarxos.abberwoult.annotation.PreStartTesting.PreStartActorWithSingleBinding;
+import com.github.sarxos.abberwoult.annotation.PreStartTesting.PreStartInterfaceWithSingleBinding;
 
 import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
@@ -106,7 +113,7 @@ public class PreStartIT {
 	@Test
 	public void test_preStartMethodNotGeneratedForAbstractClass() {
 		Assertions.assertThrows(NoSuchMethodException.class, () -> {
-			PreStartAbstractActorClassWithSingleBinding.class.getDeclaredMethod("preStart");
+			PreStartActorAbstractClassWithSingleBinding.class.getDeclaredMethod("preStart");
 		});
 	}
 
