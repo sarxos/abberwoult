@@ -13,8 +13,8 @@ public class ActorUniverseTesting {
 		}
 	}
 
-	@Named("foo")
-	public static class ActorUniverseNamedFooActor extends SimpleActor implements Utils {
+	@Named("universefoo")
+	public static class ActorUniverseNamedUniverseFooActor extends SimpleActor implements Utils {
 
 		public void onInteger(@Receives Integer i) {
 			reply(i);

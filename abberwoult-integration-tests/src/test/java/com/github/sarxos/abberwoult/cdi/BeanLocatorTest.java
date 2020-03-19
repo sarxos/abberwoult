@@ -11,10 +11,10 @@ import javax.inject.Named;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.sarxos.abberwoult.cdi.internals.DummyService;
-import com.github.sarxos.abberwoult.cdi.internals.SomeService;
-import com.github.sarxos.abberwoult.cdi.internals.SomeServiceBarImpl;
-import com.github.sarxos.abberwoult.cdi.internals.SomeServiceFooImpl;
+import com.github.sarxos.abberwoult.cdi.internals.CdiDummyService;
+import com.github.sarxos.abberwoult.cdi.internals.CdiSomeService;
+import com.github.sarxos.abberwoult.cdi.internals.CdiSomeServiceBarImpl;
+import com.github.sarxos.abberwoult.cdi.internals.CdiSomeServiceFooImpl;
 
 import io.quarkus.test.junit.QuarkusTest;
 
@@ -27,20 +27,20 @@ public class BeanLocatorTest {
 
 	@Inject
 	@Named("foo")
-	SomeService foo;
+	CdiSomeService foo;
 
 	@Inject
 	@Named("bar")
-	SomeService bar;
+	CdiSomeService bar;
 
 	static class TestClass {
 
-		DummyService ds;
+		CdiDummyService ds;
 
 		public TestClass(
-			DummyService ds,
-			@Named("foo") SomeService fss,
-			@Named("bar") SomeService bss) {
+			CdiDummyService ds,
+			@Named("foo") CdiSomeService fss,
+			@Named("bar") CdiSomeService bss) {
 		}
 	}
 
@@ -55,7 +55,7 @@ public class BeanLocatorTest {
 		final Field field = TestClass.class.getDeclaredField("ds");
 
 		assertThat(locator.findBeanFor(field))
-			.isInstanceOf(DummyService.class)
+			.isInstanceOf(CdiDummyService.class)
 			.isNotNull();
 	}
 
@@ -66,7 +66,7 @@ public class BeanLocatorTest {
 		final Parameter parameter = constructor.getParameters()[0];
 
 		assertThat(locator.findBeanFor(constructor, parameter, 0))
-			.isInstanceOf(DummyService.class)
+			.isInstanceOf(CdiDummyService.class)
 			.isNotNull();
 	}
 
@@ -77,7 +77,7 @@ public class BeanLocatorTest {
 		final Parameter parameter = constructor.getParameters()[1];
 
 		assertThat(locator.findBeanFor(constructor, parameter, 1))
-			.isInstanceOf(SomeService.class)
+			.isInstanceOf(CdiSomeService.class)
 			.isSameAs(foo)
 			.isNotNull();
 	}
@@ -89,29 +89,29 @@ public class BeanLocatorTest {
 		final Parameter parameter = constructor.getParameters()[2];
 
 		assertThat(locator.findBeanFor(constructor, parameter, 2))
-			.isInstanceOf(SomeService.class)
+			.isInstanceOf(CdiSomeService.class)
 			.isSameAs(bar)
 			.isNotNull();
 	}
 
 	@Test
 	void test_findBean() {
-		assertThat(locator.findBean(DummyService.class))
-			.isInstanceOf(DummyService.class)
+		assertThat(locator.findBean(CdiDummyService.class))
+			.isInstanceOf(CdiDummyService.class)
 			.isNotNull();
 	}
 
 	@Test
 	void test_findSomeServiceNamedFoo() {
 		assertThat(foo)
-			.isInstanceOf(SomeServiceFooImpl.class)
+			.isInstanceOf(CdiSomeServiceFooImpl.class)
 			.isNotNull();
 	}
 
 	@Test
 	void test_findSomeServiceNamedBar() {
 		assertThat(bar)
-			.isInstanceOf(SomeServiceBarImpl.class)
+			.isInstanceOf(CdiSomeServiceBarImpl.class)
 			.isNotNull();
 	}
 }

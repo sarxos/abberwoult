@@ -7,10 +7,9 @@ import javax.validation.Validator;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.sarxos.abberwoult.SimpleActor;
+import com.github.sarxos.abberwoult.ValidatorTesting.TestActor;
+import com.github.sarxos.abberwoult.ValidatorTesting.ValidatorGetMsg;
 import com.github.sarxos.abberwoult.annotation.ActorOf;
-import com.github.sarxos.abberwoult.annotation.Receives;
-import com.github.sarxos.abberwoult.dsl.Utils;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
@@ -23,19 +22,6 @@ import scala.concurrent.duration.Duration;
 
 @QuarkusTest
 public class ValidatorTest {
-
-	static final class ValidatorGetMsg {
-	}
-
-	static final class TestActor extends SimpleActor implements Utils {
-
-		@Inject
-		Validator validator;
-
-		public void handleValidatorGetMsg(@Receives final ValidatorGetMsg msg) {
-			reply(validator);
-		}
-	}
 
 	@Inject
 	Validator validator;

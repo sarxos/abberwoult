@@ -15,11 +15,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.github.sarxos.abberwoult.AskableActorSelectionTesting.AskableActorSelectionTestClass;
 import com.github.sarxos.abberwoult.annotation.ActorOf;
-import com.github.sarxos.abberwoult.annotation.Named;
-import com.github.sarxos.abberwoult.annotation.Receives;
-import com.github.sarxos.abberwoult.dsl.Disposers;
-import com.github.sarxos.abberwoult.dsl.Utils;
 import com.github.sarxos.abberwoult.testkit.TestKit;
 import com.github.sarxos.abberwoult.testkit.TestKitProbe;
 
@@ -37,41 +34,24 @@ public class AskableActorSelectionTest {
 	ActorUniverse universe;
 
 	@Inject
-	@ActorOf(TestClass.class)
+	@ActorOf(AskableActorSelectionTestClass.class)
 	AskableActorSelection selection;
 
 	@Inject
 	TestKit testkit;
 
 	ActorRef ref;
-	
-	@Named("test")
-	public static class TestClass extends SimpleActor implements Utils, Disposers {
-
-		public void handleInteger(@Receives final Integer i) {
-			replyAndDispose(i);
-		}
-
-		public void handleThrowable(@Receives final Throwable t) {
-			replyAndDispose(t);
-		}
-
-		private void replyAndDispose(final Object value) {
-			reply(value);
-			dispose();
-		}
-	}
 
 	@BeforeEach
 	public void setup() {
 		ref = testkit.actor()
-			.of(TestClass.class)
+			.of(AskableActorSelectionTestClass.class)
 			.create();
 	}
 
 	@AfterEach
 	public void teardown() {
-		final TestKitProbe probe =  testkit.probe();
+		final TestKitProbe probe = testkit.probe();
 		probe.watch(ref);
 		selection.tell(PoisonPill.getInstance());
 		probe.expectMsgClass(Terminated.class);

@@ -8,13 +8,13 @@ import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.sarxos.abberwoult.cdi.internals.TestConstructorWithArgs;
-import com.github.sarxos.abberwoult.cdi.internals.TestDefaultConstructor;
-import com.github.sarxos.abberwoult.cdi.internals.TestInjectServiceByConstructor;
-import com.github.sarxos.abberwoult.cdi.internals.TestInjectServiceByConstructorWithAssistedArgs;
-import com.github.sarxos.abberwoult.cdi.internals.TestInjectServiceByFieldWithArgs;
-import com.github.sarxos.abberwoult.cdi.internals.TestInjectServiceByFieldWithAssistedArgs;
-import com.github.sarxos.abberwoult.cdi.internals.TestPostConstruct;
+import com.github.sarxos.abberwoult.cdi.internals.CdiTestConstructorWithArgs;
+import com.github.sarxos.abberwoult.cdi.internals.CdiTestDefaultConstructor;
+import com.github.sarxos.abberwoult.cdi.internals.CdiTestInjectServiceByConstructor;
+import com.github.sarxos.abberwoult.cdi.internals.CdiTestInjectServiceByConstructorWithAssistedArgs;
+import com.github.sarxos.abberwoult.cdi.internals.CdiTestInjectServiceByFieldWithArgs;
+import com.github.sarxos.abberwoult.cdi.internals.CdiTestInjectServiceByFieldWithAssistedArgs;
+import com.github.sarxos.abberwoult.cdi.internals.CdiTestPostConstruct;
 
 import io.quarkus.test.junit.QuarkusTest;
 
@@ -34,8 +34,8 @@ public class BeanFactoryTest {
 	@Test
 	void test_createTestDefaultConstructor() {
 
-		final SimpleInjector<TestDefaultConstructor> ac = new SimpleInjector<>(locator, TestDefaultConstructor.class);
-		final TestDefaultConstructor instance = ac.create();
+		final SimpleInjector<CdiTestDefaultConstructor> ac = new SimpleInjector<>(locator, CdiTestDefaultConstructor.class);
+		final CdiTestDefaultConstructor instance = ac.create();
 
 		assertThat(instance).isNotNull();
 	}
@@ -43,8 +43,8 @@ public class BeanFactoryTest {
 	@Test
 	void test_createTestConstructorWithArgs() {
 
-		final SimpleInjector<TestConstructorWithArgs> ac = new SimpleInjector<>(locator, TestConstructorWithArgs.class, 1, 2);
-		final TestConstructorWithArgs instance = ac.create();
+		final SimpleInjector<CdiTestConstructorWithArgs> ac = new SimpleInjector<>(locator, CdiTestConstructorWithArgs.class, 1, 2);
+		final CdiTestConstructorWithArgs instance = ac.create();
 
 		assertThat(instance).isNotNull();
 		assertThat(instance.getX()).isEqualTo(1);
@@ -54,8 +54,8 @@ public class BeanFactoryTest {
 	@Test
 	void test_createTestInjectServiceByConstructor() {
 
-		final SimpleInjector<TestInjectServiceByConstructor> ac = new SimpleInjector<>(locator, TestInjectServiceByConstructor.class);
-		final TestInjectServiceByConstructor instance = ac.create();
+		final SimpleInjector<CdiTestInjectServiceByConstructor> ac = new SimpleInjector<>(locator, CdiTestInjectServiceByConstructor.class);
+		final CdiTestInjectServiceByConstructor instance = ac.create();
 
 		assertThat(instance).isNotNull();
 		assertThat(instance.getService()).isNotNull();
@@ -64,8 +64,8 @@ public class BeanFactoryTest {
 	@Test
 	void test_createTestInjectServiceByConstructorWithAssistedArgs() {
 
-		final SimpleInjector<TestInjectServiceByConstructorWithAssistedArgs> ac = new SimpleInjector<>(locator, TestInjectServiceByConstructorWithAssistedArgs.class, 5, 6);
-		final TestInjectServiceByConstructorWithAssistedArgs instance = ac.create();
+		final SimpleInjector<CdiTestInjectServiceByConstructorWithAssistedArgs> ac = new SimpleInjector<>(locator, CdiTestInjectServiceByConstructorWithAssistedArgs.class, 5, 6);
+		final CdiTestInjectServiceByConstructorWithAssistedArgs instance = ac.create();
 
 		assertThat(instance).isNotNull();
 		assertThat(instance.getService()).isNotNull();
@@ -76,8 +76,8 @@ public class BeanFactoryTest {
 	@Test
 	void test_createTestBeanInjectCtorAndFieldWithAssistedArgs() {
 
-		final SimpleInjector<TestInjectServiceByFieldWithAssistedArgs> ac = new SimpleInjector<>(locator, TestInjectServiceByFieldWithAssistedArgs.class, 5, 6);
-		final TestInjectServiceByFieldWithAssistedArgs instance = ac.create();
+		final SimpleInjector<CdiTestInjectServiceByFieldWithAssistedArgs> ac = new SimpleInjector<>(locator, CdiTestInjectServiceByFieldWithAssistedArgs.class, 5, 6);
+		final CdiTestInjectServiceByFieldWithAssistedArgs instance = ac.create();
 
 		assertThat(instance).isNotNull();
 		assertThat(instance.getService()).isNotNull();
@@ -88,8 +88,8 @@ public class BeanFactoryTest {
 	@Test
 	void test_createTestInjectServiceByFieldWithArgs() {
 
-		final SimpleInjector<TestInjectServiceByFieldWithArgs> ac = new SimpleInjector<>(locator, TestInjectServiceByFieldWithArgs.class, 7, 8);
-		final TestInjectServiceByFieldWithArgs instance = ac.create();
+		final SimpleInjector<CdiTestInjectServiceByFieldWithArgs> ac = new SimpleInjector<>(locator, CdiTestInjectServiceByFieldWithArgs.class, 7, 8);
+		final CdiTestInjectServiceByFieldWithArgs instance = ac.create();
 
 		assertThat(instance).isNotNull();
 		assertThat(instance.getService()).isNotNull();
@@ -101,8 +101,8 @@ public class BeanFactoryTest {
 	void test_createTestPostConstruct() {
 
 		final AtomicBoolean invoked = new AtomicBoolean(false);
-		final SimpleInjector<TestPostConstruct> ac = new SimpleInjector<>(locator, TestPostConstruct.class, invoked);
-		final TestPostConstruct instance = ac.create();
+		final SimpleInjector<CdiTestPostConstruct> ac = new SimpleInjector<>(locator, CdiTestPostConstruct.class, invoked);
+		final CdiTestPostConstruct instance = ac.create();
 
 		assertThat(instance).isNotNull();
 		assertThat(instance.wasInvoked()).isTrue();

@@ -7,10 +7,10 @@ import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.sarxos.abberwoult.annotation.Named;
-import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.ActorBuilderTesting.ReplyIntegerActor;
+import com.github.sarxos.abberwoult.ActorBuilderTesting.ReplyOathNamedActor;
+import com.github.sarxos.abberwoult.ActorBuilderTesting.ReplyPathAnnonymousActor;
 import com.github.sarxos.abberwoult.builder.ActorBuilder;
-import com.github.sarxos.abberwoult.dsl.Utils;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -27,28 +27,6 @@ import scala.concurrent.duration.Duration;
 @QuarkusTest
 public class ActorBuilderTest {
 
-	public static class OrdinaryActor extends SimpleActor implements Utils {
-
-		public void handleInteger(@Receives Integer i) {
-			reply(i);
-		}
-	}
-
-	public static class UnnamedActor extends SimpleActor implements Utils {
-
-		public void handleInteger(@Receives Integer i) {
-			reply(self().path().name());
-		}
-	}
-
-	@Named("bubu")
-	public static class NamedActor extends SimpleActor implements Utils {
-
-		public void handleInteger(@Receives Integer i) {
-			reply(self().path().name());
-		}
-	}
-
 	@Inject
 	Propser propser;
 
@@ -62,7 +40,7 @@ public class ActorBuilderTest {
 	void test_buildOridinaryActor() throws Exception {
 
 		final ActorRef ref = new ActorBuilder<>(universe)
-			.of(OrdinaryActor.class)
+			.of(ReplyIntegerActor.class)
 			.create();
 
 		assertThat(askResult(ref, 1)).isEqualTo(1);
@@ -74,7 +52,7 @@ public class ActorBuilderTest {
 	void test_buildUnnamedActor() throws Exception {
 
 		final ActorRef ref = new ActorBuilder<>(universe)
-			.of(UnnamedActor.class)
+			.of(ReplyPathAnnonymousActor.class)
 			.create();
 
 		assertThat(askResult(ref, 1).toString()).startsWith("$");
@@ -86,7 +64,7 @@ public class ActorBuilderTest {
 	void test_buildNamedActor() throws Exception {
 
 		final ActorRef ref = new ActorBuilder<>(universe)
-			.of(NamedActor.class)
+			.of(ReplyOathNamedActor.class)
 			.create();
 
 		assertThat(askResult(ref, 1)).isEqualTo("bubu");
@@ -98,11 +76,11 @@ public class ActorBuilderTest {
 	void test_buildNamedActorTwice() throws Exception {
 
 		final ActorRef ref = new ActorBuilder<>(universe)
-			.of(NamedActor.class)
+			.of(ReplyOathNamedActor.class)
 			.create();
 
 		assertThatThrownBy(() -> new ActorBuilder<>(universe)
-			.of(NamedActor.class)
+			.of(ReplyOathNamedActor.class)
 			.create())
 				.isInstanceOf(InvalidActorNameException.class)
 				.hasMessage("actor name [bubu] is not unique!");

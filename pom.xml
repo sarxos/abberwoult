@@ -186,8 +186,6 @@
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <!--           <reuseForks>false</reuseForks> -->
-          <useSystemClassLoader>false</useSystemClassLoader>
           <systemProperties>
             <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
           </systemProperties>

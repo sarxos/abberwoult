@@ -5,16 +5,11 @@ import javax.inject.Inject;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.github.sarxos.abberwoult.annotation.Assisted;
+import com.github.sarxos.abberwoult.TopicTesting.TopicTestActor;
 import com.github.sarxos.abberwoult.annotation.Named;
-import com.github.sarxos.abberwoult.annotation.PreStart;
-import com.github.sarxos.abberwoult.annotation.Receives;
-import com.github.sarxos.abberwoult.dsl.PubSubs;
-import com.github.sarxos.abberwoult.dsl.Utils;
 import com.github.sarxos.abberwoult.testkit.TestKit;
 import com.github.sarxos.abberwoult.testkit.TestKitProbe;
 
-import akka.actor.ActorRef;
 import akka.cluster.pubsub.DistributedPubSubMediator.SubscribeAck;
 import io.quarkus.test.junit.QuarkusTest;
 
@@ -32,39 +27,13 @@ public class TopicTest {
 	@Inject
 	TestKit testkit;
 
-	public static class TestActor extends SimpleActor implements Utils, PubSubs {
-
-		private final ActorRef ref;
-		private final Topic topic;
-
-		@Inject
-		public TestActor(@Assisted TestKitProbe probe, @Named("test") Topic topic) {
-			this.ref = probe.getRef();
-			this.topic = topic;
-		}
-
-		@PreStart
-		public void setup() {
-			subscribe(topic);
-		}
-
-		public void onIntegerReceived(@Receives Integer i) {
-			forward(ref, i);
-		}
-
-		@Override
-		public void onSubscribeAck(@Receives SubscribeAck ack) {
-			forward(ref, ack);
-		}
-	}
-
 	@Test
 	public void test_subscribe() {
 
 		final TestKitProbe probe = testkit.probe();
 
 		testkit.actor()
-			.of(TestActor.class)
+			.of(TopicTestActor.class)
 			.withArguments(probe)
 			.create();
 
@@ -81,7 +50,7 @@ public class TopicTest {
 		final TestKitProbe probe = testkit.probe();
 
 		testkit.actor()
-			.of(TestActor.class)
+			.of(TopicTestActor.class)
 			.withArguments(probe)
 			.create();
 
