@@ -18,7 +18,6 @@ import io.vavr.collection.Stream;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import javassist.CannotCompileException;
-import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -29,7 +28,6 @@ import javassist.NotFoundException;
 
 public class FieldReaderGenerator {
 
-	private static final Class<FieldReader> FIELD_READER_CLASS = FieldReader.class;
 	private static final String FIELD_READER_CLASS_NAME = FieldReader.class.getName();
 	private static final ClassPool POOL = getClassPool();
 	private static final CtClass FIELD_READER_CT_CLASS = getFieldReaderCtClass();
@@ -148,7 +146,7 @@ public class FieldReaderGenerator {
 
 	private static final ClassPool getClassPool() {
 		final ClassPool cp = ClassPool.getDefault();
-		cp.insertClassPath(new ClassClassPath(FIELD_READER_CLASS));
+		cp.insertClassPath(new CurrentThreadContextClassPath());
 		return cp;
 	}
 

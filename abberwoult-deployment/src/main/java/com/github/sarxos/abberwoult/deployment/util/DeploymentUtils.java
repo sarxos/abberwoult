@@ -233,7 +233,7 @@ public class DeploymentUtils {
 		return handlers;
 	}
 
-	public static Stream<String> getInjecteesTypesWithScopes(final ClassRef clazz, final Set<DotName> scopes) {
+	public static Stream<String> getInjecteesTypesWithAnnotations(final ClassRef clazz, final Set<DotName> scopes) {
 
 		final Set<String> annotations = scopes.stream()
 			.map(DotName::toString)

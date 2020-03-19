@@ -10,6 +10,7 @@ import static com.github.sarxos.abberwoult.DotNames.SHARD_ID_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.SHARD_ROUTABLE_MESSAGE_INTERFACE;
 import static io.quarkus.deployment.annotations.ExecutionTime.RUNTIME_INIT;
 import static io.quarkus.deployment.annotations.ExecutionTime.STATIC_INIT;
+import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
@@ -156,7 +157,7 @@ public class AbberwoultProcessor {
 			.collect(toList());
 	}
 
-	@BuildStep
+	@BuildStep(loadsApplicationClasses = true)
 	List<InstrumentedActorBuildItem> doInstrumentActorClasses(
 		final List<ActorBuildItem> actors,
 		final BuildProducer<GeneratedClassBuildItem> generated) {
@@ -257,7 +258,7 @@ public class AbberwoultProcessor {
 			.collect(toList());
 	}
 
-	@BuildStep
+	@BuildStep(loadsApplicationClasses = true)
 	List<SyntheticFieldReaderBuildItem> doCreateSyntheticMessageExtractors(final List<ShardMessageBuildItem> classes) {
 		return classes.stream()
 			.map(ShardMessageBuildItem::getMessageClass)
@@ -276,20 +277,21 @@ public class AbberwoultProcessor {
 	}
 
 	@BuildStep
-	UnremovableBeanBuildItem doActorInjecteesUnremovable(final Reflector reflector, final CombinedIndexBuildItem combined, List<BeanDefiningAnnotationBuildItem> definers) {
+	UnremovableBeanBuildItem doActorInjecteesUnremovable(final Reflector reflector, List<BeanDefiningAnnotationBuildItem> beanDefiners) {
 
-		final Set<DotName> scopes = new HashSet<>();
-		scopes.add(DotNames.SINGLETON_ANNOTATION);
-		scopes.add(DotNames.APPLICATION_SCOPED_ANNOTATION);
-		scopes.add(DotNames.DEPENDENT_ANNOTATION);
-		scopes.addAll(definers.stream()
+		final Set<DotName> beanAnnotations = new HashSet<>();
+		beanAnnotations.add(DotNames.SINGLETON_ANNOTATION);
+		beanAnnotations.add(DotNames.APPLICATION_SCOPED_ANNOTATION);
+		beanAnnotations.add(DotNames.DEPENDENT_ANNOTATION);
+
+		beanDefiners.stream()
 			.map(BeanDefiningAnnotationBuildItem::getName)
-			.collect(toList()));
+			.collect(toCollection(() -> beanAnnotations));
 
 		final Set<String> unremovables = reflector
 			.findClassesWithAnnotationInScope(INJECT_ANNOTATION)
 			.distinct()
-			.flatMap(clazz -> DeploymentUtils.getInjecteesTypesWithScopes(clazz, scopes))
+			.flatMap(clazz -> DeploymentUtils.getInjecteesTypesWithAnnotations(clazz, beanAnnotations))
 			.peek(type -> LOG.debugf("Registering %s as unremovable bean", type))
 			.collect(toSet());
 

@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jboss.logging.Logger;
 
 import com.github.sarxos.abberwoult.annotation.Instrumented;
+import com.github.sarxos.abberwoult.annotation.PostStop;
 import com.github.sarxos.abberwoult.annotation.PreStart;
 import com.github.sarxos.abberwoult.jandex.Reflector.ClassRef;
 
@@ -20,7 +21,6 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.CtNewMethod;
-import javassist.LoaderClassPath;
 import javassist.Modifier;
 import javassist.bytecode.AnnotationsAttribute;
 import javassist.bytecode.ClassFile;
@@ -28,6 +28,16 @@ import javassist.bytecode.ConstPool;
 import javassist.bytecode.annotation.Annotation;
 
 
+/**
+ * This class performs actor classes instrumentation. It does few interesting things:
+ * <ul>
+ * <li>Generate <code>preStart()</code> method in actors with {@link PreStart} bindings.</li>
+ * <li>Generate <code>postStop()</code> method in actors with {@link PostStop} bindings.</li>
+ * </ul>
+ * <br>
+ *
+ * @author Bartosz Firyn (sarxos)
+ */
 public class ActorInstrumentor {
 
 	private static final Logger LOG = Logger.getLogger(ActorInstrumentor.class);
@@ -35,9 +45,8 @@ public class ActorInstrumentor {
 	private final ClassPool pool = createClassPool();
 
 	private final ClassPool createClassPool() {
-		final ClassLoader cl = getClass().getClassLoader();
 		final ClassPool pool = ClassPool.getDefault();
-		pool.insertClassPath(new LoaderClassPath(cl));
+		pool.insertClassPath(new CurrentThreadContextClassPath());
 		return pool;
 	}
 
@@ -196,5 +205,4 @@ public class ActorInstrumentor {
 		}
 		return !cc.hasAnnotation(Instrumented.class);
 	}
-
 }
