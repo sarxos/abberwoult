@@ -30,20 +30,22 @@ import org.jboss.logging.Logger;
 import com.github.sarxos.abberwoult.cdi.BeanLocator;
 import com.github.sarxos.abberwoult.deployment.ActorAutostarter;
 import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry;
-import com.github.sarxos.abberwoult.deployment.ActorLifecycleRegistry;
 import com.github.sarxos.abberwoult.deployment.error.AutostartableLabelAlreadyUsedException;
 import com.github.sarxos.abberwoult.deployment.error.AutostartableNameMissingException;
 import com.github.sarxos.abberwoult.deployment.error.AutostartableNoArgConstrutorMissingException;
 import com.github.sarxos.abberwoult.deployment.error.ImplementationMissingException;
 import com.github.sarxos.abberwoult.deployment.item.ActorBuildItem;
 import com.github.sarxos.abberwoult.deployment.item.InstrumentedActorBuildItem;
+import com.github.sarxos.abberwoult.deployment.item.ReceivesMethodBuildItem;
 import com.github.sarxos.abberwoult.deployment.item.ShardMessageBuildItem;
 import com.github.sarxos.abberwoult.deployment.item.SyntheticFieldReaderBuildItem;
 import com.github.sarxos.abberwoult.deployment.util.DeploymentUtils;
+import com.github.sarxos.abberwoult.deployment.util.MissingParameterAnnotationsTransformer;
 import com.github.sarxos.abberwoult.jandex.Reflector;
 import com.github.sarxos.abberwoult.jandex.Reflector.ClassRef;
 
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
+import io.quarkus.arc.deployment.AnnotationsTransformerBuildItem;
 import io.quarkus.arc.deployment.BeanDefiningAnnotationBuildItem;
 import io.quarkus.arc.deployment.UnremovableBeanBuildItem;
 import io.quarkus.arc.processor.BeanInfo;
@@ -173,11 +175,10 @@ public class AbberwoultProcessor {
 
 	@BuildStep
 	@Record(STATIC_INIT)
-	void doRegisterActors(final List<InstrumentedActorBuildItem> actors, final ActorInterceptorRegistry interceptors, final ActorLifecycleRegistry lifecycles) {
+	void doRegisterActors(final List<InstrumentedActorBuildItem> actors, final ActorInterceptorRegistry interceptors) {
 		actors.stream()
 			.map(InstrumentedActorBuildItem::getActorClassName)
 			.peek(clazz -> interceptors.register(clazz))
-			.peek(clazz -> lifecycles.register(clazz))
 			.forEach(clazz -> LOG.tracef("Actor %s is registered", clazz));
 	}
 
@@ -296,5 +297,18 @@ public class AbberwoultProcessor {
 			.collect(toSet());
 
 		return new UnremovableBeanBuildItem(new UnremovableBeanBuildItem.BeanClassNamesExclusion(unremovables));
+	}
+
+	@BuildStep
+	List<ReceivesMethodBuildItem> doFindReceiverMethods(final Reflector reflector) {
+		return reflector
+			.findAnnotatedParametersBy(DotNames.EVENT_ANNOTATION, DotNames.RECEIVES_ANNOTATION)
+			.map(ReceivesMethodBuildItem::new)
+			.collect(toList());
+	}
+
+	@BuildStep
+	AnnotationsTransformerBuildItem doMissingParameterAnnotationsTransformation(Reflector reflector) {
+		return new AnnotationsTransformerBuildItem(new MissingParameterAnnotationsTransformer(reflector));
 	}
 }

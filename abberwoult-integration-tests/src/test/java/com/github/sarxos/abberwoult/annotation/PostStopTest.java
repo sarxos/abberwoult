@@ -1,7 +1,6 @@
 package com.github.sarxos.abberwoult.annotation;
 
 import static akka.actor.ActorRef.noSender;
-import static com.github.sarxos.abberwoult.deployment.ActorLifecycleRegistry.getPostStopsFor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
@@ -29,15 +28,6 @@ public class PostStopTest {
 
 	@Inject
 	ActorUniverse universe;
-
-	@Test
-	public void test_ifCorrectNumberOfPostStopsIsRegistered() {
-		assertThat(getPostStopsFor(PostStopActorWithSingleBinding.class)).hasSize(1);
-		assertThat(getPostStopsFor(PostStopActorWithMultipleBindings.class)).hasSize(2);
-		assertThat(getPostStopsFor(PostStopActorSubClassWithSingleBinding.class)).hasSize(1);
-		assertThat(getPostStopsFor(PostStopActorSubClassWithOverridenBinding.class)).hasSize(1);
-		assertThat(getPostStopsFor(PostStopActorImplementingInterface.class)).hasSize(1);
-	}
 
 	@Test
 	public void test_ifSinglePostStopIsInvoked() {

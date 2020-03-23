@@ -5,6 +5,7 @@ import static javassist.Modifier.isAbstract;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.UnaryOperator;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jboss.logging.Logger;
@@ -67,16 +68,31 @@ public class ActorInstrumentor {
 		return Option.of(cc)
 			.filter(this::isInstrumentationEligible)
 			.peek($ -> LOG.tracef("Instrument actor class %s", name))
-			.map(this::instrumentPreStart)
+			.map(instrumentObservers(clazz))
+			.map(this::generatePreStart)
+			.map(this::generatePostStop)
 			.map(this::addInstrumentedAnnotation)
 			.map(this::debugWriteClass)
 			.onEmpty(() -> LOG.tracef("No instrumentation required for actor class %s", name))
 			.getOrElse(cc);
 	}
 
-	private CtClass instrumentPreStart(final CtClass cc) {
+	private boolean isAbstractClass(final CtClass cc) {
+		return isAbstract(cc.getModifiers());
+	}
 
-		if (isAbstract(cc.getModifiers())) {
+	private UnaryOperator<CtClass> instrumentObservers(final ClassRef clazz) {
+		return cc -> {
+
+			cc.getMethods();
+
+			return cc;
+		};
+	}
+
+	private CtClass generatePreStart(final CtClass cc) {
+
+		if (isAbstractClass(cc)) {
 			return cc;
 		}
 
@@ -103,9 +119,46 @@ public class ActorInstrumentor {
 		return cc;
 	}
 
+	private CtClass generatePostStop(final CtClass cc) {
+
+		if (isAbstractClass(cc)) {
+			return cc;
+		}
+
+		final List<String> invocations = Arrays
+			.stream(cc.getMethods())
+			.filter(this::isPostStop)
+			.map(this::toInvocationLine)
+			.collect(toList());
+
+		if (invocations.isEmpty()) {
+			return cc;
+		}
+
+		try {
+			if (isPostStopDeclaredInClass(cc)) {
+				aroundPostStop(cc, invocations);
+			} else {
+				overridePostStop(cc, invocations);
+			}
+		} catch (CannotCompileException e) {
+			throw new IllegalStateException(e);
+		}
+
+		return cc;
+	}
+
 	private boolean isPreStartDeclaredInClass(final CtClass cc) {
+		return isNonFinalMethodDeclaredInClass(cc, "preStart", "()V");
+	}
+
+	private boolean isPostStopDeclaredInClass(final CtClass cc) {
+		return isNonFinalMethodDeclaredInClass(cc, "postStop", "()V");
+	}
+
+	private boolean isNonFinalMethodDeclaredInClass(final CtClass cc, String name, String signature) {
 		return Try
-			.of(() -> cc.getMethod("preStart", "()V"))
+			.of(() -> cc.getMethod(name, signature))
 			.peek(this::assertNotFinal)
 			.filter(method -> method.getDeclaringClass().equals(cc))
 			.isSuccess();
@@ -113,10 +166,7 @@ public class ActorInstrumentor {
 
 	private void assertNotFinal(final CtMethod method) {
 		if (Modifier.isFinal(method.getModifiers())) {
-			throw new IllegalStateException(""
-				+ "Method void preStart() in "
-				+ method.getDeclaringClass().getName() + " "
-				+ "must not be final");
+			throw new IllegalStateException("Method " + method.getLongName() + " must not be final");
 		}
 	}
 
@@ -134,6 +184,20 @@ public class ActorInstrumentor {
 		prestart.insertAfter(code);
 	}
 
+	private void aroundPostStop(final CtClass cc, final List<String> invocations) throws CannotCompileException {
+
+		final CtMethod poststop = Try
+			.of(() -> cc.getMethod("postStop", "()V"))
+			.get();
+
+		final String code = ""
+			+ "{\n"
+			+ "  " + StringUtils.join(invocations, '\n') + "\n"
+			+ "}";
+
+		poststop.insertAfter(code);
+	}
+
 	private void overridePreStart(final CtClass cc, final List<String> invocations) throws CannotCompileException {
 
 		final String code = ""
@@ -142,14 +206,26 @@ public class ActorInstrumentor {
 			+ "  " + StringUtils.join(invocations, '\n') + "\n"
 			+ "}";
 
-		final CtMethod method = CtNewMethod.make(code, cc);
+		cc.addMethod(CtNewMethod.make(code, cc));
+	}
 
-		cc.addMethod(method);
+	private void overridePostStop(final CtClass cc, final List<String> invocations) throws CannotCompileException {
 
+		final String code = ""
+			+ "public void postStop() throws Exception {\n"
+			+ "  super.postStop(); \n"
+			+ "  " + StringUtils.join(invocations, '\n') + "\n"
+			+ "}";
+
+		cc.addMethod(CtNewMethod.make(code, cc));
 	}
 
 	private boolean isPreStart(final CtMethod cm) {
 		return cm.hasAnnotation(PreStart.class);
+	}
+
+	private boolean isPostStop(final CtMethod cm) {
+		return cm.hasAnnotation(PostStop.class);
 	}
 
 	private String toInvocationLine(final CtMethod method) {

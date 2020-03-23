@@ -3,8 +3,10 @@ package com.github.sarxos.abberwoult.jandex;
 import static com.github.sarxos.abberwoult.util.CollectorUtils.map;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,11 +15,16 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.AnnotationUtils;
 import org.apache.commons.lang3.NotImplementedException;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.jboss.jandex.AnnotationInstance;
 import org.jboss.jandex.AnnotationTarget;
@@ -28,6 +35,7 @@ import org.jboss.jandex.DotName;
 import org.jboss.jandex.FieldInfo;
 import org.jboss.jandex.IndexView;
 import org.jboss.jandex.MethodInfo;
+import org.jboss.jandex.MethodParameterInfo;
 import org.jboss.jandex.Type;
 
 import io.quarkus.builder.item.SimpleBuildItem;
@@ -64,13 +72,37 @@ public final class Reflector extends SimpleBuildItem {
 			.map(ClassRef::new);
 	}
 
-	public Stream<ClassRef> findClassesWithAnnotationInScope(final DotName... dns) {
+	public Stream<ClassRef> findClassesWithAnnotationInScope(final DotName... annotations) {
 		return Arrays
-			.stream(dns)
+			.stream(annotations)
 			.flatMap(dn -> index.getAnnotations(dn).stream())
 			.map(AnnotationInstance::target)
 			.map(this::getClassInfo)
 			.map(ClassRef::new);
+	}
+
+	public Stream<AnnotationRef> findAnnotatedBy(DotName... annotations) {
+		return Arrays
+			.stream(annotations)
+			.flatMap(dn -> index.getAnnotations(dn).stream())
+			.map(AnnotationRef::new)
+			.distinct();
+	}
+
+	public Stream<ParameterRef> findAnnotatedParametersBy(DotName... annotations) {
+		return findAnnotatedBy(annotations)
+			.filter(AnnotationRef::isOnParameter)
+			.map(AnnotationRef::getAnnotationTarget)
+			.map(AnnotationTarget::asMethodParameter)
+			.map(p -> new ParameterRef(p.method(), p.position()));
+	}
+
+	public ClassRef from(final ClassInfo ci) {
+		return new ClassRef(ci);
+	}
+
+	public ParameterRef from(final MethodParameterInfo mpi) {
+		return new ParameterRef(mpi.method(), mpi.position());
 	}
 
 	private ClassInfo getClassInfo(final AnnotationTarget target) {
@@ -111,7 +143,7 @@ public final class Reflector extends SimpleBuildItem {
 
 		final ClassInfo ci;
 
-		public ClassRef(final ClassInfo ci) {
+		ClassRef(final ClassInfo ci) {
 			this.ci = requireNonNull(ci, "class info must not be null");
 		}
 
@@ -147,7 +179,7 @@ public final class Reflector extends SimpleBuildItem {
 		}
 
 		public MethodRef getMethodByName(final String name) {
-			return new MethodRef(ci.method(name), this);
+			return new MethodRef(ci.method(name));
 		}
 
 		public boolean hasAnnotation(DotName dn) {
@@ -229,7 +261,7 @@ public final class Reflector extends SimpleBuildItem {
 				.stream()
 				.filter(this::notInit)
 				.filter(this::notClassInit)
-				.map(mi -> new MethodRef(mi, this))
+				.map(mi -> new MethodRef(mi))
 				.collect(toList());
 		}
 
@@ -241,7 +273,7 @@ public final class Reflector extends SimpleBuildItem {
 				.stream()
 				.filter(this::notInit)
 				.filter(this::notClassInit)
-				.map(mi -> new MethodRef(mi, this))
+				.map(mi -> new MethodRef(mi))
 				.collect(toList());
 		}
 
@@ -273,7 +305,7 @@ public final class Reflector extends SimpleBuildItem {
 				.methods()
 				.stream()
 				.filter(this::isInit)
-				.map(mi -> new ConstructorRef(mi, this))
+				.map(mi -> new ConstructorRef(mi))
 				.collect(toList());
 		}
 
@@ -320,11 +352,9 @@ public final class Reflector extends SimpleBuildItem {
 	public class InvocationRef extends Reflection {
 
 		final MethodInfo mi;
-		final ClassRef cr;
 
-		public InvocationRef(final MethodInfo mi, ClassRef cr) {
+		InvocationRef(final MethodInfo mi) {
 			this.mi = mi;
-			this.cr = cr;
 		}
 
 		public boolean hasAnnotation(final DotName... dns) {
@@ -359,7 +389,7 @@ public final class Reflector extends SimpleBuildItem {
 		}
 
 		public ClassRef getDeclaringClass() {
-			return cr;
+			return new ClassRef(mi.declaringClass());
 		}
 
 		public String getDeclaringClassName() {
@@ -371,24 +401,25 @@ public final class Reflector extends SimpleBuildItem {
 		}
 
 		public List<ParameterRef> getParameters() {
+			final AtomicInteger index = new AtomicInteger();
 			return mi.parameters()
 				.stream()
-				.map(t -> new ParameterRef(t))
+				.map(t -> new ParameterRef(mi, index.getAndIncrement()))
 				.collect(toList());
 		}
 	}
 
 	public class ConstructorRef extends InvocationRef {
 
-		public ConstructorRef(final MethodInfo mi, ClassRef cr) {
-			super(mi, cr);
+		ConstructorRef(final MethodInfo mi) {
+			super(mi);
 		}
 	}
 
 	public class MethodRef extends InvocationRef {
 
-		public MethodRef(final MethodInfo mi, ClassRef cr) {
-			super(mi, cr);
+		MethodRef(final MethodInfo mi) {
+			super(mi);
 		}
 
 		public String getName() {
@@ -402,18 +433,108 @@ public final class Reflector extends SimpleBuildItem {
 		public String getReturnTypeName() {
 			return mi.returnType().name().toString();
 		}
+
+		@Override
+		public List<ParameterRef> getParameters() {
+			return IntStream
+				.range(0, mi.parameters().size())
+				.mapToObj(position -> new ParameterRef(mi, position))
+				.collect(toList());
+		}
+
+		public boolean isStatic() {
+			return Modifier.isStatic(getFlags());
+		}
+
+		public boolean isAbstract() {
+			return Modifier.isAbstract(getFlags());
+		}
+
+		public boolean isFinal() {
+			return Modifier.isFinal(getFlags());
+		}
+
+		public boolean isPrivate() {
+			return Modifier.isPrivate(getFlags());
+		}
+
+		public boolean isProtected() {
+			return Modifier.isProtected(getFlags());
+		}
+
+		public boolean isPublic() {
+			return Modifier.isPublic(getFlags());
+		}
+
+		public int getFlags() {
+			return mi.flags();
+		}
 	}
 
 	public class ParameterRef extends Reflection {
 
-		private final Type t;
+		private final MethodInfo mi;
+		private final int position;
+		private final int hash;
 
-		public ParameterRef(Type t) {
-			this.t = t;
+		ParameterRef(MethodInfo mi, int position) {
+			this.mi = mi;
+			this.position = position;
+			this.hash = new HashCodeBuilder()
+				.append(mi.returnType().name().toString())
+				.append(mi.declaringClass().name().toString())
+				.append(mi.name())
+				.append(position)
+				.build();
 		}
 
 		public Option<ClassRef> getTypeClass() {
-			return findClass(t.name());
+			final Type type = mi.parameters().get(position);
+			return findClass(type.name());
+		}
+
+		public MethodRef getMethod() {
+			return new MethodRef(mi);
+		}
+
+		public String getMethodName() {
+			return mi.name();
+		}
+
+		public int getPosition() {
+			return position;
+		}
+
+		public String getName() {
+			return mi.parameterName(position);
+		}
+
+		public Set<AnnotationRef> getAnnotations() {
+			return mi
+				.annotations()
+				.stream()
+				.filter(ai -> ai.target().kind() == AnnotationTarget.Kind.METHOD_PARAMETER)
+				.filter(ai -> ai.target().asMethodParameter().position() == position)
+				.map(AnnotationRef::new)
+				.collect(toSet());
+		}
+
+		@Override
+		public int hashCode() {
+			return hash;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof ParameterRef) {
+				final ParameterRef pi = (ParameterRef) obj;
+				return new EqualsBuilder()
+					.append(mi.declaringClass(), pi.mi.declaringClass())
+					.append(mi.name(), pi.mi.name())
+					.append(position, pi.position)
+					.build();
+			}
+			return false;
 		}
 	}
 
@@ -422,7 +543,7 @@ public final class Reflector extends SimpleBuildItem {
 		final FieldInfo fi;
 		final ClassRef cr;
 
-		public FieldRef(final FieldInfo fi, final ClassRef cr) {
+		FieldRef(final FieldInfo fi, final ClassRef cr) {
 			this.fi = fi;
 			this.cr = cr;
 		}
@@ -478,7 +599,7 @@ public final class Reflector extends SimpleBuildItem {
 
 		final AnnotationInstance ai;
 
-		public AnnotationRef(final AnnotationInstance ai) {
+		AnnotationRef(final AnnotationInstance ai) {
 			this.ai = ai;
 		}
 
@@ -502,6 +623,30 @@ public final class Reflector extends SimpleBuildItem {
 				.stream()
 				.map(AnnotationRef::new)
 				.collect(toList());
+		}
+
+		public AnnotationTarget getAnnotationTarget() {
+			return ai.target();
+		}
+
+		public AnnotationTarget.Kind getAnnotationTargetKind() {
+			return getAnnotationTarget().kind();
+		}
+
+		public boolean isOnClass() {
+			return getAnnotationTargetKind() == AnnotationTarget.Kind.CLASS;
+		}
+
+		public boolean isOnField() {
+			return getAnnotationTargetKind() == AnnotationTarget.Kind.FIELD;
+		}
+
+		public boolean isOnMethod() {
+			return getAnnotationTargetKind() == AnnotationTarget.Kind.METHOD;
+		}
+
+		public boolean isOnParameter() {
+			return getAnnotationTargetKind() == AnnotationTarget.Kind.METHOD_PARAMETER;
 		}
 
 		/**

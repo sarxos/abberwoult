@@ -2,7 +2,6 @@ package com.github.sarxos.abberwoult;
 
 import static com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.getObservedEventsFor;
 import static com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.getReceiversFor;
-import static com.github.sarxos.abberwoult.deployment.ActorLifecycleRegistry.getPostStopsFor;
 
 import java.lang.invoke.MethodHandle;
 import java.util.Map;
@@ -13,18 +12,13 @@ import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 
-import com.github.sarxos.abberwoult.annotation.PostStop;
 import com.github.sarxos.abberwoult.annotation.PreStart;
 import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.builder.ActorBuilder;
 import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry;
 import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.MessageReceiverMethod;
-import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.PostStopMethod;
-import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.PreStartMethod;
 import com.github.sarxos.abberwoult.exception.MessageHandlerInvocationException;
 import com.github.sarxos.abberwoult.exception.MessageHandlerValidationException;
-import com.github.sarxos.abberwoult.exception.PostStopInvocationException;
-import com.github.sarxos.abberwoult.exception.PreStartInvocationException;
 
 import akka.actor.AbstractActor;
 import akka.actor.PoisonPill;
@@ -64,20 +58,6 @@ public abstract class SimpleActor extends AbstractActor {
 		getObservedEventsFor(clazz).forEach(this::subscribeEvent);
 	}
 
-	/**
-	 * Invoke all {@link PostStop} bindings. This methods is final because we do not want anyone to
-	 * override it. If someone override it then {@link PostStop} bindings will not work in such
-	 * actor. Is called when an actor context is stopped, actor is killed with {@link PoisonPill} or
-	 * when it dies due to exception being thrown from the message processing.
-	 *
-	 * @see akka.actor.AbstractActor#postStop()
-	 */
-	// final, we do not want anyone to override it (use annotation binding instead)
-	@Override
-	public final void postStop() throws Exception {
-		getPostStopsFor(getClass()).forEach(this::invokePostStop);
-	}
-
 	// final, we do not want anyone to override it
 	@Override
 	public final Receive createReceive() {
@@ -105,24 +85,6 @@ public abstract class SimpleActor extends AbstractActor {
 	}
 
 	// internal stuff
-
-	private void invokePreStart(final PreStartMethod method) {
-		final MethodHandle handle = method.getHandle();
-		try {
-			handle.invoke(this);
-		} catch (Throwable e) {
-			throw new PreStartInvocationException(this, handle, e);
-		}
-	}
-
-	private void invokePostStop(final PostStopMethod method) {
-		final MethodHandle handle = method.getHandle();
-		try {
-			handle.invoke(this);
-		} catch (Throwable e) {
-			throw new PostStopInvocationException(this, handle, e);
-		}
-	}
 
 	private void subscribeEvent(final Class<?> eventClass) {
 		universe.subscribeEvent(self(), eventClass);
