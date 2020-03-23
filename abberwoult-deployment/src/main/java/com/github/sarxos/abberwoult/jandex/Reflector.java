@@ -488,9 +488,16 @@ public final class Reflector extends SimpleBuildItem {
 				.build();
 		}
 
+		public Type getType() {
+			return mi.parameters().get(position);
+		}
+
+		public String getTypeName() {
+			return getType().name().toString();
+		}
+
 		public Option<ClassRef> getTypeClass() {
-			final Type type = mi.parameters().get(position);
-			return findClass(type.name());
+			return findClass(getType().name());
 		}
 
 		public MethodRef getMethod() {
@@ -692,6 +699,11 @@ public final class Reflector extends SimpleBuildItem {
 						return properties.get(methodName);
 				}
 			});
+		}
+
+		@Override
+		public String toString() {
+			return "@" + ai.name().toString();
 		}
 	}
 
