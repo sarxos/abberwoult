@@ -36,16 +36,13 @@ import com.github.sarxos.abberwoult.deployment.error.AutostartableNoArgConstruto
 import com.github.sarxos.abberwoult.deployment.error.ImplementationMissingException;
 import com.github.sarxos.abberwoult.deployment.item.ActorBuildItem;
 import com.github.sarxos.abberwoult.deployment.item.InstrumentedActorBuildItem;
-import com.github.sarxos.abberwoult.deployment.item.ReceivesMethodBuildItem;
 import com.github.sarxos.abberwoult.deployment.item.ShardMessageBuildItem;
 import com.github.sarxos.abberwoult.deployment.item.SyntheticFieldReaderBuildItem;
 import com.github.sarxos.abberwoult.deployment.util.DeploymentUtils;
-import com.github.sarxos.abberwoult.deployment.util.MissingParameterAnnotationsTransformer;
 import com.github.sarxos.abberwoult.jandex.Reflector;
 import com.github.sarxos.abberwoult.jandex.Reflector.ClassRef;
 
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
-import io.quarkus.arc.deployment.AnnotationsTransformerBuildItem;
 import io.quarkus.arc.deployment.BeanDefiningAnnotationBuildItem;
 import io.quarkus.arc.deployment.UnremovableBeanBuildItem;
 import io.quarkus.arc.processor.BeanInfo;
@@ -297,18 +294,5 @@ public class AbberwoultProcessor {
 			.collect(toSet());
 
 		return new UnremovableBeanBuildItem(new UnremovableBeanBuildItem.BeanClassNamesExclusion(unremovables));
-	}
-
-	@BuildStep
-	List<ReceivesMethodBuildItem> doFindReceiverMethods(final Reflector reflector) {
-		return reflector
-			.findAnnotatedParametersBy(DotNames.EVENT_ANNOTATION, DotNames.RECEIVES_ANNOTATION)
-			.map(ReceivesMethodBuildItem::new)
-			.collect(toList());
-	}
-
-	@BuildStep
-	AnnotationsTransformerBuildItem doMissingParameterAnnotationsTransformation(Reflector reflector) {
-		return new AnnotationsTransformerBuildItem(new MissingParameterAnnotationsTransformer(reflector));
 	}
 }

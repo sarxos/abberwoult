@@ -15,6 +15,7 @@ import com.github.sarxos.abberwoult.annotation.ActorScoped;
 import com.github.sarxos.abberwoult.annotation.Assisted;
 import com.github.sarxos.abberwoult.annotation.Autostart;
 import com.github.sarxos.abberwoult.annotation.Event;
+import com.github.sarxos.abberwoult.annotation.Generated;
 import com.github.sarxos.abberwoult.annotation.Instrumented;
 import com.github.sarxos.abberwoult.annotation.Named;
 import com.github.sarxos.abberwoult.annotation.PostStop;
@@ -28,6 +29,7 @@ import akka.actor.AbstractActor;
 
 public class DotNames {
 
+	public static final DotName GENERATED_ANNOTATION = DotName.createSimple(Generated.class.getName());
 	public static final DotName INSTRUMENTED_ANNOTATION = DotName.createSimple(Instrumented.class.getName());
 	public static final DotName AUTOSTART_ANNOTATION = DotName.createSimple(Autostart.class.getName());
 	public static final DotName ACTOR_SCOPED_ANNOTATION = DotName.createSimple(ActorScoped.class.getName());

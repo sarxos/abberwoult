@@ -250,7 +250,7 @@ public class DeploymentUtils {
 				}
 			});
 
-		final Stream<String> injecteeTypesFromConstructors = clazz.getConstructorsAnnotatedWith(INJECT_ANNOTATION)
+		final Stream<String> injecteeTypesFromConstructors = clazz.getConstructorsAnnotatedBy(INJECT_ANNOTATION)
 			.stream()
 			.flatMap(m -> m.getParameters().stream())
 			.map(p -> p.getTypeClass())

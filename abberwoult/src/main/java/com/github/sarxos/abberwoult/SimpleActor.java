@@ -1,6 +1,5 @@
 package com.github.sarxos.abberwoult;
 
-import static com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.getObservedEventsFor;
 import static com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry.getReceiversFor;
 
 import java.lang.invoke.MethodHandle;
@@ -12,7 +11,6 @@ import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 
-import com.github.sarxos.abberwoult.annotation.PreStart;
 import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.builder.ActorBuilder;
 import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry;
@@ -41,23 +39,6 @@ public abstract class SimpleActor extends AbstractActor {
 	@Inject
 	private ActorUniverse universe;
 
-	/**
-	 * Invoke all {@link PreStart} bindings. This methods is final because we do not want anyone to
-	 * override it. If someone override it then {@link PreStart} bindings will not work in such an
-	 * actor. It's important to note that {@link PreStart} bindings are invoked only after actor
-	 * instance is created and all injection points are wired. Is called when an actor is started.
-	 * Actors are automatically started asynchronously after they are created. There is no need to
-	 * start it manually.
-	 *
-	 * @see akka.actor.AbstractActor#preStart()
-	 */
-	// must not be final
-	@Override
-	public void preStart() throws Exception {
-		final Class<?> clazz = getClass();
-		getObservedEventsFor(clazz).forEach(this::subscribeEvent);
-	}
-
 	// final, we do not want anyone to override it
 	@Override
 	public final Receive createReceive() {
@@ -82,12 +63,6 @@ public abstract class SimpleActor extends AbstractActor {
 	 */
 	public void dispose() {
 		getSelf().tell(PoisonPill.getInstance(), getSelf());
-	}
-
-	// internal stuff
-
-	private void subscribeEvent(final Class<?> eventClass) {
-		universe.subscribeEvent(self(), eventClass);
 	}
 
 	/**

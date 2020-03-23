@@ -1,5 +1,9 @@
 package com.github.sarxos.abberwoult.deployment.util;
 
+import static com.github.sarxos.abberwoult.DotNames.EVENT_ANNOTATION;
+import static com.github.sarxos.abberwoult.DotNames.GENERATED_ANNOTATION;
+import static com.github.sarxos.abberwoult.DotNames.PRE_START_ANNOTATION;
+import static com.github.sarxos.abberwoult.deployment.util.AssistUtils.addAnnotation;
 import static java.util.stream.Collectors.toList;
 import static javassist.Modifier.isAbstract;
 
@@ -68,7 +72,7 @@ public class ActorInstrumentor {
 		return Option.of(cc)
 			.filter(this::isInstrumentationEligible)
 			.peek($ -> LOG.tracef("Instrument actor class %s", name))
-			.map(instrumentObservers(clazz))
+			.map(generateEventSubscribtionInvoker(clazz))
 			.map(this::generatePreStart)
 			.map(this::generatePostStop)
 			.map(this::addInstrumentedAnnotation)
@@ -81,8 +85,42 @@ public class ActorInstrumentor {
 		return isAbstract(cc.getModifiers());
 	}
 
-	private UnaryOperator<CtClass> instrumentObservers(final ClassRef clazz) {
+	private UnaryOperator<CtClass> generateEventSubscribtionInvoker(final ClassRef clazz) {
+
 		return cc -> {
+
+			final List<String> invocations = clazz.getMethods()
+				.stream()
+				.flatMap(method -> method.getParameters().stream())
+				.filter(parameter -> parameter.hasAnnotation(EVENT_ANNOTATION))
+				.map(parameter -> parameter.getTypeName())
+				.map(type -> "events.subscribe(self, " + type + ".class);")
+				.collect(toList());
+
+			if (invocations.isEmpty()) {
+				return cc;
+			}
+
+			final String methodName = cc.makeUniqueName("synthSubscribeEventsFromEventStream");
+
+			final String code = ""
+				+ "public void " + methodName + "() {"
+				+ "  akka.actor.ActorRef self = getSelf();"
+				+ "  akka.event.EventStream events = getContext().getSystem().getEventStream();"
+				+ "  " + StringUtils.join(invocations, "\n") + "\n"
+				+ "}";
+
+			try {
+
+				final CtMethod method = CtNewMethod.make(code, cc);
+				cc.addMethod(method);
+
+				addAnnotation(method, PRE_START_ANNOTATION);
+				addAnnotation(method, GENERATED_ANNOTATION);
+
+			} catch (CannotCompileException e) {
+				throw new IllegalStateException(e);
+			}
 
 			cc.getMethods();
 
@@ -206,7 +244,9 @@ public class ActorInstrumentor {
 			+ "  " + StringUtils.join(invocations, '\n') + "\n"
 			+ "}";
 
-		cc.addMethod(CtNewMethod.make(code, cc));
+		final CtMethod prestart = CtNewMethod.make(code, cc);
+		cc.addMethod(prestart);
+		addAnnotation(prestart, GENERATED_ANNOTATION);
 	}
 
 	private void overridePostStop(final CtClass cc, final List<String> invocations) throws CannotCompileException {
@@ -217,7 +257,9 @@ public class ActorInstrumentor {
 			+ "  " + StringUtils.join(invocations, '\n') + "\n"
 			+ "}";
 
-		cc.addMethod(CtNewMethod.make(code, cc));
+		final CtMethod poststop = CtNewMethod.make(code, cc);
+		cc.addMethod(poststop);
+		addAnnotation(poststop, GENERATED_ANNOTATION);
 	}
 
 	private boolean isPreStart(final CtMethod cm) {

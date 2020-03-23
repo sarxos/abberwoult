@@ -9,13 +9,13 @@ import com.github.sarxos.abberwoult.SimpleActor;
 
 public class AssistedTesting {
 
-	public static class AAAA extends SimpleActor {
+	public static class InjectProviderActor extends SimpleActor {
 
 		@Inject
 		EmptyService service;
 
 		@Inject
-		Provider<EmptyService> ppp;
+		Provider<EmptyService> provider;
 	}
 
 	public static class AssistedActorWithFirstArgumentAnnotated extends SimpleActor {

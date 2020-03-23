@@ -1,6 +1,5 @@
 package com.github.sarxos.abberwoult.deployment;
 
-import static com.github.sarxos.abberwoult.util.CollectorUtils.optimizedList;
 import static com.github.sarxos.abberwoult.util.ReflectionUtils.getAnnotatedParameterPosition;
 import static com.github.sarxos.abberwoult.util.ReflectionUtils.getObjectDistance;
 import static com.github.sarxos.abberwoult.util.ReflectionUtils.hasObservedParameters;
@@ -9,22 +8,17 @@ import static com.github.sarxos.abberwoult.util.ReflectionUtils.isAbstract;
 import static com.github.sarxos.abberwoult.util.ReflectionUtils.isInterface;
 import static com.github.sarxos.abberwoult.util.ReflectionUtils.unreflect;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Predicate;
 
 import javax.inject.Inject;
@@ -51,11 +45,6 @@ public class ActorInterceptorRegistry {
 	 * by a {@link ActorInterceptorRegistryTemplate} recorded in the compile time.
 	 */
 	private static final Map<String, Map<String, MessageReceiverMethod>> RECEIVERS = new HashMap<>();
-
-	/**
-	 * List of observed events per class.
-	 */
-	private static final Map<String, List<Class<?>>> OBSERVED_EVENTS = new HashMap<>();
 
 	/**
 	 * Predicate to indicate if {@link Method} has any arguments (more than zero).
@@ -114,8 +103,6 @@ public class ActorInterceptorRegistry {
 		final String classKey = clazz.getName();
 
 		RECEIVERS.computeIfAbsent(classKey, $ -> prepareReceiversEntry(methods));
-
-		OBSERVED_EVENTS.computeIfAbsent(classKey, $ -> prepareObservedEventsEntry(methods));
 	}
 
 	private static Map<String, MessageReceiverMethod> prepareReceiversEntry(final List<MessageReceiverMethod> methods) {
@@ -128,22 +115,6 @@ public class ActorInterceptorRegistry {
 			.forEach(entry -> receivers.putIfAbsent(entry.getMessageKey(), entry));
 
 		return receivers;
-	}
-
-	private static List<Class<?>> prepareObservedEventsEntry(final List<MessageReceiverMethod> receivers) {
-
-		final Set<Class<?>> observed = receivers
-			.stream()
-			.filter(MessageReceiverMethod::isObserved)
-			.map(MessageReceiverMethod::getMessageClass)
-			.peek(eventClass -> LOG.tracef("Register observed event type %s", eventClass))
-			.collect(toSet());
-
-		if (observed.isEmpty()) {
-			return emptyList();
-		}
-
-		return unmodifiableList(optimizedList(observed));
 	}
 
 	public void register(final String className) {
@@ -170,12 +141,6 @@ public class ActorInterceptorRegistry {
 	 */
 	public static Option<MessageReceiverMethod> getReceiversFor(final Class<?> declaringClass, final Class<?> messageClass) {
 		return getReceiversFor(declaringClass).map(mapping -> mapping.get(messageClass.getName()));
-	}
-
-	public static List<Class<?>> getObservedEventsFor(final Class<?> clazz) {
-		return Option
-			.of(OBSERVED_EVENTS.get(clazz.getName()))
-			.getOrElse(Collections::emptyList);
 	}
 
 	/**

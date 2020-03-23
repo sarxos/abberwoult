@@ -8,7 +8,7 @@ public class ReceivesTesting {
 
 	public static class ReceivesActor extends SimpleActor implements Utils {
 
-		public void onInteger(@Receives Integer i) {
+		public void onInteger(@Receives Integer index) {
 			reply(11);
 		}
 	}

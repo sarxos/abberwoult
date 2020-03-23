@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -81,7 +81,7 @@ public final class Reflector extends SimpleBuildItem {
 			.map(ClassRef::new);
 	}
 
-	public Stream<AnnotationRef> findAnnotatedBy(DotName... annotations) {
+	public Stream<AnnotationRef> findAnnotations(DotName... annotations) {
 		return Arrays
 			.stream(annotations)
 			.flatMap(dn -> index.getAnnotations(dn).stream())
@@ -89,8 +89,8 @@ public final class Reflector extends SimpleBuildItem {
 			.distinct();
 	}
 
-	public Stream<ParameterRef> findAnnotatedParametersBy(DotName... annotations) {
-		return findAnnotatedBy(annotations)
+	public Stream<ParameterRef> findParametersAnnotatedBy(DotName... annotations) {
+		return findAnnotations(annotations)
 			.filter(AnnotationRef::isOnParameter)
 			.map(AnnotationRef::getAnnotationTarget)
 			.map(AnnotationTarget::asMethodParameter)
@@ -154,6 +154,10 @@ public final class Reflector extends SimpleBuildItem {
 		@Override
 		public String toString() {
 			return getName();
+		}
+
+		public Reflector getReflector() {
+			return Reflector.this;
 		}
 
 		@Override
@@ -293,7 +297,7 @@ public final class Reflector extends SimpleBuildItem {
 			return "<clinit>".equals(mi.name());
 		}
 
-		public List<MethodRef> getMethodsAnnotatedWith(final DotName... dns) {
+		public List<MethodRef> getMethodsAnnotatedBy(final DotName... dns) {
 			return getMethods()
 				.stream()
 				.filter(m -> m.hasAnnotation(dns))
@@ -309,7 +313,7 @@ public final class Reflector extends SimpleBuildItem {
 				.collect(toList());
 		}
 
-		public List<ConstructorRef> getConstructorsAnnotatedWith(final DotName... dns) {
+		public List<ConstructorRef> getConstructorsAnnotatedBy(final DotName... dns) {
 			return getConstructors()
 				.stream()
 				.filter(c -> c.hasAnnotation(dns))
@@ -359,7 +363,7 @@ public final class Reflector extends SimpleBuildItem {
 
 		public boolean hasAnnotation(final DotName... dns) {
 
-			final Predicate<AnnotationInstance> isOneOfAnnotatyionsPresent = ai -> {
+			final Predicate<AnnotationInstance> isOneOfAnnotationsPresent = ai -> {
 				final DotName name = ai.name();
 				for (final DotName dn : dns) {
 					if (name.equals(dn)) {
@@ -372,14 +376,14 @@ public final class Reflector extends SimpleBuildItem {
 			return mi
 				.annotations()
 				.stream()
-				.filter(isOneOfAnnotatyionsPresent)
+				.filter(isOneOfAnnotationsPresent)
 				.filter(ai -> ai.target().kind() == Kind.METHOD)
 				.filter(ai -> ai.target().equals(mi))
 				.findAny()
 				.isPresent();
 		}
 
-		public boolean hasAnnotationInMethodScope(final DotName... dns) {
+		public boolean hasAnnotationInScope(final DotName... dns) {
 			for (DotName dn : dns) {
 				if (mi.hasAnnotation(dn)) {
 					return true;
@@ -401,10 +405,16 @@ public final class Reflector extends SimpleBuildItem {
 		}
 
 		public List<ParameterRef> getParameters() {
-			final AtomicInteger index = new AtomicInteger();
-			return mi.parameters()
+			return IntStream
+				.range(0, mi.parameters().size())
+				.mapToObj(position -> new ParameterRef(mi, position))
+				.collect(toList());
+		}
+
+		public List<ParameterRef> getParametersAnnotatedBy(DotName... dns) {
+			return getParameters()
 				.stream()
-				.map(t -> new ParameterRef(mi, index.getAndIncrement()))
+				.filter(parameter -> parameter.hasAnnotation(dns))
 				.collect(toList());
 		}
 	}
@@ -432,14 +442,6 @@ public final class Reflector extends SimpleBuildItem {
 
 		public String getReturnTypeName() {
 			return mi.returnType().name().toString();
-		}
-
-		@Override
-		public List<ParameterRef> getParameters() {
-			return IntStream
-				.range(0, mi.parameters().size())
-				.mapToObj(position -> new ParameterRef(mi, position))
-				.collect(toList());
 		}
 
 		public boolean isStatic() {
@@ -524,6 +526,22 @@ public final class Reflector extends SimpleBuildItem {
 				.filter(ai -> ai.target().asMethodParameter().position() == position)
 				.map(AnnotationRef::new)
 				.collect(toSet());
+		}
+
+		public boolean hasAnnotation(DotName... dns) {
+
+			final Set<String> annotations = getAnnotations()
+				.stream()
+				.map(AnnotationRef::getAnnotationClassName)
+				.collect(Collectors.toSet());
+
+			for (DotName dn : dns) {
+				if (annotations.contains(dn.toString())) {
+					return true;
+				}
+			}
+
+			return false;
 		}
 
 		@Override
