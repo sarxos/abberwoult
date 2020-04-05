@@ -23,6 +23,7 @@ import com.github.sarxos.abberwoult.annotation.PreStart;
 import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.annotation.ShardEntityId;
 import com.github.sarxos.abberwoult.annotation.ShardId;
+import com.github.sarxos.abberwoult.dsl.Universe;
 
 import akka.actor.AbstractActor;
 
@@ -48,10 +49,14 @@ public class DotNames {
 	public static final DotName SHARD_ID_ANNOTATION = DotName.createSimple(ShardId.class.getName());
 	public static final DotName SHARD_ENTITY_ID_ANNOTATION = DotName.createSimple(ShardEntityId.class.getName());
 	public static final DotName ABSTRACT_ACTOR_CLASS = DotName.createSimple(AbstractActor.class.getName());
+	public static final DotName UNIVERSE_INTERFACE = DotName.createSimple(Universe.class.getName());
 	public static final DotName SIMPLE_ACTOR_CLASS = DotName.createSimple("com.github.sarxos.abberwoult.SimpleActor");
 	public static final DotName SHARD_ROUTABLE_MESSAGE_INTERFACE = DotName.createSimple(ShardRoutableMessage.class.getName());
 	public static final DotName FIELD_READER_INTERFACE = DotName.createSimple(FieldReader.class.getName());
 	public static final DotName PROVIDER_INTERFACE = DotName.createSimple(Provider.class.getName());
+	public static final DotName RECEIVE_INVOKER_INTERFACE = DotName.createSimple(ReceiveInvoker.class.getName());
+
+	public static final DotName[] RECEIVERS = new DotName[] { RECEIVES_ANNOTATION, EVENT_ANNOTATION };
 
 	private DotNames() {
 		// class enum

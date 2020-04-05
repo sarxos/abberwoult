@@ -8,7 +8,7 @@ import javax.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 import com.github.sarxos.abberwoult.ActorBuilderTesting.ReplyIntegerActor;
-import com.github.sarxos.abberwoult.ActorBuilderTesting.ReplyOathNamedActor;
+import com.github.sarxos.abberwoult.ActorBuilderTesting.ReplyPathNamedActor;
 import com.github.sarxos.abberwoult.ActorBuilderTesting.ReplyPathAnnonymousActor;
 import com.github.sarxos.abberwoult.builder.ActorBuilder;
 
@@ -64,7 +64,7 @@ public class ActorBuilderTest {
 	void test_buildNamedActor() throws Exception {
 
 		final ActorRef ref = new ActorBuilder<>(universe)
-			.of(ReplyOathNamedActor.class)
+			.of(ReplyPathNamedActor.class)
 			.create();
 
 		assertThat(askResult(ref, 1)).isEqualTo("bubu");
@@ -76,11 +76,11 @@ public class ActorBuilderTest {
 	void test_buildNamedActorTwice() throws Exception {
 
 		final ActorRef ref = new ActorBuilder<>(universe)
-			.of(ReplyOathNamedActor.class)
+			.of(ReplyPathNamedActor.class)
 			.create();
 
 		assertThatThrownBy(() -> new ActorBuilder<>(universe)
-			.of(ReplyOathNamedActor.class)
+			.of(ReplyPathNamedActor.class)
 			.create())
 				.isInstanceOf(InvalidActorNameException.class)
 				.hasMessage("actor name [bubu] is not unique!");

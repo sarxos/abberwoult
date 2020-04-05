@@ -1,45 +1,37 @@
 package com.github.sarxos.abberwoult.deployment.util;
 
 import static com.github.sarxos.abberwoult.DotNames.EVENT_ANNOTATION;
-import static com.github.sarxos.abberwoult.DotNames.GENERATED_ANNOTATION;
-import static com.github.sarxos.abberwoult.DotNames.PRE_START_ANNOTATION;
-import static com.github.sarxos.abberwoult.deployment.util.AssistUtils.addAnnotation;
+import static com.github.sarxos.abberwoult.DotNames.RECEIVERS;
+import static com.github.sarxos.abberwoult.DotNames.SIMPLE_ACTOR_CLASS;
+import static io.vavr.Predicates.not;
+import static java.lang.System.currentTimeMillis;
 import static java.util.stream.Collectors.toList;
-import static javassist.Modifier.isAbstract;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jboss.jandex.DotName;
 import org.jboss.logging.Logger;
 
+import com.github.sarxos.abberwoult.annotation.Generated;
 import com.github.sarxos.abberwoult.annotation.Instrumented;
 import com.github.sarxos.abberwoult.annotation.PostStop;
 import com.github.sarxos.abberwoult.annotation.PreStart;
+import com.github.sarxos.abberwoult.deployment.util.Assistant.AssistedClass;
+import com.github.sarxos.abberwoult.deployment.util.Assistant.AssistedMethod;
 import com.github.sarxos.abberwoult.jandex.Reflector.ClassRef;
+import com.github.sarxos.abberwoult.jandex.Reflector.MethodRef;
+import com.github.sarxos.abberwoult.jandex.Reflector.ParameterRef;
 
 import io.vavr.control.Option;
-import io.vavr.control.Try;
 import javassist.CannotCompileException;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtMethod;
-import javassist.CtNewMethod;
-import javassist.Modifier;
-import javassist.bytecode.AnnotationsAttribute;
-import javassist.bytecode.ClassFile;
-import javassist.bytecode.ConstPool;
-import javassist.bytecode.annotation.Annotation;
 
 
 /**
- * This class performs actor classes instrumentation. It does few interesting things:
- * <ul>
- * <li>Generate <code>preStart()</code> method in actors with {@link PreStart} bindings.</li>
- * <li>Generate <code>postStop()</code> method in actors with {@link PostStop} bindings.</li>
- * </ul>
- * <br>
+ * This class performs actor classes instrumentation.
  *
  * @author Bartosz Firyn (sarxos)
  */
@@ -47,46 +39,23 @@ public class ActorInstrumentor {
 
 	private static final Logger LOG = Logger.getLogger(ActorInstrumentor.class);
 
-	private final ClassPool pool = createClassPool();
-
-	private final ClassPool createClassPool() {
-		final ClassPool pool = ClassPool.getDefault();
-		pool.insertClassPath(new CurrentThreadContextClassPath());
-		return pool;
-	}
-
 	public byte[] instrument(final ClassRef clazz) {
-		try {
-			return instrument0(clazz).toBytecode();
-		} catch (Throwable e) {
-			LOG.errorf("Cannot instrument actor class %s", clazz, e);
-			throw new IllegalStateException(e);
-		}
-	}
-
-	private synchronized CtClass instrument0(final ClassRef clazz) throws Throwable {
-
-		final String name = clazz.getName();
-		final CtClass cc = pool.get(name);
-
+		final AssistedClass cc = clazz.assisted();
 		return Option.of(cc)
 			.filter(this::isInstrumentationEligible)
-			.peek($ -> LOG.tracef("Instrument actor class %s", name))
+			.peek($ -> LOG.tracef("Instrument actor class %s", cc))
 			.map(generateEventSubscribtionInvoker(clazz))
-			.map(this::generatePreStart)
-			.map(this::generatePostStop)
-			.map(this::addInstrumentedAnnotation)
-			.map(this::debugWriteClass)
-			.onEmpty(() -> LOG.tracef("No instrumentation required for actor class %s", name))
-			.getOrElse(cc);
+			.map(generatePreStart())
+			.map(generatePostStop())
+			.map(generateReceive(clazz))
+			.map(addInstrumentedAnnotation())
+			.map(debugWriteClass())
+			.onEmpty(() -> LOG.tracef("No instrumentation required for actor class %s", cc.getName()))
+			.getOrElse(cc)
+			.toBytecode();
 	}
 
-	private boolean isAbstractClass(final CtClass cc) {
-		return isAbstract(cc.getModifiers());
-	}
-
-	private UnaryOperator<CtClass> generateEventSubscribtionInvoker(final ClassRef clazz) {
-
+	private UnaryOperator<AssistedClass> generateEventSubscribtionInvoker(final ClassRef clazz) {
 		return cc -> {
 
 			final List<String> invocations = clazz.getMethods()
@@ -101,142 +70,217 @@ public class ActorInstrumentor {
 				return cc;
 			}
 
-			final String methodName = cc.makeUniqueName("synthSubscribeEventsFromEventStream");
+			final String methodName = cc.makeUniqueName("synthSubscribeEventsFromEventStream_" + currentTimeMillis());
 
 			final String code = ""
-				+ "public void " + methodName + "() {"
-				+ "  akka.actor.ActorRef self = getSelf();"
-				+ "  akka.event.EventStream events = getContext().getSystem().getEventStream();"
+				+ "void " + methodName + "() {"
+				+ "  final akka.actor.ActorRef self = getSelf();"
+				+ "  final akka.event.EventStream events = getContext().getSystem().getEventStream();"
 				+ "  " + StringUtils.join(invocations, "\n") + "\n"
 				+ "}";
 
-			try {
-
-				final CtMethod method = CtNewMethod.make(code, cc);
-				cc.addMethod(method);
-
-				addAnnotation(method, PRE_START_ANNOTATION);
-				addAnnotation(method, GENERATED_ANNOTATION);
-
-			} catch (CannotCompileException e) {
-				throw new IllegalStateException(e);
-			}
-
-			cc.getMethods();
+			final AssistedMethod invoker = cc.newMethod(code);
+			invoker.addAnnotation(PreStart.class);
+			invoker.addAnnotation(Generated.class);
 
 			return cc;
 		};
 	}
 
-	private CtClass generatePreStart(final CtClass cc) {
-
-		if (isAbstractClass(cc)) {
-			return cc;
+	private void assertExactlyOneReceivedParameterPresent(MethodRef m) {
+		final List<ParameterRef> received = m.getParametersAnnotatedBy(RECEIVERS);
+		if (received.size() < 1) {
+			throw new IllegalStateException(""
+				+ "Method " + m.getLongName() + " does not accept any parameters annotated "
+				+ "with " + Arrays.asList(RECEIVERS) + " where exactly one such parameter "
+				+ "must be present.");
 		}
-
-		final List<String> invocations = Arrays
-			.stream(cc.getMethods())
-			.filter(this::isPreStart)
-			.map(this::toInvocationLine)
-			.collect(toList());
-
-		if (invocations.isEmpty()) {
-			return cc;
+		if (received.size() > 1) {
+			throw new IllegalStateException(""
+				+ "Method " + m.getLongName() + " accepts multiple parameters annotated "
+				+ "with " + Arrays.asList(RECEIVERS) + " where only one such parameter "
+				+ "is allowed.");
 		}
+	}
 
-		try {
-			if (isPreStartDeclaredInClass(cc)) {
-				aroundPreStart(cc, invocations);
-			} else {
-				overridePreStart(cc, invocations);
+	private UnaryOperator<AssistedClass> generateReceive(final ClassRef clazz) {
+		return cc -> {
+
+			if (cc.isAbstract()) {
+				return cc;
 			}
-		} catch (CannotCompileException e) {
-			throw new IllegalStateException(e);
-		}
 
-		return cc;
-	}
-
-	private CtClass generatePostStop(final CtClass cc) {
-
-		if (isAbstractClass(cc)) {
-			return cc;
-		}
-
-		final List<String> invocations = Arrays
-			.stream(cc.getMethods())
-			.filter(this::isPostStop)
-			.map(this::toInvocationLine)
-			.collect(toList());
-
-		if (invocations.isEmpty()) {
-			return cc;
-		}
-
-		try {
-			if (isPostStopDeclaredInClass(cc)) {
-				aroundPostStop(cc, invocations);
-			} else {
-				overridePostStop(cc, invocations);
+			if (cc.hasDeclaredMethod("createReceive")) {
+				LOG.warnf(""
+					+ "Cannot create receive automation for class %s because "
+					+ "createReceive() method is already declared", cc.getName());
+				return cc;
 			}
-		} catch (CannotCompileException e) {
-			throw new IllegalStateException(e);
+
+			if (!cc.isAssignableTo(SIMPLE_ACTOR_CLASS)) {
+				LOG.infof("Skipping receive automation for classs %s", cc.getName());
+				return cc;
+			}
+
+			final Predicate<MethodRef> isReceiver = method -> method.hasParameterAnnotatedBy(RECEIVERS);
+
+			final List<MethodRef> receivers = clazz
+				.methods()
+				.filter(not(MethodRef::isStatic))
+				.filter(isReceiver)
+				.peek(this::assertExactlyOneReceivedParameterPresent)
+				.collect(toList());
+
+			if (receivers.isEmpty()) {
+				return cc;
+			}
+
+			receivers.sort((m1, m2) -> {
+				final ParameterRef pt1 = m1.getParameter(0);
+				final ParameterRef pt2 = m2.getParameter(0);
+				return pt2.getTypeDistance() - pt1.getTypeDistance();
+			});
+
+			final StringBuilder code = new StringBuilder(""
+				+ "public akka.actor.AbstractActor.Receive createReceive() {\n"
+			// + " akka.actor.AbstractActor.Receive fallback = super.createReceive();\n"
+				+ "  return akka.japi.pf.ReceiveBuilder\n"
+				+ "    .create()\n");
+
+			for (MethodRef method : receivers) {
+
+				final String type = method
+					.getParameter(0)
+					.getTypeName()
+					.replaceAll("\\$", ".");
+
+				final DotName invoker = ReceiveInvokerGenerator.createReceiveInvokerName(clazz, method);
+
+				code.append("    .match(" + type + ".class, new " + invoker + "(this))\n");
+			}
+
+			code.append(""
+				+ "    .matchAny(new com.github.sarxos.abberwoult.ReceiveInvoker.UnhandledReceiveInvoker(this))\n"
+				+ "    .build();\n"
+				+ "}");
+
+			cc
+				.newMethod(code)
+				.addAnnotation(Generated.class);
+
+			return cc;
+		};
+	}
+
+	private UnaryOperator<AssistedClass> generatePreStart() {
+		return cc -> {
+
+			if (cc.isAbstract()) {
+				return cc;
+			}
+
+			final List<String> invocations = cc
+				.methods()
+				.filter(this::isPreStart)
+				.map(this::toInvocationLine)
+				.collect(toList());
+
+			if (invocations.isEmpty()) {
+				return cc;
+			}
+
+			try {
+				if (isPreStartDeclaredInClass(cc)) {
+					aroundPreStart(cc, invocations);
+				} else {
+					overridePreStart(cc, invocations);
+				}
+			} catch (CannotCompileException e) {
+				throw new IllegalStateException(e);
+			}
+
+			return cc;
+		};
+	}
+
+	private UnaryOperator<AssistedClass> generatePostStop() {
+		return cc -> {
+
+			if (cc.isAbstract()) {
+				return cc;
+			}
+
+			final List<String> invocations = cc
+				.methods()
+				.filter(this::isPostStop)
+				.map(this::toInvocationLine)
+				.collect(toList());
+
+			if (invocations.isEmpty()) {
+				return cc;
+			}
+
+			try {
+				if (isPostStopDeclaredInClass(cc)) {
+					aroundPostStop(cc, invocations);
+				} else {
+					overridePostStop(cc, invocations);
+				}
+			} catch (CannotCompileException e) {
+				throw new IllegalStateException(e);
+			}
+
+			return cc;
+		};
+	}
+
+	private boolean isPreStartDeclaredInClass(final AssistedClass cc) {
+		return isNonFinalMethodDeclaredInClass(cc, "preStart");
+	}
+
+	private boolean isPostStopDeclaredInClass(final AssistedClass cc) {
+		return isNonFinalMethodDeclaredInClass(cc, "postStop");
+	}
+
+	private boolean isNonFinalMethodDeclaredInClass(final AssistedClass cc, String name) {
+		if (cc.hasDeclaredMethod(name)) {
+			return assertNotFinal(cc.getDeclaredMethod(name));
 		}
-
-		return cc;
+		return false;
 	}
 
-	private boolean isPreStartDeclaredInClass(final CtClass cc) {
-		return isNonFinalMethodDeclaredInClass(cc, "preStart", "()V");
-	}
-
-	private boolean isPostStopDeclaredInClass(final CtClass cc) {
-		return isNonFinalMethodDeclaredInClass(cc, "postStop", "()V");
-	}
-
-	private boolean isNonFinalMethodDeclaredInClass(final CtClass cc, String name, String signature) {
-		return Try
-			.of(() -> cc.getMethod(name, signature))
-			.peek(this::assertNotFinal)
-			.filter(method -> method.getDeclaringClass().equals(cc))
-			.isSuccess();
-	}
-
-	private void assertNotFinal(final CtMethod method) {
-		if (Modifier.isFinal(method.getModifiers())) {
+	private boolean assertNotFinal(final AssistedMethod method) {
+		if (method.isFinal()) {
 			throw new IllegalStateException("Method " + method.getLongName() + " must not be final");
 		}
+		return true;
 	}
 
-	private void aroundPreStart(final CtClass cc, final List<String> invocations) throws CannotCompileException {
-
-		final CtMethod prestart = Try
-			.of(() -> cc.getMethod("preStart", "()V"))
-			.get();
+	private void aroundPreStart(final AssistedClass clazz, final List<String> invocations) throws CannotCompileException {
 
 		final String code = ""
 			+ "{\n"
 			+ "  " + StringUtils.join(invocations, '\n') + "\n"
 			+ "}";
 
-		prestart.insertAfter(code);
+		clazz
+			.getMethod("preStart", "()V")
+			.insertAfter(code);
 	}
 
-	private void aroundPostStop(final CtClass cc, final List<String> invocations) throws CannotCompileException {
-
-		final CtMethod poststop = Try
-			.of(() -> cc.getMethod("postStop", "()V"))
-			.get();
+	private void aroundPostStop(final AssistedClass clazz, final List<String> invocations) throws CannotCompileException {
 
 		final String code = ""
 			+ "{\n"
 			+ "  " + StringUtils.join(invocations, '\n') + "\n"
 			+ "}";
 
-		poststop.insertAfter(code);
+		clazz
+			.getMethod("postStop", "()V")
+			.insertAfter(code);
 	}
 
-	private void overridePreStart(final CtClass cc, final List<String> invocations) throws CannotCompileException {
+	private void overridePreStart(final AssistedClass clazz, final List<String> invocations) throws CannotCompileException {
 
 		final String code = ""
 			+ "public void preStart() throws Exception {\n"
@@ -244,12 +288,12 @@ public class ActorInstrumentor {
 			+ "  " + StringUtils.join(invocations, '\n') + "\n"
 			+ "}";
 
-		final CtMethod prestart = CtNewMethod.make(code, cc);
-		cc.addMethod(prestart);
-		addAnnotation(prestart, GENERATED_ANNOTATION);
+		clazz
+			.newMethod(code)
+			.addAnnotation(Generated.class);
 	}
 
-	private void overridePostStop(final CtClass cc, final List<String> invocations) throws CannotCompileException {
+	private void overridePostStop(final AssistedClass clazz, final List<String> invocations) throws CannotCompileException {
 
 		final String code = ""
 			+ "public void postStop() throws Exception {\n"
@@ -257,22 +301,22 @@ public class ActorInstrumentor {
 			+ "  " + StringUtils.join(invocations, '\n') + "\n"
 			+ "}";
 
-		final CtMethod poststop = CtNewMethod.make(code, cc);
-		cc.addMethod(poststop);
-		addAnnotation(poststop, GENERATED_ANNOTATION);
+		clazz
+			.newMethod(code)
+			.addAnnotation(Generated.class);
 	}
 
-	private boolean isPreStart(final CtMethod cm) {
-		return cm.hasAnnotation(PreStart.class);
+	private boolean isPreStart(final AssistedMethod method) {
+		return method.hasAnnotation(PreStart.class);
 	}
 
-	private boolean isPostStop(final CtMethod cm) {
-		return cm.hasAnnotation(PostStop.class);
+	private boolean isPostStop(final AssistedMethod method) {
+		return method.hasAnnotation(PostStop.class);
 	}
 
-	private String toInvocationLine(final CtMethod method) {
+	private String toInvocationLine(final AssistedMethod method) {
 
-		final CtClass clazz = method.getDeclaringClass();
+		final AssistedClass clazz = method.getDeclaringClass();
 		final String clazzName = clazz.getName();
 		final String methodName = method.getName();
 
@@ -283,44 +327,18 @@ public class ActorInstrumentor {
 		}
 	}
 
-	private CtClass addInstrumentedAnnotation(final CtClass cc) {
-
-		final String aname = Instrumented.class.getName();
-		final String cname = cc.getName();
-		final ClassFile classfile = cc.getClassFile();
-		final ConstPool constpool = classfile.getConstPool();
-		final Annotation annotation = new Annotation(aname, constpool);
-
-		final String runtimeAnnotations = AnnotationsAttribute.visibleTag;
-		final AnnotationsAttribute attribute = Option
-			.of(classfile.getAttribute(runtimeAnnotations))
-			.map(AnnotationsAttribute.class::cast)
-			.getOrElse(() -> new AnnotationsAttribute(constpool, runtimeAnnotations));
-
-		LOG.tracef("Annotating actor class %s with %s", cname, aname);
-
-		attribute.addAnnotation(annotation);
-		classfile.addAttribute(attribute);
-
-		return cc;
+	private UnaryOperator<AssistedClass> addInstrumentedAnnotation() {
+		return cc -> cc.addAnnotation(Instrumented.class);
 	}
 
-	private CtClass debugWriteClass(final CtClass cc) {
-
-		final String name = cc.getName();
-		final String path = "target/abberwoult/generated-classes";
-
-		LOG.tracef("Debug writing class %s in %s ", name, path);
-
-		cc.debugWriteFile(path);
-
-		return cc;
+	private UnaryOperator<AssistedClass> debugWriteClass() {
+		return cc -> cc.debugWriteClass("target/abberwoult/generated-classes");
 	}
 
-	private boolean isInstrumentationEligible(final CtClass cc) {
-		if (cc.isFrozen()) {
+	private boolean isInstrumentationEligible(final AssistedClass clazz) {
+		if (clazz.isFrozen()) {
 			return false;
 		}
-		return !cc.hasAnnotation(Instrumented.class);
+		return !clazz.hasAnnotation(Instrumented.class);
 	}
 }

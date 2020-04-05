@@ -21,11 +21,6 @@ public class CurrentThreadContextClassPath implements ClassPath {
 		return classloader().getResource(classfile);
 	}
 
-	@Override
-	public void close() {
-		// hey buddy, nothing needs to be closed here
-	}
-
 	private ClassLoader classloader() {
 		return Thread.currentThread().getContextClassLoader();
 	}

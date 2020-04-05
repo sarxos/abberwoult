@@ -22,7 +22,7 @@ public class ActorBuilderTesting {
 	}
 
 	@Named("bubu")
-	public static class ReplyOathNamedActor extends SimpleActor implements Utils {
+	public static class ReplyPathNamedActor extends SimpleActor implements Utils {
 
 		public void handleInteger(@Receives Integer i) {
 			reply(self().path().name());

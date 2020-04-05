@@ -1,7 +1,6 @@
 package com.github.sarxos.abberwoult.deployment;
 
-import static com.github.sarxos.abberwoult.util.ActorUtils.toActorClass;
-import static com.github.sarxos.abberwoult.util.ReflectionUtils.getClazz;
+import static java.util.Collections.synchronizedSet;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -17,6 +16,8 @@ import org.jboss.logging.Logger;
 
 import com.github.sarxos.abberwoult.ActorUniverse;
 import com.github.sarxos.abberwoult.annotation.Autostart;
+import com.github.sarxos.abberwoult.util.ActorUtils;
+import com.github.sarxos.abberwoult.util.ReflectionUtils;
 
 import akka.actor.Actor;
 import akka.actor.ActorRef;
@@ -41,7 +42,7 @@ public class ActorAutostarter {
 	 * The list of {@link Actor} classes annotated with {@link Autostart} annotation detected in
 	 * augmentation phase.
 	 */
-	private static final Collection<Class<? extends Actor>> AUTOSTARTABLES = new LinkedHashSet<>();
+	private static final Collection<String> AUTOSTARTABLES = synchronizedSet(new LinkedHashSet<>());
 
 	/**
 	 * A mapping between class name and corresponding actor reference.
@@ -81,27 +82,25 @@ public class ActorAutostarter {
 	}
 
 	/**
-	 * Register actor class name to be started.
-	 *
-	 * @param className
-	 */
-	public void register(final String className) {
-		register(toActorClass(getClazz(className)));
-	}
-
-	/**
 	 * Register autostartable actor class.
 	 *
 	 * @param clazz the actor class
 	 */
-	static void register(final Class<? extends Actor> clazz) {
+	public void register(final String clazz) {
 		AUTOSTARTABLES.add(clazz);
+		LOG.infof("Registered actor %s", clazz);
 	}
 
 	private void startAllRecordedActors() {
+		LOG.infof("Autostarting actors %s", AUTOSTARTABLES.size());
 		AUTOSTARTABLES.stream()
+			.map(this::loadClass)
 			.peek(clazz -> LOG.infof("Autostarting actor %s", clazz))
 			.forEach(clazz -> references.computeIfAbsent(clazz.getName(), start(clazz)));
+	}
+
+	private Class<? extends Actor> loadClass(String clazz) {
+		return ActorUtils.toActorClass(ReflectionUtils.getClazz(clazz));
 	}
 
 	private Function<String, ActorRef> start(final Class<? extends Actor> clazz) {

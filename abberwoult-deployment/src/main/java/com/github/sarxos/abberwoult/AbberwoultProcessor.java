@@ -8,7 +8,6 @@ import static com.github.sarxos.abberwoult.DotNames.INJECT_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.SHARD_ENTITY_ID_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.SHARD_ID_ANNOTATION;
 import static com.github.sarxos.abberwoult.DotNames.SHARD_ROUTABLE_MESSAGE_INTERFACE;
-import static io.quarkus.deployment.annotations.ExecutionTime.RUNTIME_INIT;
 import static io.quarkus.deployment.annotations.ExecutionTime.STATIC_INIT;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
@@ -29,7 +28,6 @@ import org.jboss.logging.Logger;
 
 import com.github.sarxos.abberwoult.cdi.BeanLocator;
 import com.github.sarxos.abberwoult.deployment.ActorAutostarter;
-import com.github.sarxos.abberwoult.deployment.ActorInterceptorRegistry;
 import com.github.sarxos.abberwoult.deployment.error.AutostartableLabelAlreadyUsedException;
 import com.github.sarxos.abberwoult.deployment.error.AutostartableNameMissingException;
 import com.github.sarxos.abberwoult.deployment.error.AutostartableNoArgConstrutorMissingException;
@@ -38,6 +36,7 @@ import com.github.sarxos.abberwoult.deployment.item.ActorBuildItem;
 import com.github.sarxos.abberwoult.deployment.item.InstrumentedActorBuildItem;
 import com.github.sarxos.abberwoult.deployment.item.ShardMessageBuildItem;
 import com.github.sarxos.abberwoult.deployment.item.SyntheticFieldReaderBuildItem;
+import com.github.sarxos.abberwoult.deployment.item.SyntheticReceiveInvokerBuildItem;
 import com.github.sarxos.abberwoult.deployment.util.DeploymentUtils;
 import com.github.sarxos.abberwoult.jandex.Reflector;
 import com.github.sarxos.abberwoult.jandex.Reflector.ClassRef;
@@ -76,7 +75,6 @@ public class AbberwoultProcessor {
 		EventStreamFactory.class.getName(),
 		Propser.class.getName(),
 		TopicFactory.class.getName(),
-		ActorInterceptorRegistry.class.getName(),
 	};
 
 	/**
@@ -157,8 +155,25 @@ public class AbberwoultProcessor {
 	}
 
 	@BuildStep(loadsApplicationClasses = true)
+	List<SyntheticReceiveInvokerBuildItem> doCreateSyntheticReceiveInvokers(
+		final List<ActorBuildItem> actors,
+		final BuildProducer<GeneratedClassBuildItem> generated) {
+
+		return actors.stream()
+			.map(ActorBuildItem::getActorClass)
+			.map(SyntheticReceiveInvokerBuildItem::new)
+			.peek(item -> item.getInvokers()
+				.entrySet()
+				.forEach(entry -> {
+					generated.produce(new GeneratedClassBuildItem(true, entry.getKey(), entry.getValue()));
+				}))
+			.collect(toList());
+	}
+
+	@BuildStep(loadsApplicationClasses = true)
 	List<InstrumentedActorBuildItem> doInstrumentActorClasses(
 		final List<ActorBuildItem> actors,
+		final List<SyntheticReceiveInvokerBuildItem> invokers,
 		final BuildProducer<GeneratedClassBuildItem> generated) {
 
 		return actors.stream()
@@ -168,15 +183,6 @@ public class AbberwoultProcessor {
 			.map(clazz -> new InstrumentedActorBuildItem(clazz))
 			.peek(actor -> generated.produce(new GeneratedClassBuildItem(true, actor.getActorClassName(), actor.getBytecode())))
 			.collect(toList());
-	}
-
-	@BuildStep
-	@Record(STATIC_INIT)
-	void doRegisterActors(final List<InstrumentedActorBuildItem> actors, final ActorInterceptorRegistry interceptors) {
-		actors.stream()
-			.map(InstrumentedActorBuildItem::getActorClassName)
-			.peek(clazz -> interceptors.register(clazz))
-			.forEach(clazz -> LOG.tracef("Actor %s is registered", clazz));
 	}
 
 	/**
@@ -209,7 +215,7 @@ public class AbberwoultProcessor {
 	}
 
 	@BuildStep
-	@Record(RUNTIME_INIT)
+	@Record(STATIC_INIT)
 	void doRegisterAutostartableActors(final List<InstrumentedActorBuildItem> actors, final ActorAutostarter autostarter) {
 
 		final Map<String, InstrumentedActorBuildItem> labels = new HashMap<>();

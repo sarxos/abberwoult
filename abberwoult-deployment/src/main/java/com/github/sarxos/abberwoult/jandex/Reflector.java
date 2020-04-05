@@ -38,17 +38,31 @@ import org.jboss.jandex.MethodInfo;
 import org.jboss.jandex.MethodParameterInfo;
 import org.jboss.jandex.Type;
 
+import com.github.sarxos.abberwoult.deployment.util.Assistant;
+import com.github.sarxos.abberwoult.deployment.util.Assistant.AssistedClass;
+import com.github.sarxos.abberwoult.deployment.util.CurrentThreadContextClassPath;
+
 import io.quarkus.builder.item.SimpleBuildItem;
 import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
 import io.vavr.control.Option;
+import javassist.ClassPool;
 
 
 public final class Reflector extends SimpleBuildItem {
 
 	private final IndexView index;
 
+	private final ClassPool pool = createClassPool();
+	private final Assistant assistant = new Assistant(pool);
+
 	public Reflector(CombinedIndexBuildItem combined) {
 		this(combined.getIndex());
+	}
+
+	private static final ClassPool createClassPool() {
+		final ClassPool pool = ClassPool.getDefault();
+		pool.insertClassPath(new CurrentThreadContextClassPath());
+		return pool;
 	}
 
 	public Reflector(IndexView index) {
@@ -57,6 +71,10 @@ public final class Reflector extends SimpleBuildItem {
 
 	public IndexView getIndex() {
 		return index;
+	}
+
+	public Assistant getAssistant() {
+		return assistant;
 	}
 
 	public Option<ClassRef> findClass(DotName dn) {
@@ -131,6 +149,26 @@ public final class Reflector extends SimpleBuildItem {
 		throw new IllegalStateException("Not supported " + target.kind());
 	}
 
+	public static String signature(final MethodInfo mi) {
+
+		final StringBuilder sb = new StringBuilder()
+			.append(mi.name())
+			.append("(");
+
+		String delim = "";
+
+		for (final Type type : mi.parameters()) {
+			sb
+				.append(delim)
+				.append(type.name());
+			delim = ",";
+		}
+
+		sb.append(")");
+
+		return sb.toString();
+	}
+
 	public abstract class Reflection {
 
 		@Override
@@ -147,8 +185,16 @@ public final class Reflector extends SimpleBuildItem {
 			this.ci = requireNonNull(ci, "class info must not be null");
 		}
 
+		public AssistedClass assisted() {
+			return assistant.findClass(getName());
+		}
+
 		public String getName() {
 			return ci.name().toString();
+		}
+
+		public String getSimpleName() {
+			return ci.name().local();
 		}
 
 		@Override
@@ -269,16 +315,19 @@ public final class Reflector extends SimpleBuildItem {
 				.collect(toList());
 		}
 
-		/**
-		 * @return Methods from this class and all superclasses
-		 */
-		public List<MethodRef> getMethods() {
+		public Stream<MethodRef> methods() {
 			return getMethodsRecursive(ci)
 				.stream()
 				.filter(this::notInit)
 				.filter(this::notClassInit)
-				.map(mi -> new MethodRef(mi))
-				.collect(toList());
+				.map(mi -> new MethodRef(mi));
+		}
+
+		/**
+		 * @return Methods from this class and all superclasses
+		 */
+		public List<MethodRef> getMethods() {
+			return methods().collect(toList());
 		}
 
 		private boolean notInit(MethodInfo mi) {
@@ -341,7 +390,11 @@ public final class Reflector extends SimpleBuildItem {
 
 			final Map<String, MethodInfo> reduced = new LinkedHashMap<String, MethodInfo>();
 
-			methods.forEach(m -> reduced.computeIfAbsent(m.toString(), signature -> m));
+			methods
+				.stream()
+				.filter(this::notInit)
+				.filter(this::notClassInit)
+				.forEach(m -> reduced.computeIfAbsent(signature(m), signature -> m));
 
 			return Collections.unmodifiableList(new ArrayList<>(reduced.values()));
 		}
@@ -350,6 +403,10 @@ public final class Reflector extends SimpleBuildItem {
 			final List<MethodInfo> methods = new ArrayList<MethodInfo>();
 			interfaces.forEach(idn -> methods.addAll(getMethodsRecursive(index.getClassByName(idn))));
 			return methods;
+		}
+
+		public boolean isInterface() {
+			return Modifier.isInterface(ci.flags());
 		}
 	}
 
@@ -411,11 +468,26 @@ public final class Reflector extends SimpleBuildItem {
 				.collect(toList());
 		}
 
+		public ParameterRef getParameter(int position) {
+			if (position >= getParametersCount()) {
+				throw new ArrayIndexOutOfBoundsException(position);
+			}
+			return new ParameterRef(mi, position);
+		}
+
 		public List<ParameterRef> getParametersAnnotatedBy(DotName... dns) {
 			return getParameters()
 				.stream()
 				.filter(parameter -> parameter.hasAnnotation(dns))
 				.collect(toList());
+		}
+
+		public boolean hasParameterAnnotatedBy(DotName... dns) {
+			return getParameters()
+				.stream()
+				.filter(parameter -> parameter.hasAnnotation(dns))
+				.findAny()
+				.isPresent();
 		}
 	}
 
@@ -436,7 +508,7 @@ public final class Reflector extends SimpleBuildItem {
 			return mi.name();
 		}
 
-		public String getSignature() {
+		public String getLongName() {
 			return mi.toString();
 		}
 
@@ -471,6 +543,10 @@ public final class Reflector extends SimpleBuildItem {
 		public int getFlags() {
 			return mi.flags();
 		}
+
+		public String getSignature() {
+			return signature(mi);
+		}
 	}
 
 	public class ParameterRef extends Reflection {
@@ -498,8 +574,17 @@ public final class Reflector extends SimpleBuildItem {
 			return getType().name().toString();
 		}
 
+		public String getTypeSimpleName() {
+			return getType().name().local();
+		}
+
 		public Option<ClassRef> getTypeClass() {
 			return findClass(getType().name());
+		}
+
+		public int getTypeDistance() {
+			final AssistedClass type = assistant.findClass(getTypeName());
+			return type.distance();
 		}
 
 		public MethodRef getMethod() {
