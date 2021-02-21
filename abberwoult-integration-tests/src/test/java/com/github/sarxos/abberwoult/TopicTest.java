@@ -17,7 +17,6 @@ import io.quarkus.test.junit.QuarkusTest;
 @QuarkusTest
 public class TopicTest {
 
-	@Inject
 	@Named("test")
 	Topic topic;
 

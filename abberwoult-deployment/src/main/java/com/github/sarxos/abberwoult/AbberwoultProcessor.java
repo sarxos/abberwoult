@@ -174,11 +174,13 @@ public class AbberwoultProcessor {
 	List<InstrumentedActorBuildItem> doInstrumentActorClasses(
 		final List<ActorBuildItem> actors,
 		final List<SyntheticReceiveInvokerBuildItem> invokers,
-		final BuildProducer<GeneratedClassBuildItem> generated) {
+		final BuildProducer<GeneratedClassBuildItem> generated,
+		final Reflector reflector) {
 
 		return actors.stream()
 			.map(ActorBuildItem::getActorClass)
 			.distinct()
+			// .filter(clazz -> clazz.hasAnnotationInClassScope(DotNames.RECEIVERS))
 			.peek(clazz -> LOG.infof("Instrumenting actor class %s", clazz.getName()))
 			.map(clazz -> new InstrumentedActorBuildItem(clazz))
 			.peek(actor -> generated.produce(new GeneratedClassBuildItem(true, actor.getActorClassName(), actor.getBytecode())))

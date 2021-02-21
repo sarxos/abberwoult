@@ -1,6 +1,6 @@
 package com.github.sarxos.abberwoult;
 
-import static com.github.sarxos.abberwoult.cdi.BeanUtils.getLabel;
+import static com.github.sarxos.abberwoult.cdi.BeanUtils.getName;
 
 import java.time.Duration;
 
@@ -13,20 +13,19 @@ import javax.inject.Singleton;
 import com.github.sarxos.abberwoult.annotation.Named;
 import com.github.sarxos.abberwoult.config.AskTimeout;
 
-import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.cluster.sharding.ClusterSharding;
 
 
 /**
- * This is factory bean which create {@link Shard} instances which were annotated with
- * {@link Named} annotation. A {@link Named} annotation acts as a name of shard to be injected.
- * The resultant {@link Shard} is {@link Askable}.
+ * This is factory bean which create {@link Sharding} instances which were annotated with {@link Named}
+ * annotation. A {@link Named} annotation acts as a name of shard to be injected. The resultant
+ * {@link Sharding} is {@link Askable}.
  *
  * @author Bartosz Firyn (sarxos)
  */
 @Singleton
-public class ShardFactory {
+public class ShardingFactory {
 
 	/**
 	 * The {@link ClusterSharding} from {@link ActorSystem}.
@@ -39,26 +38,21 @@ public class ShardFactory {
 	private final Duration timeout;
 
 	@Inject
-	ShardFactory(final ClusterSharding sharding, @AskTimeout Duration timeout) {
+	public ShardingFactory(final ClusterSharding sharding, @AskTimeout Duration timeout) {
 		this.sharding = sharding;
 		this.timeout = timeout;
 	}
 
 	/**
-	 * Create labeled {@link Shard} instance with {@link Dependent} scope. This method is meant to
+	 * Create labeled {@link Sharding} instance with {@link Dependent} scope. This method is meant to
 	 * be invoked by the CDI SPI.
 	 *
 	 * @param injection the {@link InjectionPoint} provided by CDI SPI
-	 * @return New {@link Shard} instance
+	 * @return New {@link Sharding} instance
 	 */
 	@Produces
 	@Named
-	public Shard create(final InjectionPoint injection) {
-
-		final String name = getLabel(injection);
-		final ActorRef region = sharding.shardRegion(name);
-		final Shard shard = new Shard(region, timeout);
-
-		return shard;
+	public Sharding create(final InjectionPoint injection) {
+		return new Sharding(sharding.shardRegion(getName(injection)), timeout);
 	}
 }

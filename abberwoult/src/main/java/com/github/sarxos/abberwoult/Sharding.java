@@ -16,7 +16,7 @@ import akka.util.Timeout;
  *
  * @author Bartosz Firyn (sarxos)
  */
-public class Shard implements Askable<ShardRoutableMessage> {
+public class Sharding implements Askable<ShardRoutableMessage> {
 
 	/**
 	 * A shard region {@link ActorRef} used to communicate with sharding.
@@ -32,7 +32,7 @@ public class Shard implements Askable<ShardRoutableMessage> {
 	 * @param region the shard region
 	 * @param timeout the ask timeout
 	 */
-	Shard(final ActorRef region, final Duration timeout) {
+	Sharding(final ActorRef region, final Duration timeout) {
 		this.region = region;
 		this.timeout = timeout;
 	}

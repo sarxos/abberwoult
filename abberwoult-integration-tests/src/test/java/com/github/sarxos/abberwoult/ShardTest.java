@@ -1,32 +1,20 @@
 package com.github.sarxos.abberwoult;
 
-import com.github.sarxos.abberwoult.annotation.ShardEntityId;
-import com.github.sarxos.abberwoult.annotation.ShardId;
+import javax.inject.Inject;
+
+import com.github.sarxos.abberwoult.annotation.Named;
+import com.github.sarxos.abberwoult.testkit.TestKit;
 
 
 public class ShardTest {
 
-	@SuppressWarnings("serial")
-	public static final class SomeMsg implements ShardRoutableMessage {
+	@Named("karrambashard")
+	Sharding sharding;
 
-		@ShardId
-		private final String route;
+	@Inject
+	ActorUniverse universe;
 
-		@ShardEntityId
-		private final String id;
-
-		public SomeMsg(String route, String id) {
-			this.route = route;
-			this.id = id;
-		}
-
-		public String getRoute() {
-			return route;
-		}
-
-		public String getId() {
-			return id;
-		}
-	}
+	@Inject
+	TestKit testkit;
 
 }

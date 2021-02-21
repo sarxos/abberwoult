@@ -1,6 +1,6 @@
 package com.github.sarxos.abberwoult;
 
-import static com.github.sarxos.abberwoult.cdi.BeanUtils.getLabel;
+import static com.github.sarxos.abberwoult.cdi.BeanUtils.getName;
 
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
@@ -35,7 +35,7 @@ public class TopicFactory {
 	@Named
 	public Topic create(final InjectionPoint injection) {
 
-		final String name = getLabel(injection);
+		final String name = getName(injection);
 		final Topic topic = new Topic(name, mediator);
 
 		return topic;

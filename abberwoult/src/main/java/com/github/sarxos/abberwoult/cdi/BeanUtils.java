@@ -93,12 +93,12 @@ public class BeanUtils {
 	}
 
 	/**
-	 * Get topic name from {@link Named} annotation.
+	 * Get value from {@link Named} annotation in {@link InjectionPoint}.
 	 *
 	 * @param injection the {@link InjectionPoint}
-	 * @return Topic name
+	 * @return The string value
 	 */
-	public static String getLabel(final InjectionPoint injection) {
+	public static String getName(final InjectionPoint injection) {
 
 		if (injection == null) {
 			throw new NullPointerException("Injection point is null");
@@ -106,12 +106,12 @@ public class BeanUtils {
 
 		return getQualifier(injection, Named.class)
 			.map(Named::value)
-			.getOrElseThrow(() -> new NoLabelException(injection));
+			.getOrElseThrow(() -> new NoNamedAnnotationPresentException(injection));
 	}
 
 	@SuppressWarnings("serial")
-	public static class NoLabelException extends BeanInjectionException {
-		public NoLabelException(final InjectionPoint injection) {
+	public static class NoNamedAnnotationPresentException extends BeanInjectionException {
+		public NoNamedAnnotationPresentException(final InjectionPoint injection) {
 			super("No " + Named.class + " annotation found on " + injection.getMember());
 		}
 	}
