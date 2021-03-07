@@ -1,6 +1,6 @@
 package com.github.sarxos.abberwoult;
 
-import com.github.sarxos.abberwoult.annotation.Named;
+import com.github.sarxos.abberwoult.annotation.NamedActor;
 import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.dsl.Utils;
 
@@ -21,7 +21,7 @@ public class ActorBuilderTesting {
 		}
 	}
 
-	@Named("bubu")
+	@NamedActor("bubu")
 	public static class ReplyPathNamedActor extends SimpleActor implements Utils {
 
 		public void handleInteger(@Receives Integer i) {

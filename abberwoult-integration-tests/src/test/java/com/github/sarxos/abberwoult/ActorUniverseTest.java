@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import com.github.sarxos.abberwoult.ActorUniverseTesting.ActorUniverseNamedActor;
 import com.github.sarxos.abberwoult.ActorUniverseTesting.ActorUniverseNamedUniverseFooActor;
 import com.github.sarxos.abberwoult.ActorUniverseTesting.ActorUniverseTestActor;
-import com.github.sarxos.abberwoult.annotation.Named;
+import com.github.sarxos.abberwoult.annotation.NamedActor;
 import com.github.sarxos.abberwoult.testkit.TestKit;
 
 import akka.actor.ActorRef;
@@ -28,7 +28,7 @@ import scala.concurrent.duration.Duration;
 public class ActorUniverseTest {
 
 	@Inject
-	@Named("test")
+	@NamedActor("test")
 	Topic topic;
 
 	@Inject

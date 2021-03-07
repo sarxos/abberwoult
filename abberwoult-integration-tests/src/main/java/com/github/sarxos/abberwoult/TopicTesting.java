@@ -3,7 +3,7 @@ package com.github.sarxos.abberwoult;
 import javax.inject.Inject;
 
 import com.github.sarxos.abberwoult.annotation.Assisted;
-import com.github.sarxos.abberwoult.annotation.Named;
+import com.github.sarxos.abberwoult.annotation.NamedActor;
 import com.github.sarxos.abberwoult.annotation.PreStart;
 import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.dsl.PubSubs;
@@ -22,7 +22,7 @@ public class TopicTesting {
 		private final Topic topic;
 
 		@Inject
-		public TopicTestActor(@Assisted TestKitProbe probe, @Named("test") Topic topic) {
+		public TopicTestActor(@Assisted TestKitProbe probe, @NamedActor("test") Topic topic) {
 			this.ref = probe.getRef();
 			this.topic = topic;
 		}
@@ -33,12 +33,12 @@ public class TopicTesting {
 		}
 
 		public void onIntegerReceived(@Receives Integer i) {
-			forward(ref, i);
+			forward(i, ref);
 		}
 
 		@Override
 		public void onSubscribeAck(@Receives SubscribeAck ack) {
-			forward(ref, ack);
+			forward(ack, ref);
 		}
 	}
 }

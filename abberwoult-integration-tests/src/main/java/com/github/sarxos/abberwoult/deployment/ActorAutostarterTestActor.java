@@ -4,12 +4,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.Autostart;
-import com.github.sarxos.abberwoult.annotation.Named;
+import com.github.sarxos.abberwoult.annotation.NamedActor;
 import com.github.sarxos.abberwoult.annotation.PreStart;
 
 
 @Autostart
-@Named("autostartedactor")
+@NamedActor("autostartedactor")
 public class ActorAutostarterTestActor extends SimpleActor {
 
 	static final AtomicInteger started = new AtomicInteger(0);

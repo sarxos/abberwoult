@@ -30,7 +30,7 @@ import javax.inject.Qualifier;
 @Documented
 @Target({ FIELD, PARAMETER, METHOD, TYPE })
 @Retention(RUNTIME)
-public @interface Named {
+public @interface NamedActor {
 
 	public static final String UNKNOWN = "##unknown##";
 

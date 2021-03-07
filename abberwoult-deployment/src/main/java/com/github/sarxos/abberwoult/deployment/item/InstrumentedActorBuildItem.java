@@ -6,7 +6,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.jboss.jandex.DotName;
 
-import com.github.sarxos.abberwoult.annotation.Named;
+import com.github.sarxos.abberwoult.annotation.NamedActor;
 import com.github.sarxos.abberwoult.deployment.util.ActorInstrumentor;
 import com.github.sarxos.abberwoult.jandex.Reflector.AnnotationRef;
 import com.github.sarxos.abberwoult.jandex.Reflector.ClassRef;
@@ -58,13 +58,13 @@ public final class InstrumentedActorBuildItem extends MultiBuildItem {
 	}
 
 	public Option<String> getActorName() {
-		return getAnnotation(Named.class)
-			.map(Named::value);
+		return getAnnotation(NamedActor.class)
+			.map(NamedActor::value);
 	}
 
 	public boolean isNamed() {
 		return getActorName()
-			.filter(name -> ObjectUtils.notEqual(name, Named.UNKNOWN))
+			.filter(name -> ObjectUtils.notEqual(name, NamedActor.UNKNOWN))
 			.isDefined();
 	}
 

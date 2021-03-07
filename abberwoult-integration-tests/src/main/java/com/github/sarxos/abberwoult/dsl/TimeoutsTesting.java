@@ -25,7 +25,7 @@ public class TimeoutsTesting {
 
 		@Override
 		public void onReceiveTimeout(@Receives final ReceiveTimeout timeout) {
-			forward(ref, timeout);
+			forward(timeout, ref);
 		}
 	}
 }

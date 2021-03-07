@@ -31,15 +31,15 @@ public class EventStreamTesting {
 		}
 
 		public void handleReady(@Receives Ready msg) {
-			forward(probe, msg);
+			forward(msg, probe);
 		}
 
 		public void handleEvent1(@Receives @Event Bobek b) {
-			forward(probe, b);
+			forward(b, probe);
 		}
 
 		public void handleEvent2(@Receives @Event Mumin m) {
-			forward(probe, m);
+			forward(m, probe);
 		}
 	}
 }

@@ -74,7 +74,7 @@ public class AskableActorSelectionTest {
 
 		Future
 			.fromCompletableFuture(result.toCompletableFuture())
-			.await(3, TimeUnit.SECONDS);
+			.await(5, TimeUnit.SECONDS);
 
 		assertThat(result)
 			.isCompletedExceptionally()

@@ -41,19 +41,19 @@ public class BuffersTesting {
 		}
 
 		private void doIntegerStuff(final Integer i) {
-			forward(probe, i);
+			forward(i, probe);
 		}
 
 		private void doErrorStuff(final Throwable t) {
-			forward(probe, new SomeException(t));
+			forward(new SomeException(t), probe);
 		}
 
 		private void doTimeoutStuff(final Deque<BufferMessage> messages) {
-			forward(probe, messages);
+			forward(messages, probe);
 		}
 
 		public void onMessage(@Receives final Object message) {
-			forward(probe, message);
+			forward(message, probe);
 		}
 	}
 
@@ -74,19 +74,19 @@ public class BuffersTesting {
 		}
 
 		private void doIntegerStuff(final Integer i) {
-			forward(probe, i);
+			forward(i, probe);
 		}
 
 		private void doErrorStuff(final Throwable t) {
-			forward(probe, new SomeException(t));
+			forward(new SomeException(t), probe);
 		}
 
 		private void doTimeoutStuff(final Deque<BufferMessage> messages) {
-			forward(probe, messages);
+			forward(messages, probe);
 		}
 
 		public void onMessage(@Receives final Object message) {
-			forward(probe, message);
+			forward(message, probe);
 		}
 	}
 
@@ -111,19 +111,19 @@ public class BuffersTesting {
 		}
 
 		private void doMagicStuff(final Object i) {
-			forward(probe, i);
+			forward(i, probe);
 		}
 
 		private void doErrorStuff(final Throwable t) {
-			forward(probe, new SomeException(t));
+			forward(new SomeException(t), probe);
 		}
 
 		private void doTimeoutStuff(final Deque<BufferMessage> messages) {
-			forward(probe, messages);
+			forward(messages, probe);
 		}
 
 		public void onMessage(@Receives final Object message) {
-			forward(probe, message);
+			forward(message, probe);
 		}
 	}
 
@@ -168,19 +168,19 @@ public class BuffersTesting {
 		}
 
 		private void doSuccessStuff(final Object i) {
-			forward(probe, "DONE");
+			forward("DONE", probe);
 		}
 
 		private void doErrorStuff(final Throwable t) {
-			forward(probe, new SomeException(t));
+			forward(new SomeException(t), probe);
 		}
 
 		private void doTimeoutStuff(final Deque<BufferMessage> messages) {
-			forward(probe, messages);
+			forward(messages, probe);
 		}
 
 		public void onMessage(@Receives final Object message) {
-			forward(probe, message);
+			forward(message, probe);
 		}
 	}
 
@@ -200,12 +200,11 @@ public class BuffersTesting {
 		}
 
 		private void doIntegerStuff(final Integer i) {
-			forward(probe, i);
+			forward(i, probe);
 		}
 
 		public void onMessage(@Receives final Object message) {
-			forward(probe, message);
+			forward(message, probe);
 		}
 	}
-
 }

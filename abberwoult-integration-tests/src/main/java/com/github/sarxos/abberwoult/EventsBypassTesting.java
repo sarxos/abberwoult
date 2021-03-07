@@ -37,15 +37,15 @@ public class EventsBypassTesting {
 		}
 
 		public void handleReady(@Receives Ready msg) {
-			forward(probe, msg);
+			forward(msg, probe);
 		}
 
 		public void handleEvent1(@Receives Event1 event) {
-			forward(probe, event);
+			forward(event, probe);
 		}
 
 		public void handleEvent2(@Receives Event2 event) {
-			forward(probe, event);
+			forward(event, probe);
 		}
 	}
 }

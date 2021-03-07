@@ -32,7 +32,7 @@ public class SchedulesTesting {
 		}
 
 		public void onTick(@Receives Tick tick) {
-			forward(probe, tick);
+			forward(tick, probe);
 		}
 
 		@Override
@@ -57,7 +57,7 @@ public class SchedulesTesting {
 
 		@Override
 		public void onScheduleCancelMsgAck(@Receives ScheduleCancelMsg.Ack ack) {
-			forward(probe, ack);
+			forward(ack, probe);
 		}
 
 		@Override
@@ -81,13 +81,13 @@ public class SchedulesTesting {
 		}
 
 		public void onTick(@Receives Tick tick) {
-			forward(probe, tick);
+			forward(tick, probe);
 		}
 
 		@Override
 		public void onScheduleRemoveMsg(@Receives ScheduleRemoveMsg msg) {
 			Schedules.super.onScheduleRemoveMsg(msg);
-			forward(probe, msg);
+			forward(msg, probe);
 		}
 
 		@Override
@@ -105,7 +105,7 @@ public class SchedulesTesting {
 		}
 
 		public void onTick(@Receives Tick tick) {
-			forward(probe, tick);
+			forward(tick, probe);
 		}
 	}
 
@@ -144,7 +144,7 @@ public class SchedulesTesting {
 		}
 
 		public void onTick(@Receives Tick tick) {
-			forward(probe, tick);
+			forward(tick, probe);
 		}
 
 		@Override
@@ -168,7 +168,7 @@ public class SchedulesTesting {
 		}
 
 		public void onTick(@Receives Tick tick) {
-			forward(probe, tick);
+			forward(tick, probe);
 		}
 
 		@Override

@@ -41,19 +41,19 @@ public class EventTesting {
 		}
 
 		public void onInteger(@Event Integer i) {
-			forward(ref, i);
+			forward(i, ref);
 		}
 
 		public void onLong(@Receives @Event Long l) {
-			forward(ref, l);
+			forward(l, ref);
 		}
 
 		public void onSomething(@Receives @Event Some s) {
-			forward(ref, s);
+			forward(s, ref);
 		}
 
 		public void onBook(@Receives @Valid @Event Book b) {
-			forward(ref, b);
+			forward(b, ref);
 		}
 	}
 }

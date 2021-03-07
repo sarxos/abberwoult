@@ -1,6 +1,6 @@
 package com.github.sarxos.abberwoult;
 
-import com.github.sarxos.abberwoult.annotation.Named;
+import com.github.sarxos.abberwoult.annotation.NamedActor;
 import com.github.sarxos.abberwoult.annotation.Receives;
 import com.github.sarxos.abberwoult.dsl.Utils;
 
@@ -13,7 +13,7 @@ public class ActorUniverseTesting {
 		}
 	}
 
-	@Named("universefoo")
+	@NamedActor("universefoo")
 	public static class ActorUniverseNamedUniverseFooActor extends SimpleActor implements Utils {
 
 		public void onInteger(@Receives Integer i) {
@@ -25,7 +25,7 @@ public class ActorUniverseTesting {
 		}
 	}
 
-	@Named
+	@NamedActor
 	public static class ActorUniverseNamedActor extends SimpleActor implements Utils {
 		public void onInteger(@Receives Integer i) {
 			reply(i);

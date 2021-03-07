@@ -2,13 +2,13 @@ package com.github.sarxos.abberwoult;
 
 import javax.inject.Inject;
 
-import com.github.sarxos.abberwoult.annotation.Named;
+import com.github.sarxos.abberwoult.annotation.NamedActor;
 import com.github.sarxos.abberwoult.testkit.TestKit;
 
 
 public class ShardTest {
 
-	@Named("karrambashard")
+	@NamedActor("karrambashard")
 	Sharding sharding;
 
 	@Inject

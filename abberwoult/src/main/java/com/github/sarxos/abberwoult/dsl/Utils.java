@@ -19,7 +19,7 @@ public interface Utils extends ActorInternal {
 	 * @param ref the actor reference
 	 * @param message the message
 	 */
-	default void tell(final ActorRef ref, final Object message) {
+	default void tell(final Object message, final ActorRef ref) {
 		ref.tell(message, self());
 	}
 
@@ -29,7 +29,7 @@ public interface Utils extends ActorInternal {
 	 * @param sel the actor selection
 	 * @param message the message
 	 */
-	default void tell(final ActorSelection sel, final Object message) {
+	default void tell(final Object message, final ActorSelection sel) {
 		sel.tell(message, self());
 	}
 
@@ -40,8 +40,8 @@ public interface Utils extends ActorInternal {
 	 * @param opt the optional {@link ActorRef}
 	 * @param message the message to be send
 	 */
-	default void tell(final Option<ActorRef> opt, final Object message) {
-		opt.forEach(ref -> tell(ref, message));
+	default void tell(final Object message, final Option<ActorRef> opt) {
+		opt.forEach(ref -> tell(message, ref));
 	}
 
 	/**
@@ -50,7 +50,7 @@ public interface Utils extends ActorInternal {
 	 * @param message the message
 	 */
 	default void reply(final Object message) {
-		tell(sender(), requireNonNull(message, "Reply message must not be null!"));
+		tell(requireNonNull(message, "Reply message must not be null!"), sender());
 	}
 
 	/**
@@ -59,7 +59,7 @@ public interface Utils extends ActorInternal {
 	 * @param ref the actor reference
 	 * @param message the message to be forwarded
 	 */
-	default void forward(final ActorRef ref, final Object message) {
+	default void forward(final Object message, final ActorRef ref) {
 		ref.forward(message, getContext());
 	}
 
@@ -69,8 +69,8 @@ public interface Utils extends ActorInternal {
 	 * @param ref the actor reference supplier
 	 * @param message the message to be forwarded
 	 */
-	default void forward(final Supplier<ActorRef> ref, final Object message) {
-		forward(ref.get(), message);
+	default void forward(final Object message, final Supplier<ActorRef> ref) {
+		forward(message, ref.get());
 	}
 
 	/**
@@ -79,8 +79,8 @@ public interface Utils extends ActorInternal {
 	 * @param opt the optional actor reference
 	 * @param message the message to be forwarded
 	 */
-	default void forward(final Option<ActorRef> opt, final Object message) {
-		opt.forEach(ref -> forward(ref, message));
+	default void forward(final Object message, final Option<ActorRef> opt) {
+		opt.forEach(ref -> forward(message, ref));
 	}
 
 	/**
@@ -89,7 +89,7 @@ public interface Utils extends ActorInternal {
 	 * @param sel the actor selection
 	 * @param message the message to be forwarded
 	 */
-	default void forward(final ActorSelection sel, final Object message) {
+	default void forward(final Object message, final ActorSelection sel) {
 		sel.forward(message, getContext());
 	}
 

@@ -12,7 +12,7 @@ import org.jboss.logging.Logger;
 
 import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.Autostart;
-import com.github.sarxos.abberwoult.annotation.Named;
+import com.github.sarxos.abberwoult.annotation.NamedActor;
 import com.github.sarxos.abberwoult.annotation.PostStop;
 import com.github.sarxos.abberwoult.annotation.PreStart;
 import com.github.sarxos.abberwoult.annotation.Receives;
@@ -23,7 +23,7 @@ import lombok.Getter;
 
 
 @Autostart
-@Named("fruits-repo")
+@NamedActor("fruits-repo")
 public class FruitRepositoryActor extends SimpleActor implements Utils {
 
 	private static final Logger LOG = Logger.getLogger(FruitRepositoryActor.class);

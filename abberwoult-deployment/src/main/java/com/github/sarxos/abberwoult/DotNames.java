@@ -17,7 +17,7 @@ import com.github.sarxos.abberwoult.annotation.Autostart;
 import com.github.sarxos.abberwoult.annotation.Event;
 import com.github.sarxos.abberwoult.annotation.Generated;
 import com.github.sarxos.abberwoult.annotation.Instrumented;
-import com.github.sarxos.abberwoult.annotation.Named;
+import com.github.sarxos.abberwoult.annotation.NamedActor;
 import com.github.sarxos.abberwoult.annotation.PostStop;
 import com.github.sarxos.abberwoult.annotation.PreStart;
 import com.github.sarxos.abberwoult.annotation.Receives;
@@ -45,7 +45,7 @@ public class DotNames {
 	public static final DotName VALID_ANNOTATION = DotName.createSimple(Valid.class.getName());
 	public static final DotName ASSISTED_ANNOTATION = DotName.createSimple(Assisted.class.getName());
 	public static final DotName EVENT_ANNOTATION = DotName.createSimple(Event.class.getName());
-	public static final DotName NAMED_ANNOTATION = DotName.createSimple(Named.class.getName());
+	public static final DotName NAMED_ANNOTATION = DotName.createSimple(NamedActor.class.getName());
 	public static final DotName SHARD_ID_ANNOTATION = DotName.createSimple(ShardId.class.getName());
 	public static final DotName SHARD_ENTITY_ID_ANNOTATION = DotName.createSimple(ShardEntityId.class.getName());
 	public static final DotName ABSTRACT_ACTOR_CLASS = DotName.createSimple(AbstractActor.class.getName());

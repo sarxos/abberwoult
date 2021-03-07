@@ -10,7 +10,7 @@ import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import com.github.sarxos.abberwoult.annotation.Named;
+import com.github.sarxos.abberwoult.annotation.NamedActor;
 import com.github.sarxos.abberwoult.config.AskTimeout;
 
 import akka.actor.ActorSystem;
@@ -18,8 +18,8 @@ import akka.cluster.sharding.ClusterSharding;
 
 
 /**
- * This is factory bean which create {@link Sharding} instances which were annotated with {@link Named}
- * annotation. A {@link Named} annotation acts as a name of shard to be injected. The resultant
+ * This is factory bean which create {@link Sharding} instances which were annotated with {@link NamedActor}
+ * annotation. A {@link NamedActor} annotation acts as a name of shard to be injected. The resultant
  * {@link Sharding} is {@link Askable}.
  *
  * @author Bartosz Firyn (sarxos)
@@ -51,7 +51,7 @@ public class ShardingFactory {
 	 * @return New {@link Sharding} instance
 	 */
 	@Produces
-	@Named
+	@NamedActor
 	public Sharding create(final InjectionPoint injection) {
 		return new Sharding(sharding.shardRegion(getName(injection)), timeout);
 	}

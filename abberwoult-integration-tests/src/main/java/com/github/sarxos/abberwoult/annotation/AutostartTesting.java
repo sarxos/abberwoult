@@ -7,7 +7,7 @@ import com.github.sarxos.abberwoult.dsl.Utils;
 public class AutostartTesting {
 
 	@Autostart
-	@Named("testactorstart")
+	@NamedActor("testactorstart")
 	public static class AutostartActor extends SimpleActor implements Utils {
 
 		public void onInteger(@Receives Integer i) {

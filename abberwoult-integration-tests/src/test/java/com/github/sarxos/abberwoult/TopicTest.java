@@ -6,7 +6,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.github.sarxos.abberwoult.TopicTesting.TopicTestActor;
-import com.github.sarxos.abberwoult.annotation.Named;
+import com.github.sarxos.abberwoult.annotation.NamedActor;
 import com.github.sarxos.abberwoult.testkit.TestKit;
 import com.github.sarxos.abberwoult.testkit.TestKitProbe;
 
@@ -17,7 +17,7 @@ import io.quarkus.test.junit.QuarkusTest;
 @QuarkusTest
 public class TopicTest {
 
-	@Named("test")
+	@NamedActor("test")
 	Topic topic;
 
 	@Inject
