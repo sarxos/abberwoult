@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.PreStart;
-import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.annotation.Received;
 import com.github.sarxos.abberwoult.util.ActorUtils;
 
 import akka.actor.ActorRef;
@@ -40,7 +40,7 @@ public class WatchersTesting {
 			}
 		}
 
-		public void handleWatchMsg(@Receives WatchMsg msg) {
+		public void handleWatchMsg(@Received WatchMsg msg) {
 			watch(watched);
 		}
 	}

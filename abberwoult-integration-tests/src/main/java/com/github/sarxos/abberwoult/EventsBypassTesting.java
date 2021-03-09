@@ -1,7 +1,7 @@
 package com.github.sarxos.abberwoult;
 
 import com.github.sarxos.abberwoult.annotation.PreStart;
-import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.annotation.Received;
 import com.github.sarxos.abberwoult.dsl.Events;
 import com.github.sarxos.abberwoult.dsl.Utils;
 
@@ -36,15 +36,15 @@ public class EventsBypassTesting {
 			eventSubscribe(Event2.class);
 		}
 
-		public void handleReady(@Receives Ready msg) {
+		public void handleReady(@Received Ready msg) {
 			forward(msg, probe);
 		}
 
-		public void handleEvent1(@Receives Event1 event) {
+		public void handleEvent1(@Received Event1 event) {
 			forward(event, probe);
 		}
 
-		public void handleEvent2(@Receives Event2 event) {
+		public void handleEvent2(@Received Event2 event) {
 			forward(event, probe);
 		}
 	}

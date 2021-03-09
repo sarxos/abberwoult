@@ -1,7 +1,7 @@
 package com.github.sarxos.abberwoult;
 
 import com.github.sarxos.abberwoult.annotation.Event;
-import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.annotation.Received;
 import com.github.sarxos.abberwoult.dsl.Events;
 import com.github.sarxos.abberwoult.dsl.Utils;
 
@@ -30,15 +30,15 @@ public class EventStreamTesting {
 			this.probe = probe;
 		}
 
-		public void handleReady(@Receives Ready msg) {
+		public void handleReady(@Received Ready msg) {
 			forward(msg, probe);
 		}
 
-		public void handleEvent1(@Receives @Event Bobek b) {
+		public void handleEvent1(@Received @Event Bobek b) {
 			forward(b, probe);
 		}
 
-		public void handleEvent2(@Receives @Event Mumin m) {
+		public void handleEvent2(@Received @Event Mumin m) {
 			forward(m, probe);
 		}
 	}

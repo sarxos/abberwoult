@@ -1,7 +1,7 @@
 package com.github.sarxos.abberwoult.dsl;
 
 import com.github.sarxos.abberwoult.SimpleActor;
-import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.annotation.Received;
 import com.github.sarxos.abberwoult.testkit.TestKitProbe;
 
 import akka.actor.ActorRef;
@@ -24,7 +24,7 @@ public class TimeoutsTesting {
 		}
 
 		@Override
-		public void onReceiveTimeout(@Receives final ReceiveTimeout timeout) {
+		public void onReceiveTimeout(@Received final ReceiveTimeout timeout) {
 			forward(timeout, ref);
 		}
 	}

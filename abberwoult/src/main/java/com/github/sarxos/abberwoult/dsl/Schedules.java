@@ -13,7 +13,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Consumer;
 
 import com.github.sarxos.abberwoult.annotation.PostStop;
-import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.annotation.Received;
 import com.github.sarxos.abberwoult.dsl.Schedules.Schedule;
 
 import akka.actor.ActorContext;
@@ -39,7 +39,7 @@ public interface Schedules extends ActorInternal {
 	 */
 	Map<String, Schedule> getSchedules();
 
-	default void onScheduleCancelMsgAck(@Receives final ScheduleCancelMsg.Ack ack) {
+	default void onScheduleCancelMsgAck(@Received final ScheduleCancelMsg.Ack ack) {
 		// override if needed
 	}
 
@@ -48,7 +48,7 @@ public interface Schedules extends ActorInternal {
 	 *
 	 * @param msg the message with schedule name
 	 */
-	default void onScheduleCancelMsg(@Receives final ScheduleCancelMsg msg) {
+	default void onScheduleCancelMsg(@Received final ScheduleCancelMsg msg) {
 
 		final ActorRef sender = sender();
 		final ActorRef self = self();
@@ -64,7 +64,7 @@ public interface Schedules extends ActorInternal {
 	 *
 	 * @param msg the message with schedule name
 	 */
-	default void onScheduleRemoveMsg(@Receives final ScheduleRemoveMsg msg) {
+	default void onScheduleRemoveMsg(@Received final ScheduleRemoveMsg msg) {
 
 		final Map<String, Schedule> schedules = getSchedules();
 		final String name = msg.getName();

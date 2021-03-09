@@ -8,7 +8,7 @@ public class ReceivesTesting {
 
 	public static class ReceivesActor extends SimpleActor implements Utils {
 
-		public void onInteger(@Receives Integer index) {
+		public void onInteger(@Received Integer index) {
 			reply(11);
 		}
 	}
@@ -18,7 +18,7 @@ public class ReceivesTesting {
 
 	public static class ReceivesActorSuperclass extends SimpleActor implements Utils {
 
-		public void onIntegerXXX(@Receives Integer i) {
+		public void onIntegerXXX(@Received Integer i) {
 			reply(22);
 		}
 	}
@@ -40,23 +40,23 @@ public class ReceivesTesting {
 
 	public static class ReceivesMessageClassInherit extends SimpleActor implements Utils {
 
-		public void onMessageClassInherit0(@Receives MessageClassInherit0 m) {
+		public void onMessageClassInherit0(@Received MessageClassInherit0 m) {
 			reply(0);
 		}
 
-		public void onMessageClassInherit1(@Receives MessageClassInherit1 m) {
+		public void onMessageClassInherit1(@Received MessageClassInherit1 m) {
 			reply(1);
 		}
 
-		public void onMessageClassInherit2(@Receives MessageClassInherit2 m) {
+		public void onMessageClassInherit2(@Received MessageClassInherit2 m) {
 			reply(2);
 		}
 
-		public void onMessageClassInherit3(@Receives MessageClassInherit3 m) {
+		public void onMessageClassInherit3(@Received MessageClassInherit3 m) {
 			reply(3);
 		}
 
-		public void onMessageClassInherit4(@Receives MessageClassInherit4 m) {
+		public void onMessageClassInherit4(@Received MessageClassInherit4 m) {
 			reply(4);
 		}
 	}

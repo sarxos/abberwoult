@@ -15,7 +15,7 @@ import com.github.sarxos.abberwoult.annotation.Autostart;
 import com.github.sarxos.abberwoult.annotation.NamedActor;
 import com.github.sarxos.abberwoult.annotation.PostStop;
 import com.github.sarxos.abberwoult.annotation.PreStart;
-import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.annotation.Received;
 import com.github.sarxos.abberwoult.dsl.Utils;
 
 import lombok.Data;
@@ -59,7 +59,7 @@ public class FruitRepositoryActor extends SimpleActor implements Utils {
 		LOG.infof("Tearing down actor %s", getSelf().path());
 	}
 
-	public void onFruitListMsg(@Receives final FruitListMsg msg) {
+	public void onFruitListMsg(@Received final FruitListMsg msg) {
 
 		// We reply with unmodifiable view of internal fruits set because we do not want actor state
 		// to be modified outside the actor. Modifying internal actor state (a fruits set in this
@@ -68,7 +68,7 @@ public class FruitRepositoryActor extends SimpleActor implements Utils {
 		reply(unmodifiableSet(fruits));
 	}
 
-	public void onFruitAddMsg(@Receives @Valid final FruitAddMsg msg) {
+	public void onFruitAddMsg(@Received @Valid final FruitAddMsg msg) {
 
 		final boolean updated = fruits.add(msg.getFruit());
 		final int size = fruits.size();

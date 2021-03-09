@@ -10,7 +10,7 @@ public class AutostartTesting {
 	@NamedActor("testactorstart")
 	public static class AutostartActor extends SimpleActor implements Utils {
 
-		public void onInteger(@Receives Integer i) {
+		public void onInteger(@Received Integer i) {
 			reply(i);
 		}
 	}

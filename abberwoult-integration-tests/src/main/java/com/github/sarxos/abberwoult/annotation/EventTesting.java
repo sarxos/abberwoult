@@ -44,15 +44,15 @@ public class EventTesting {
 			forward(i, ref);
 		}
 
-		public void onLong(@Receives @Event Long l) {
+		public void onLong(@Received @Event Long l) {
 			forward(l, ref);
 		}
 
-		public void onSomething(@Receives @Event Some s) {
+		public void onSomething(@Received @Event Some s) {
 			forward(s, ref);
 		}
 
-		public void onBook(@Receives @Valid @Event Book b) {
+		public void onBook(@Received @Valid @Event Book b) {
 			forward(b, ref);
 		}
 	}

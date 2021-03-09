@@ -9,8 +9,8 @@ import org.apache.commons.lang3.StringUtils;
 import com.github.sarxos.abberwoult.AskableActorRef;
 import com.github.sarxos.abberwoult.AskableActorSelection;
 import com.github.sarxos.abberwoult.annotation.Dispatcher;
-import com.github.sarxos.abberwoult.annotation.NamedActor;
 import com.github.sarxos.abberwoult.annotation.Mailbox;
+import com.github.sarxos.abberwoult.annotation.NamedActor;
 
 import akka.actor.Actor;
 import akka.actor.ActorRef;
@@ -103,10 +103,10 @@ public class ActorUtils {
 	}
 
 	public static void dispose(final AskableActorRef ref) {
-		ref.tell(PoisonPill.getInstance(), ActorRef.noSender());
+		ref.tell(PoisonPill.getInstance());
 	}
 
 	public static void dispose(final AskableActorSelection sel) {
-		sel.tell(PoisonPill.getInstance(), ActorRef.noSender());
+		sel.tell(PoisonPill.getInstance());
 	}
 }

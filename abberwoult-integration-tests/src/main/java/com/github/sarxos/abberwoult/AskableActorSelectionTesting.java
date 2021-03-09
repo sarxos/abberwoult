@@ -1,7 +1,7 @@
 package com.github.sarxos.abberwoult;
 
 import com.github.sarxos.abberwoult.annotation.NamedActor;
-import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.annotation.Received;
 import com.github.sarxos.abberwoult.dsl.Disposers;
 import com.github.sarxos.abberwoult.dsl.Utils;
 
@@ -11,11 +11,11 @@ public class AskableActorSelectionTesting {
 	@NamedActor("askableselectiontest")
 	public static class AskableActorSelectionTestClass extends SimpleActor implements Utils, Disposers {
 
-		public void handleInteger(@Receives final Integer i) {
+		public void handleInteger(@Received final Integer i) {
 			replyAndDispose(i);
 		}
 
-		public void handleThrowable(@Receives final Throwable t) {
+		public void handleThrowable(@Received final Throwable t) {
 			replyAndDispose(t);
 		}
 

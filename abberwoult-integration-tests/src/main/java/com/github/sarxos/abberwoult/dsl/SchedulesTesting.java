@@ -6,7 +6,7 @@ import java.util.Map;
 
 import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.PreStart;
-import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.annotation.Received;
 import com.github.sarxos.abberwoult.testkit.TestKitProbe;
 
 import akka.actor.ActorRef;
@@ -31,7 +31,7 @@ public class SchedulesTesting {
 			scheduleOnce("bubu", new Tick(), Duration.ofMillis(10));
 		}
 
-		public void onTick(@Receives Tick tick) {
+		public void onTick(@Received Tick tick) {
 			forward(tick, probe);
 		}
 
@@ -56,7 +56,7 @@ public class SchedulesTesting {
 		}
 
 		@Override
-		public void onScheduleCancelMsgAck(@Receives ScheduleCancelMsg.Ack ack) {
+		public void onScheduleCancelMsgAck(@Received ScheduleCancelMsg.Ack ack) {
 			forward(ack, probe);
 		}
 
@@ -80,12 +80,12 @@ public class SchedulesTesting {
 			scheduleOnce("bubu", new Tick(), Duration.ofMillis(5));
 		}
 
-		public void onTick(@Receives Tick tick) {
+		public void onTick(@Received Tick tick) {
 			forward(tick, probe);
 		}
 
 		@Override
-		public void onScheduleRemoveMsg(@Receives ScheduleRemoveMsg msg) {
+		public void onScheduleRemoveMsg(@Received ScheduleRemoveMsg msg) {
 			Schedules.super.onScheduleRemoveMsg(msg);
 			forward(msg, probe);
 		}
@@ -104,7 +104,7 @@ public class SchedulesTesting {
 			this.probe = probe.getRef();
 		}
 
-		public void onTick(@Receives Tick tick) {
+		public void onTick(@Received Tick tick) {
 			forward(tick, probe);
 		}
 	}
@@ -143,7 +143,7 @@ public class SchedulesTesting {
 			schedule("bubu", new Tick(), Duration.ofMillis(10));
 		}
 
-		public void onTick(@Receives Tick tick) {
+		public void onTick(@Received Tick tick) {
 			forward(tick, probe);
 		}
 
@@ -167,7 +167,7 @@ public class SchedulesTesting {
 			schedule("bubu", new Tick(), Duration.ofMillis(10));
 		}
 
-		public void onTick(@Receives Tick tick) {
+		public void onTick(@Received Tick tick) {
 			forward(tick, probe);
 		}
 

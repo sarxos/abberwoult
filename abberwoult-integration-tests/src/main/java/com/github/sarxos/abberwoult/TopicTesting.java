@@ -5,7 +5,7 @@ import javax.inject.Inject;
 import com.github.sarxos.abberwoult.annotation.Assisted;
 import com.github.sarxos.abberwoult.annotation.NamedActor;
 import com.github.sarxos.abberwoult.annotation.PreStart;
-import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.annotation.Received;
 import com.github.sarxos.abberwoult.dsl.PubSubs;
 import com.github.sarxos.abberwoult.dsl.Utils;
 import com.github.sarxos.abberwoult.testkit.TestKitProbe;
@@ -32,12 +32,12 @@ public class TopicTesting {
 			subscribe(topic);
 		}
 
-		public void onIntegerReceived(@Receives Integer i) {
+		public void onIntegerReceived(@Received Integer i) {
 			forward(i, ref);
 		}
 
 		@Override
-		public void onSubscribeAck(@Receives SubscribeAck ack) {
+		public void onSubscribeAck(@Received SubscribeAck ack) {
 			forward(ack, ref);
 		}
 	}

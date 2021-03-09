@@ -4,7 +4,7 @@ import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 import com.github.sarxos.abberwoult.annotation.PreStart;
-import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.annotation.Received;
 
 import akka.actor.ActorContext;
 import akka.actor.ReceiveTimeout;
@@ -113,7 +113,7 @@ public interface Timeouts extends Disposers, ActorInternal {
 	 *
 	 * @param msg a {@link ReceiveTimeout} message
 	 */
-	default void onReceiveTimeout(@Receives final ReceiveTimeout timeout) {
+	default void onReceiveTimeout(@Received final ReceiveTimeout timeout) {
 		dispose();
 	}
 }

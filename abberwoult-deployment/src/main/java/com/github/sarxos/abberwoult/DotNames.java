@@ -20,7 +20,7 @@ import com.github.sarxos.abberwoult.annotation.Instrumented;
 import com.github.sarxos.abberwoult.annotation.NamedActor;
 import com.github.sarxos.abberwoult.annotation.PostStop;
 import com.github.sarxos.abberwoult.annotation.PreStart;
-import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.annotation.Received;
 import com.github.sarxos.abberwoult.annotation.ShardEntityId;
 import com.github.sarxos.abberwoult.annotation.ShardId;
 import com.github.sarxos.abberwoult.dsl.Universe;
@@ -37,7 +37,7 @@ public class DotNames {
 	public static final DotName SINGLETON_ANNOTATION = DotName.createSimple(Singleton.class.getName());
 	public static final DotName DEPENDENT_ANNOTATION = DotName.createSimple(Dependent.class.getName());
 	public static final DotName APPLICATION_SCOPED_ANNOTATION = DotName.createSimple(ApplicationScoped.class.getName());
-	public static final DotName RECEIVES_ANNOTATION = DotName.createSimple(Receives.class.getName());
+	public static final DotName RECEIVES_ANNOTATION = DotName.createSimple(Received.class.getName());
 	public static final DotName PRE_START_ANNOTATION = DotName.createSimple(PreStart.class.getName());
 	public static final DotName POST_STOP_ANNOTATION = DotName.createSimple(PostStop.class.getName());
 	public static final DotName INJECT_ANNOTATION = DotName.createSimple(Inject.class.getName());

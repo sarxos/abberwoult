@@ -6,7 +6,7 @@ import java.util.Deque;
 
 import com.github.sarxos.abberwoult.SimpleActor;
 import com.github.sarxos.abberwoult.annotation.PreStart;
-import com.github.sarxos.abberwoult.annotation.Receives;
+import com.github.sarxos.abberwoult.annotation.Received;
 import com.github.sarxos.abberwoult.testkit.TestKitProbe;
 
 import akka.actor.ActorRef;
@@ -52,7 +52,7 @@ public class BuffersTesting {
 			forward(messages, probe);
 		}
 
-		public void onMessage(@Receives final Object message) {
+		public void onMessage(@Received final Object message) {
 			forward(message, probe);
 		}
 	}
@@ -85,7 +85,7 @@ public class BuffersTesting {
 			forward(messages, probe);
 		}
 
-		public void onMessage(@Receives final Object message) {
+		public void onMessage(@Received final Object message) {
 			forward(message, probe);
 		}
 	}
@@ -122,7 +122,7 @@ public class BuffersTesting {
 			forward(messages, probe);
 		}
 
-		public void onMessage(@Receives final Object message) {
+		public void onMessage(@Received final Object message) {
 			forward(message, probe);
 		}
 	}
@@ -179,7 +179,7 @@ public class BuffersTesting {
 			forward(messages, probe);
 		}
 
-		public void onMessage(@Receives final Object message) {
+		public void onMessage(@Received final Object message) {
 			forward(message, probe);
 		}
 	}
@@ -203,7 +203,7 @@ public class BuffersTesting {
 			forward(i, probe);
 		}
 
-		public void onMessage(@Receives final Object message) {
+		public void onMessage(@Received final Object message) {
 			forward(message, probe);
 		}
 	}
